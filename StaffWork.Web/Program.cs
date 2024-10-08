@@ -3,6 +3,7 @@ using StaffWork.Core;
 using StaffWork.Core.Data;
 using StaffWork.Core.Models;
 using StaffWork.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace StaffWork.Web
 {

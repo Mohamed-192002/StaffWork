@@ -1,0 +1,94 @@
+﻿@model UserFormViewModel
+
+<form asp-action="@(!string.IsNullOrEmpty(Model?.Id) ? "Edit" : "Create")"
+      data-ajax-method="post"
+      data-ajax="true"
+      data-ajax-begin="onModalBegin"
+      data-ajax-success="onModalSuccess"
+      data-ajax-failure="showErrorMessage"
+      data-ajax-complete="onModalComplete">
+    @if (!string.IsNullOrEmpty(Model?.Id))
+    {
+        <input type="hidden" asp-for="Id" />
+    }
+    <div class="row mb-6">
+        <!--begin::Label-->
+        <label class="col-lg-4 col-form-label required fw-semibold fs-4" asp-for="UserName"></label>
+        <!--end::Label-->
+        <!--begin::Col-->
+        <div class="col-lg-12">
+            <!--begin::Row-->
+            <div class="row">
+                <!--begin::Col-->
+                <div class="col-lg-12 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
+                    <input type="text" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 fs-4" asp-for="UserName">
+                    <span asp-validation-for="UserName" class="fv-plugins-message-container invalid-feedback fs-6"></span>
+                </div>
+                <!--end::Col-->
+            </div>
+            <!--end::Row-->
+        </div>
+        <!--end::Col-->
+    </div>
+    <div class="row mb-6">
+        <!--begin::Label-->
+        <label class="col-lg-4 col-form-label required fw-semibold fs-4" asp-for="Password"></label>
+        <!--end::Label-->
+        <!--begin::Col-->
+        <div class="col-lg-12">
+            <!--begin::Row-->
+            <div class="row">
+                <!--begin::Col-->
+                <div class="col-lg-12 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
+                    <input type="text" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 fs-4" asp-for="Password">
+                    <span asp-validation-for="Password" class="fv-plugins-message-container invalid-feedback fs-6"></span>
+                </div>
+                <!--end::Col-->
+            </div>
+            <!--end::Row-->
+        </div>
+        <!--end::Col-->
+    </div>
+    <div class="row mb-6">
+        <!--begin::Label-->
+        <label class="col-lg-4 col-form-label required fw-semibold fs-4" asp-for="FullName"></label>
+        <!--end::Label-->
+        <!--begin::Col-->
+        <div class="col-lg-12">
+            <!--begin::Row-->
+            <div class="row">
+                <!--begin::Col-->
+                <div class="col-lg-12 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
+                    <input type="text" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 fs-4" asp-for="FullName">
+                    <span asp-validation-for="FullName" class="fv-plugins-message-container invalid-feedback fs-6"></span>
+                </div>
+                <!--end::Col-->
+            </div>
+            <!--end::Row-->
+        </div>
+        <!--end::Col-->
+    </div>
+    <div class="row mb-6">
+        <!--begin::Label-->
+        <label class="mb-5 col-lg-4 col-form-label required fw-semibold fs-5">القسم</label>
+        <!--end::Label-->
+        <!--begin::Col-->
+        <div class="col-lg-8">
+            <!--begin::Row-->
+            <div class="row">
+                <!--begin::Col-->
+                <div class="fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
+                    <select aria-label="Select a Country" data-control="select2" data-placeholder="اختار القسم..." class="form-select form-select-solid form-select-lg fw-semibold"
+                            asp-for="DepartmentId" asp-items="@Model.Departments">
+                        <option value="">اختار القسم...</option>
+                    </select>
+                    <span asp-validation-for="DepartmentId" class="text-danger d-block"></span>
+                </div>
+                <!--end::Col-->
+            </div>
+            <!--end::Row-->
+        </div>
+        <!--end::Col-->
+    </div>
+    <partial Name="_ModalFooter" />
+</form>

@@ -1,0 +1,101 @@
+﻿@page
+@model LoginModel
+
+@{
+	ViewData["Title"] = "تسجيل الدخول";
+}
+
+<div class="d-flex flex-column flex-root">
+	<!--begin::Page bg image-->
+	<style>
+		body {
+			background-image: url('/assets/images/bg10.jpeg');
+		}
+
+		[data-theme="dark"] body {
+			background-image: url('/assets/images/bg10-dark.jpeg');
+		}
+	</style>
+	<!--end::Page bg image-->
+	<!--begin::Authentication - Sign-in -->
+	<div class="d-flex flex-column flex-lg-row flex-column-fluid">
+		<!--begin::Body-->
+		<div class="d-flex flex-column-fluid flex-lg-row-auto justify-content-center justify-content-lg-end p-12">
+			<!--begin::Wrapper-->
+			<div class="bg-body d-flex flex-center rounded-4 w-md-600px p-10">
+				<!--begin::Content-->
+				<div class="w-md-400px">
+					<!--begin::Form-->
+					<form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" method="post">
+						<!--begin::Heading-->
+						<div class="text-center mb-11">
+
+							@* <img src="" class="w-200px" /> *@
+							<img src="~/assets/images/lotus.webp" class="w-200px" />
+							<!--begin::Title-->
+							<h1 class="text-dark fw-bolder mb-3">تسجيل الدخول</h1>
+							<!--end::Title-->
+						</div>
+						<!--begin::Heading-->
+						<!--begin::Input group=-->
+						<div class="fv-row mb-11">
+							<!--begin::Email-->
+							<input type="text" placeholder="اسم المستخدم" asp-for="Input.UserName" autocomplete="off" class="form-control bg-transparent" />
+							<span asp-validation-for="Input.UserName" class="text-danger"></span>
+							<!--end::Email-->
+						</div>
+						<!--end::Input group=-->
+						<div class="fv-row mb-11">
+							<!--begin::Password-->
+							<input type="password" placeholder="كلمه المرور" asp-for="Input.Password" autocomplete="off" class="form-control bg-transparent" />
+							<span asp-validation-for="Input.Password" class="text-danger"></span>
+							<!--end::Password-->
+						</div>
+						@* <div asp-validation-summary="ModelOnly" class="text-danger">يوجد خطأ فى البيانات</div> *@
+						<!--end::Input group=-->
+						<!--begin::Submit button-->
+						<div class="d-grid mb-10">
+							<button type="submit" id="kt_sign_in_submit" class="btn btn-primary">
+								<!--begin::Indicator label-->
+								<span class="indicator-label">تسجيل الدخول</span>
+								<!--end::Indicator label-->
+								<!--begin::Indicator progress-->
+								<span class="indicator-progress">
+									برجاء الانتظار...
+									<span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+								</span>
+								<!--end::Indicator progress-->
+							</button>
+						</div>
+						<!--end::Submit button-->
+					</form>
+					<!--end::Form-->
+				</div>
+				<!--end::Content-->
+			</div>
+			<!--end::Wrapper-->
+		</div>
+		<!--end::Body-->
+		<!--begin::Aside-->
+		<div class="d-flex flex-lg-row-fluid">
+			<!--begin::Content-->
+			<div class="d-flex flex-column flex-center pb-0 pb-lg-10 p-10 w-100">
+				<!--begin::Image-->
+				<img class="theme-light-show mx-auto mw-100 w-150px w-lg-500px mb-10" src="~/assets/images/login.svg" alt="" />
+				<img class="theme-dark-show mx-auto mw-100 w-150px w-lg-500px mb-10" src="~/assets/images/login.svg" alt="" />
+				<!--end::Image-->
+				<!--begin::Title-->
+				<!--end::Title-->
+			</div>
+			<!--end::Content-->
+		</div>
+		<!--begin::Aside-->
+	</div>
+	<!--end::Authentication - Sign-in-->
+</div>
+
+
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}

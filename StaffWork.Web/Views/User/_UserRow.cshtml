@@ -1,0 +1,30 @@
+﻿@model UserViewModel
+<tr>
+    <td>@Model.UserName</td>
+    <td style="text-align:center">@Model.Password</td>
+    <td style="text-align:center">@Model.FullName</td>
+    <td style="text-align:center">@Model.Department</td>
+    <td style="text-align:center">
+        <span class="fs-4 badge badge-light-@(!Model.IsActive ? "danger" : "success") js-status">
+            @(!Model.IsActive ? "غير متاح" : "متاح")
+        </span>
+    </td>
+    <td style="text-align:end">
+        <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary js-render-modal"
+           data-title="تعديل المستخدم" data-url="/User/Edit/@Model.Id" data-update="true">
+            تعديل المستخدم
+        </a>
+    </td>
+    <td style="text-align:end">
+        <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning js-toggle-status"
+           data-title="تغير الحاله" data-url="/User/ToggleStatus/@Model.Id" data-update="true" data-message="هل متأكد من تغير حاله هذا المستخدم؟">
+            تغير الحاله
+        </a>
+    </td>
+    <td style="text-align:end">
+        <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger js-confirm"
+           data-title="حذف المستخدم" data-url="/User/Delete/@Model.Id" data-update="true" data-message="هل متأكد من حذف هذا المستخدم؟">
+            حذف المستخدم
+        </a>
+    </td>
+</tr>

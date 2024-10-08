@@ -7,6 +7,7 @@ namespace StaffWork.Core.Data
     public class ApplicationDbContext : IdentityDbContext<User>
     {
         public DbSet<Department> Departments { get; set; }
+        public DbSet<WorkType> WorkTypes { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

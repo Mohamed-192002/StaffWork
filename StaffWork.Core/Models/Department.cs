@@ -6,6 +6,6 @@ namespace StaffWork.Core.Models
 	{
 		public virtual string Name { get; set; }
 
-	//	public virtual ICollection<User> Employees { get; set; } = [];
+		public virtual ICollection<User> Users { get; set; } = [];
 	}
 }

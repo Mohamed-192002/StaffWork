@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StaffWork.Core.Models
 {
@@ -13,5 +14,9 @@ namespace StaffWork.Core.Models
         public virtual DateTime DateCreated { get; set; }
         public virtual DateTime? DateModified { get; set; }
         public virtual bool IsActive { get; set; }
+
+        public virtual int? DepartmentId { get; set; }
+        [ForeignKey(nameof(DepartmentId))]
+        public virtual Department? Department { get; set; }
     }
 }
