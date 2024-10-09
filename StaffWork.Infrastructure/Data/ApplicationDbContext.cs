@@ -8,6 +8,7 @@ namespace StaffWork.Core.Data
     {
         public DbSet<Department> Departments { get; set; }
         public DbSet<WorkType> WorkTypes { get; set; }
+        public DbSet<WorkDaily> WorkDailies { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

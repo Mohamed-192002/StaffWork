@@ -1,0 +1,172 @@
+﻿@model Tuple<User, IList<WorkDaily>, IEnumerable<SelectListItem>>
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+
+@{
+    ViewData["Title"] = "العمل اليومى";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+        <div class="card-title col-12">
+            <div class="d-flex col-6">
+                <div class="row">
+                    <!--begin::Label-->
+                    <label class="mb-5 col-lg-4 col-form-label fw-semibold fs-6" asp-for="Item1.FullName">اسم الموظف</label>
+                    <!--end::Label-->
+                    <!--begin::Col-->
+                    <div class="col-lg-8">
+                        <!--begin::Row-->
+                        <div class="row">
+                            <!--begin::Col-->
+                            <div class="col-lg-12 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
+                                <input type="text" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0" disabled placeholder="اسم الموظف" asp-for="Item1.FullName">
+                                <span asp-validation-for="Item1.FullName" class="fv-plugins-message-container invalid-feedback"></span>
+                            </div>
+                            <!--end::Col-->
+                        </div>
+                        <!--end::Row-->
+                    </div>
+                    <!--end::Col-->
+                </div>
+
+
+            </div>
+            <div class="d-flex col-6">
+                <div class="row">
+                    <!--begin::Label-->
+                    <label class="mb-5 col-lg-4 col-form-label fw-semibold fs-6" asp-for="Item1.Department.Name">القسم</label>
+                    <!--end::Label-->
+                    <!--begin::Col-->
+                    <div class="col-lg-8">
+                        <!--begin::Row-->
+                        <div class="row">
+                            <!--begin::Col-->
+                            <div class="col-lg-12 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
+                                <input type="text" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0" disabled placeholder="القسم" asp-for="Item1.Department.Name">
+                                <span asp-validation-for="Item1.Department.Name" class="fv-plugins-message-container invalid-feedback"></span>
+                            </div>
+                            <!--end::Col-->
+                        </div>
+                        <!--end::Row-->
+                    </div>
+                    <!--end::Col-->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body pt-0">
+        <div class="table-responsive">
+            <form asp-action="SaveWorkDaily" method="post" id="FormWorkDaily">
+                <div class="row col-12 mt-5">
+                    @if (Model.Item2 != null && Model.Item2.Any())
+                    {
+                        for (int i = 0; i < Model.Item2.Count; i++)
+                        {
+                            var workDaily = Model.Item2[i];
+
+                            <div class="d-flex col-6">
+                                <div class="row">
+                                    <!-- Label -->
+                                    <label class="mb-5 col-lg-4 col-form-label fw-semibold fs-6" asp-for="@Model.Item2[i].Note">ملاحظات</label>
+                                    <!-- Input -->
+                                    <div class="col-lg-8">
+                                        <textarea type="text" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0"
+                                                  placeholder="ملاحظات" asp-for="@Model.Item2[i].Note"></textarea>
+                                        <span asp-validation-for="@Model.Item2[i].Note" class="invalid-feedback"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row col-6">
+                                <!-- Label -->
+                                <label class="mb-5 col-lg-4 col-form-label required fw-semibold fs-5">العمل</label>
+                                <!-- Select for WorkType -->
+                                <div class="col-lg-8">
+                                    <select class="form-select form-select-solid form-select-lg fw-semibold"
+                                            asp-for="@Model.Item2[i].WorkTypeId" asp-items="@Model.Item3">
+                                        <option value="">اختار العمل...</option>
+                                    </select>
+                                    <span asp-validation-for="@Model.Item2[i].WorkTypeId" class="text-danger d-block"></span>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <button type="button" class="btn btn-danger" id="addWorkDaily">حذف</button>
+                            </div>
+                        }
+                    }
+
+                    <!-- New WorkDaily Section -->
+                    <div class="row" id="newWorkDailyContainer"></div>
+
+                    <!-- Button to Add New WorkDaily -->
+                    <div class="row">
+                        <div class="mt-4">
+                            <button type="button" class="btn btn-info" id="addWorkDaily">إضافة يومية عمل جديدة</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+
+        </div>
+    </div>
+</div>
+<div class="d-flex align-content-center justify-content-center">
+    <button type="submit" class="btn btn-primary mt-5" form="FormWorkDaily">
+        <i class="bi bi-plus-square-dotted"></i>
+        حفظ
+    </button>
+    <a asp-controller="WorkDaily" asp-action="IndexDate" class="btn btn-danger mt-5 me-5">
+        <i class="bi bi-x-square"></i>
+        الغاء
+    </a>
+
+</div>
+<input type="hidden" name="__RequestVerificationToken" value="@antiforgery.GetAndStoreTokens(Context).RequestToken" />
+
+
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        var workDailyIndex = @Model.Item2.Count;
+        // Function to add a new WorkDaily input
+        document.getElementById('addWorkDaily').addEventListener('click', function () {
+            var container = document.getElementById('newWorkDailyContainer');
+            var newWorkDailyHtml = `
+                                        <div class="d-flex col-6">
+                                            <div class="row col-12">
+                                                <label class="mb-5 col-lg-2 col-form-label fw-semibold fs-6">ملاحظات</label>
+                                                <div class="col-lg-10">
+                                                            <textarea type="text" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0"
+                                                                   name="Item2[` + workDailyIndex + `].Note" placeholder="ملاحظات جديدة"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row col-4">
+                                            <label class="mb-5 col-lg-4 col-form-label required fw-semibold fs-5">العمل</label>
+                                            <div class="col-lg-8">
+                                                <select class="form-select form-select-solid form-select-lg fw-semibold"
+                                                        name="Item2[` + workDailyIndex + `].WorkTypeId">
+                                                    <option value="">اختار العمل...</option>
+        @foreach (var workType in Model.Item3)
+        {
+                                                                    <option value="@workType.Value">@workType.Text</option>
+        }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row col-1 me-2">
+                                            <button type="button" class="btn btn-sm btn-danger" id="addWorkDaily">حذف</button>
+                                        </div>
+                                    `;
+            container.insertAdjacentHTML('beforeend', newWorkDailyHtml);
+            workDailyIndex++;
+        });
+    </script>
+}
+
+

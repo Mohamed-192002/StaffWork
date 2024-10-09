@@ -16,7 +16,7 @@ namespace StaffWork.Infrastructure
             services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
             services.AddScoped<IServicesBase<Department>, DepartmentService>();
             services.AddScoped<IServicesBase<WorkType>, WorkTypeService>();
-            //services.AddScoped<IServicesBase<Attendance>, AttendanceService>();
+            services.AddScoped<IServicesBase<WorkDaily>, WorkDailyService>();
             services.AddScoped<IServicesBase<User>, UserService>();
 
             return services;

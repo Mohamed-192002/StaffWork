@@ -18,5 +18,7 @@ namespace StaffWork.Core.Models
         public virtual int? DepartmentId { get; set; }
         [ForeignKey(nameof(DepartmentId))]
         public virtual Department? Department { get; set; }
+        public virtual ICollection<WorkDaily> WorkDailies { get; set; } = [];
+
     }
 }

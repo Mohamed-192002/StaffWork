@@ -2,100 +2,90 @@
 @model LoginModel
 
 @{
-	ViewData["Title"] = "تسجيل الدخول";
+    Layout = null;
+    ViewData["Title"] = "تسجيل الدخول";
 }
 
-<div class="d-flex flex-column flex-root">
-	<!--begin::Page bg image-->
-	<style>
-		body {
-			background-image: url('/assets/images/bg10.jpeg');
-		}
+<!DOCTYPE html>
 
-		[data-theme="dark"] body {
-			background-image: url('/assets/images/bg10-dark.jpeg');
-		}
-	</style>
-	<!--end::Page bg image-->
-	<!--begin::Authentication - Sign-in -->
-	<div class="d-flex flex-column flex-lg-row flex-column-fluid">
-		<!--begin::Body-->
-		<div class="d-flex flex-column-fluid flex-lg-row-auto justify-content-center justify-content-lg-end p-12">
-			<!--begin::Wrapper-->
-			<div class="bg-body d-flex flex-center rounded-4 w-md-600px p-10">
-				<!--begin::Content-->
-				<div class="w-md-400px">
-					<!--begin::Form-->
-					<form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" method="post">
-						<!--begin::Heading-->
-						<div class="text-center mb-11">
+<html>
 
-							@* <img src="" class="w-200px" /> *@
-							<img src="~/assets/images/lotus.webp" class="w-200px" />
-							<!--begin::Title-->
-							<h1 class="text-dark fw-bolder mb-3">تسجيل الدخول</h1>
-							<!--end::Title-->
-						</div>
-						<!--begin::Heading-->
-						<!--begin::Input group=-->
-						<div class="fv-row mb-11">
-							<!--begin::Email-->
-							<input type="text" placeholder="اسم المستخدم" asp-for="Input.UserName" autocomplete="off" class="form-control bg-transparent" />
-							<span asp-validation-for="Input.UserName" class="text-danger"></span>
-							<!--end::Email-->
-						</div>
-						<!--end::Input group=-->
-						<div class="fv-row mb-11">
-							<!--begin::Password-->
-							<input type="password" placeholder="كلمه المرور" asp-for="Input.Password" autocomplete="off" class="form-control bg-transparent" />
-							<span asp-validation-for="Input.Password" class="text-danger"></span>
-							<!--end::Password-->
-						</div>
-						@* <div asp-validation-summary="ModelOnly" class="text-danger">يوجد خطأ فى البيانات</div> *@
-						<!--end::Input group=-->
-						<!--begin::Submit button-->
-						<div class="d-grid mb-10">
-							<button type="submit" id="kt_sign_in_submit" class="btn btn-primary">
-								<!--begin::Indicator label-->
-								<span class="indicator-label">تسجيل الدخول</span>
-								<!--end::Indicator label-->
-								<!--begin::Indicator progress-->
-								<span class="indicator-progress">
-									برجاء الانتظار...
-									<span class="spinner-border spinner-border-sm align-middle ms-2"></span>
-								</span>
-								<!--end::Indicator progress-->
-							</button>
-						</div>
-						<!--end::Submit button-->
-					</form>
-					<!--end::Form-->
-				</div>
-				<!--end::Content-->
-			</div>
-			<!--end::Wrapper-->
-		</div>
-		<!--end::Body-->
-		<!--begin::Aside-->
-		<div class="d-flex flex-lg-row-fluid">
-			<!--begin::Content-->
-			<div class="d-flex flex-column flex-center pb-0 pb-lg-10 p-10 w-100">
-				<!--begin::Image-->
-				<img class="theme-light-show mx-auto mw-100 w-150px w-lg-500px mb-10" src="~/assets/images/login.svg" alt="" />
-				<img class="theme-dark-show mx-auto mw-100 w-150px w-lg-500px mb-10" src="~/assets/images/login.svg" alt="" />
-				<!--end::Image-->
-				<!--begin::Title-->
-				<!--end::Title-->
-			</div>
-			<!--end::Content-->
-		</div>
-		<!--begin::Aside-->
-	</div>
-	<!--end::Authentication - Sign-in-->
-</div>
+<head>
+    <title>قسم الارشفة و التدقيق الالكتروني</title>
+    <link href="~/css/style.css" rel="stylesheet" />
+    <link href="~/css/style - login.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <div class="container">
+        <div class="">
+            <div class="container">
+                <div class="col-md-4 col-xs-12 hidden-sm hidden-xs">
+                    <div class="wrapper hidden-mobile">
+                        <div class="images-wrapper">
+                            <img class="notification" src="~/img/5.webp">
+                            <img class="chart" src="~/img/7.webp">
+                            <img class="calender" src="~/img/8.webp">
+                            <img class="chart-two" src="~/img/6.webp">
+                            <img class="task-one" src="~/img/4.webp">
+                            <img class="task-two" src="~/img/2.webp">
+                            <img class="task-three" src="~/img/3.webp">
+                            <img src="~/img/background.png">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 formmar">
+                    <div class="login-content">
+                        <div class="anim">
+                            <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" method="post">
+                                <img src="~/img/sjc.jpg" class="animated-border" />
+                                <h3 style="font-size:185%;padding-bottom:10px" class="title">
+                                    مرحبا بكم في نظام </br>ادارة قسم الارشفة و التدقيق
+                                    الالكتروني
+                                </h3>
+                                <div class="input-div one">
+                                    <div class="i">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="div">
+                                        <h5>اسم المستخدم</h5>
+                                        <input type="text" name="UserName" class="form-control input" autocomplete="username"
+                                               aria-required="true">
+                                    </div>
+                                </div>
+                                <div class="input-div pass">
+                                    <div class="i">
+                                        <i class="fas fa-lock"></i>
+                                    </div>
+                                    <div class="div">
+                                        <h5>كلمه المرور</h5>
+                                        <input type="password" name="Password" class="form-control input"
+                                               autocomplete="current-password" aria-required="true" />
+                                    </div>
+                                </div>
+                                <div class="login-box">
+                                    <button type="submit">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        تسجيل الدخول
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
+    </div>
+    <script src="~/js/main.js"></script>
 
-@section Scripts {
-	<partial name="_ValidationScriptsPartial" />
-}
+
+</body>
+
+</html>
+

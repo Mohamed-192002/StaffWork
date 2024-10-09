@@ -5,7 +5,7 @@ using StaffWork.Core.Interfaces;
 
 namespace StaffWork.Api.Controllers
 {
-  //  [Authorize]
+    [Authorize]
 	public class ApiBaseController<Model> : Controller where Model : class
 	{
 		public readonly IServicesBase<Model> BussinesService;

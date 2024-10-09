@@ -29,6 +29,8 @@
 	</div>
 	<!--end:: page loader-->
 	<!--begin::Main-->
+	@if (SignInManager.IsSignedIn(User))
+	{
 		<!--begin::Root-->
 		<div class="d-flex flex-column flex-root">
 			<!--begin::Page-->
@@ -53,7 +55,13 @@
 			<!--end::Page-->
 		</div>
 		<!--end::Root-->
-	
+	}
+	else
+	{
+		@RenderBody()
+	}
+
+
 	<!--end::Main-->
 	<!--begin::Scrolltop-->
 	<div id="kt_scrolltop" class="scrolltop" data-kt-scrolltop="true">

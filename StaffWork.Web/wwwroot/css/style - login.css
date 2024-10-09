@@ -1,0 +1,24 @@
+/* ///////////////////////////// */
+.animated-border {
+    border-radius: 50%;
+    display: block;
+    margin: 0 auto;
+    width: 200px;
+    height: 200px;
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+    animation: glowing 1.5s infinite;
+}
+
+@keyframes glowing {
+    0% {
+        box-shadow: 0 0 5px rgba(0, 242, 255, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(0, 242, 255, 1);
+    }
+
+    100% {
+        box-shadow: 0 0 5px rgba(0, 242, 255, 0.5);
+    }
+}
