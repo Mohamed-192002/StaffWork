@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OfficeOpenXml;
 using StaffWork.Api.Controllers;
+using StaffWork.Core.Consts;
 using StaffWork.Core.Interfaces;
 using StaffWork.Core.Models;
 using StaffWork.Core.Paramaters;
@@ -43,6 +44,7 @@ namespace StaffWork.Web.Controllers
             }
 
             var user = await UserService.GetAsync(u => u.Id == userId, new[] { "WorkDailies", "Department" });
+
             var workDailies = user.WorkDailies.ToList();
 
             var workTypes = _mapper.Map<IEnumerable<SelectListItem>>(await WorkTypesService.GetAllAsync());
@@ -150,9 +152,9 @@ namespace StaffWork.Web.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
-            {
                 return Unauthorized();
-            }
+            var user = await UserService.GetAsync(x => x.Id == userId, ["Department"]);
+
             //   var skip = int.Parse(Request.Form["start"]!);
             //    var pageSize = int.Parse(Request.Form["length"]!);
             var searchValue = Request.Form["search[value]"];
@@ -161,7 +163,15 @@ namespace StaffWork.Web.Controllers
             var sortColumnDirection = Request.Form["order[0][dir]"];
 
             IQueryable<WorkDaily> WorkDailyQuery;
-            WorkDailyQuery = (IQueryable<WorkDaily>)await BussinesService.GetAllAsync(w => w.UserId == userId, ["User", "User.Department", "WorkType"]);
+
+            if (User.IsInRole(AppRoles.SuperAdmin))
+                WorkDailyQuery = (IQueryable<WorkDaily>)await BussinesService.GetAllAsync(null!, ["User", "User.Department", "WorkType"]);
+            else if (User.IsInRole(AppRoles.Admin))
+                WorkDailyQuery = (IQueryable<WorkDaily>)await BussinesService.GetAllAsync(w => w.User!.DepartmentId == user.DepartmentId, ["User", "User.Department", "WorkType"]);
+
+            else
+                WorkDailyQuery = (IQueryable<WorkDaily>)await BussinesService.GetAllAsync(w => w.UserId == userId, ["User", "User.Department", "WorkType"]);
+
 
             if (!string.IsNullOrEmpty(searchValue))
             {
@@ -212,7 +222,6 @@ namespace StaffWork.Web.Controllers
 
             return Ok(jsonData);
         }
-
         public async Task<IActionResult> ExportToExcelAsync(DateTime? fromDate, DateTime? toDate, string searchValue, string sortColumn, string sortColumnDirection)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -299,7 +308,6 @@ namespace StaffWork.Web.Controllers
                 return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
             }
         }
-
         private async Task<WorkDailyEditFormViewModel> PopulateViewModelAsync(WorkDailyEditFormViewModel? model = null)
         {
             WorkDailyEditFormViewModel viewModel = model is null ? new WorkDailyEditFormViewModel() : model;

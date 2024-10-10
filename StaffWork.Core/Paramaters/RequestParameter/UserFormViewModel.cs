@@ -23,5 +23,12 @@ namespace StaffWork.Core.Paramaters
         [Display(Name = "القسم")]
         public int DepartmentId { get; set; }
         public IEnumerable<SelectListItem>? Departments { get; set; }
+
+
+        [Display(Name = "الرتبه")]
+        [Required(ErrorMessage = "الحقل مطلوب")]
+        public string SelectedRole { get; set; }
+
+        public IEnumerable<SelectListItem>? Roles { get; set; }
     }
 }

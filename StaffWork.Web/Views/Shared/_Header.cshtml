@@ -10,7 +10,7 @@
                     <div class="left"></div>
                     <div class="right"></div>
                 </div>
-                @if (User.IsInRole(AppRoles.SuperAdmin))
+                @if (User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin))
                 {
                     <li class="nav-item" active-when="User">
                         <a class="nav-link" asp-controller="User" asp-action="Index">المستخدمين</a>
@@ -18,13 +18,13 @@
                 }
                 <li class="nav-item" active-when="Department">
                     <a class="nav-link" asp-controller="Department" asp-action="Index">الاقسام</a>
-                </li>                         
+                </li>
                 <li class="nav-item" active-when="WorkType">
                     <a class="nav-link" asp-controller="WorkType" asp-action="Index">الاعمال</a>
-                </li>                         
+                </li>
                 <li class="nav-item" active-when="WorkDaily">
                     <a class="nav-link" asp-controller="WorkDaily" asp-action="IndexDate">الاعمال اليوميه</a>
-                </li>                         
+                </li>
             </ul>
         </div>
 

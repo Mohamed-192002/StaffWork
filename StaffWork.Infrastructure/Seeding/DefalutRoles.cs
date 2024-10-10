@@ -11,6 +11,7 @@ namespace StaffWork.Infrastructure.Seeding
             {
                 await roleManager.CreateAsync(new IdentityRole(AppRoles.SuperAdmin));
                 await roleManager.CreateAsync(new IdentityRole(AppRoles.Employee));
+                await roleManager.CreateAsync(new IdentityRole(AppRoles.Admin));
             }
         }
     }

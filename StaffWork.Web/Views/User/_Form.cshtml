@@ -83,6 +83,24 @@
                     </div>
                     <!--end::Col-->
                 </div>
+                <div class="row col-6">
+                    <!--begin::Label-->
+                    <label class="col-lg-4 col-form-label required fw-semibold fs-6" asp-for="SelectedRole">الصلاحيه</label>
+                    <!--end::Label-->
+                    <!--begin::Col-->
+                    <div class="col-lg-8">
+                        <!--begin::Row-->
+                        <div class="row mb-6">
+                            <div class="mb-2">
+                                <select class="form-select form-select-solid js-select2" data-placeholder="اختار الصلاحيه" asp-for="SelectedRole" asp-items="@Model.Roles">
+                                </select>
+                            </div>
+                            <span asp-validation-for="SelectedRole" class="text-danger d-block"></span>
+                        </div>
+                        <!--end::Row-->
+                    </div>
+                    <!--end::Col-->
+                </div>
             </div>
             <!--end::Content-->
         </div>

@@ -10,6 +10,7 @@ using StaffWork.Core.Interfaces;
 using StaffWork.Core.Models;
 using StaffWork.Core.Paramaters;
 using StaffWork.Infrastructure.Filters;
+using System.Security.Claims;
 
 namespace StaffWork.Web.Controllers
 {
@@ -26,13 +27,16 @@ namespace StaffWork.Web.Controllers
             _roleManager = roleManager;
             DeptService = deptService;
         }
-
+        private string GetAuthenticatedUser()
+        {
+            var userUidClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            return userUidClaim?.Value!;
+        }
         public async Task<IActionResult> Index()
         {
-            var viewModel = _mapper.Map<IEnumerable<UserViewModel>>(await BussinesService.GetAllAsync(null, ["Department"]));
-
+            var viewModels = _mapper.Map<IEnumerable<UserViewModel>>(await BussinesService.GetAllAsync(null, ["Department"]));
             var model = new Tuple<IEnumerable<UserViewModel>, UserFormViewModel>(
-                            viewModel, await PopulateViewModelAsync());
+                            viewModels, await PopulateViewModelAsync());
 
             return View(model);
         }
@@ -49,16 +53,16 @@ namespace StaffWork.Web.Controllers
                 FullName = model.FullName,
                 UserName = model.UserName,
                 Password = model.Password!,
-                IsActive=true,
+                IsActive = true,
                 DateCreated = DateTime.Now,
-                DepartmentId=model.DepartmentId,
+                DepartmentId = model.DepartmentId,
             };
 
             var result = await _userManager.CreateAsync(user, model.Password!);
 
             if (result.Succeeded)
             {
-                await _userManager.AddToRoleAsync(user, AppRoles.Employee);
+                await _userManager.AddToRoleAsync(user, model.SelectedRole);
 
                 var viewModel = _mapper.Map<UserViewModel>(user);
                 return RedirectToAction("Index");
@@ -136,11 +140,31 @@ namespace StaffWork.Web.Controllers
 
         private async Task<UserFormViewModel> PopulateViewModelAsync(UserFormViewModel? model = null)
         {
+            var userId = GetAuthenticatedUser();
             UserFormViewModel viewModel = model is null ? new UserFormViewModel() : model;
 
-            var departments = await DeptService.GetAllAsync();
+            IEnumerable<Department> departments;
+            if (User.IsInRole(AppRoles.SuperAdmin))
+                departments = await DeptService.GetAllAsync();
+            else
+                departments = await DeptService.GetAllAsync(d => d.Users.Any(u => u.Id == userId));
 
             viewModel.Departments = _mapper.Map<IEnumerable<SelectListItem>>(departments);
+
+            List<IdentityRole> roles;
+            if (User.IsInRole(AppRoles.SuperAdmin))
+                roles = [.. _roleManager.Roles
+                  .Where(r => r.Name!=AppRoles.SuperAdmin)
+                   .OrderBy(a => a.Name)];
+            else
+                roles = [.. _roleManager.Roles
+                  .Where(r => r.Name!=AppRoles.SuperAdmin&&r.Name!=AppRoles.Admin)
+                  .OrderBy(a => a.Name)];
+            viewModel.Roles = roles.Select(r => new SelectListItem
+            {
+                Text = r.Name,
+                Value = r.Name
+            }).ToList();
 
             return viewModel;
         }
