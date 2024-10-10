@@ -7,6 +7,7 @@ using StaffWork.Api.Controllers;
 using StaffWork.Core.Interfaces;
 using StaffWork.Core.Models;
 using StaffWork.Core.Paramaters;
+using StaffWork.Infrastructure.Filters;
 using StaffWork.Infrastructure.Implementations;
 using System.Security.Claims;
 
@@ -29,15 +30,11 @@ namespace StaffWork.Web.Controllers
         }
         public async Task<IActionResult> IndexDateAsync()
         {
-            var model = await BussinesService.GetAllAsync(null!, ["User", "User.Department"]);
-            var viewModel = _mapper.Map<IEnumerable<WorkDailyViewModel>>(model);
+            var model = new DateViewModel();
 
-            var model1 = new Tuple<IEnumerable<WorkDailyViewModel>, DateViewModel>(
-                            viewModel, new DateViewModel());
-
-            return View(model1);
+            return View(model);
         }
-        public async Task<IActionResult> IndexAsync(DateViewModel date)
+        public async Task<IActionResult> IndexAsync(DateViewModel dateViewModel)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
@@ -50,36 +47,28 @@ namespace StaffWork.Web.Controllers
 
             var workTypes = _mapper.Map<IEnumerable<SelectListItem>>(await WorkTypesService.GetAllAsync());
 
+            // Create a new empty list of work dailies
+            var newWorkDailies = new List<WorkDaily>
+                {
+                    new WorkDaily(),
+                };
+
             // Populate the custom view model
             var model = new WorkDailyFormViewModel
             {
                 User = user,
-                WorkDailies = workDailies,
-                WorkTypes = workTypes,
-                Date = date // Pass the DateViewModel if necessary
+                WorkDailies = newWorkDailies, // Empty list of work dailies
+                WorkTypes = workTypes,        // Work type dropdown data
+                Date = dateViewModel                   // Current date
             };
 
             return View("Index", model);
-        }
-        public async Task<IActionResult> Delete(int id)
-        {
-            var WorkDaily = await BussinesService.GetAsync(d => d.Id == id);
-            if (WorkDaily == null)
-                return NotFound();
-            try
-            {
-                await BussinesService.DeleteAsync(id);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            return Ok();
         }
 
         [HttpPost]
         public async Task<IActionResult> SaveWorkDaily(WorkDailyFormViewModel model)
         {
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
@@ -97,27 +86,15 @@ namespace StaffWork.Web.Controllers
             {
                 foreach (var workDaily in model.WorkDailies)
                 {
-                    if (workDaily.Id > 0)
+                    // Add new WorkDaily
+                    user.WorkDailies.Add(new WorkDaily
                     {
-                        // Update existing WorkDaily
-                        var existingWorkDaily = user.WorkDailies.FirstOrDefault(w => w.Id == workDaily.Id);
-                        if (existingWorkDaily != null)
-                        {
-                            existingWorkDaily.Note = workDaily.Note;
-                            existingWorkDaily.WorkTypeId = workDaily.WorkTypeId;
-                        }
-                    }
-                    else
-                    {
-                        // Add new WorkDaily
-                        user.WorkDailies.Add(new WorkDaily
-                        {
-                            Note = workDaily.Note,
-                            WorkTypeId = workDaily.WorkTypeId,
-                            UserId = user.Id,
-                            Date = workDaily.Date,
-                        });
-                    }
+                        Note = workDaily.Note,
+                        WorkTypeId = workDaily.WorkTypeId,
+                        UserId = user.Id,
+                        Date = workDaily.Date,
+                    });
+
                 }
 
                 // Save changes to the database
@@ -126,7 +103,48 @@ namespace StaffWork.Web.Controllers
 
             return RedirectToAction("IndexDate");
         }
+        public async Task<IActionResult> Delete(int id)
+        {
+            var WorkDaily = await BussinesService.GetAsync(d => d.Id == id);
+            if (WorkDaily == null)
+                return NotFound();
+            try
+            {
+                await BussinesService.DeleteAsync(id);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return Ok();
+        }
+        [HttpGet]
+        [AjaxOnly]
+        public async Task<IActionResult> EditAsync(int id)
+        {
+            var WorkDaily = await BussinesService.GetAsync(d => d.Id == id);
+            if (WorkDaily == null)
+                return NotFound();
+            var model = _mapper.Map<WorkDailyEditFormViewModel>(WorkDaily);
+            var viewModel = await PopulateViewModelAsync(model);
 
+            return PartialView("_FormEdit", viewModel);
+        }
+        [HttpPost]
+        [AutoValidateAntiforgeryToken]
+        public async Task<IActionResult> EditAsync(WorkDailyEditFormViewModel viewModel)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+            var WorkDaily = await BussinesService.GetAsync(d => d.Id == viewModel.Id);
+            if (WorkDaily == null)
+                return NotFound();
+            _mapper.Map(viewModel, WorkDaily);
+
+            await BussinesService.UpdateAsync(WorkDaily.Id, WorkDaily);
+
+            return RedirectToAction("IndexDate");
+        }
         [HttpPost]
         public async Task<IActionResult> GetWorkDailys(DateTime? fromDate, DateTime? toDate)
         {
@@ -282,5 +300,15 @@ namespace StaffWork.Web.Controllers
             }
         }
 
+        private async Task<WorkDailyEditFormViewModel> PopulateViewModelAsync(WorkDailyEditFormViewModel? model = null)
+        {
+            WorkDailyEditFormViewModel viewModel = model is null ? new WorkDailyEditFormViewModel() : model;
+
+            var workTypes = await WorkTypesService.GetAllAsync();
+
+            viewModel.WorkTypes = _mapper.Map<IEnumerable<SelectListItem>>(workTypes);
+
+            return viewModel;
+        }
     }
 }

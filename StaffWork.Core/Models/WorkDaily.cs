@@ -5,7 +5,7 @@ namespace StaffWork.Core.Models
 {
     public class WorkDaily : BaseEntity
     {
-        public string Note { get; set; }
+        public string? Note { get; set; }
         public virtual DateTime Date { get; set; }
 
         public virtual int WorkTypeId { get; set; }

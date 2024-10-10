@@ -16,6 +16,7 @@ namespace StaffWork.Infrastructure
                .ForMember(dest => dest.WorkType, opt => opt.MapFrom(src => src.WorkType!.Name))
                 .ReverseMap();
             CreateMap<WorkDaily, WorkDailyFormViewModel>().ReverseMap();
+            CreateMap<WorkDaily, WorkDailyEditFormViewModel>().ReverseMap();
             CreateMap<WorkType, WorkTypeViewModel>().ReverseMap();
             CreateMap<WorkType, SelectListItem>()
               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))

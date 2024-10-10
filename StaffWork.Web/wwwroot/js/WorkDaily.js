@@ -10,8 +10,19 @@
         { "data": "fullName", "name": "FullName", "className": "text-center" },
         { "data": "deptName", "name": "DeptName", "className": "text-center" },
         { "data": "workType", "name": "WorkType", "className": "text-center" },
-        { "data": "note", "name": "Note", "className": "text-center" },
         {
+            "data": "note",
+            "name": "Note",
+            "className": "text-center",
+            "render": function (data, type, row, meta) {
+                if (data) {
+                    // Split the note into words and take the first 5 words
+                    var firstFiveWords = data.split(' ').slice(0, 5).join(' ');
+                    return firstFiveWords + (data.split(' ').length > 5 ? '...' : '');
+                }
+                return data; // return data as it is if it's empty or undefined
+            }
+        },        {
             "name": "Date",
             "className": "text-center",
             "render": function (data, type, row) {
@@ -60,6 +71,9 @@
         ajax: {
             url: tbody.data('url'),
             type: 'POST'
+        },
+        language: {
+            emptyTable: 'لا يوجد بيانات فى هذا البحث',
         },
         'drawCallback': function () {
             KTMenu.createInstances();

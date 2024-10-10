@@ -5,12 +5,6 @@
 @{
     ViewData["Title"] = "العمل اليومى";
 }
-<script type="text/javascript">
-    var workTypeOptions = `@foreach (var workType in Model.WorkTypes)
-    {
-                                       <option value="@workType.Value">@workType.Text</option>
-    }`;
-</script>
 
 <div class="card shadow-sm">
     <div class="card-header align-items-center py-5 gap-2 gap-md-5">
@@ -63,51 +57,14 @@
     </div>
     <div class="card-body pt-0">
         <div class="table-responsive">
-            <input type="hidden" name="@Model.Date" value="@Model.Date" />
             <form asp-action="SaveWorkDaily" method="post" id="FormWorkDaily">
-                <div class="row col-12 mt-5">
-                    <!-- Render existing WorkDailies -->
-                    @if (Model.WorkDailies != null && Model.WorkDailies.Any())
-                    {
-                        for (int i = 0; i < Model.WorkDailies.Count; i++)
-                        {
-                            var workDaily = Model.WorkDailies[i];
-
-                            <div class="d-flex col-6 work-daily-item" data-index="@i">
-                                <div class="row">
-                                    <label class="mb-5 col-lg-4 col-form-label fw-semibold fs-6" asp-for="@Model.WorkDailies[i].Note">ملاحظات</label>
-                                    <div class="col-lg-8">
-                                        <textarea class="form-control form-control-lg form-control-solid mb-3 mb-lg-0"
-                                                  asp-for="@Model.WorkDailies[i].Note" placeholder="ملاحظات"></textarea>
-                                        <span asp-validation-for="@Model.WorkDailies[i].Note" class="invalid-feedback"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row col-6">
-                                <label class="mb-5 col-lg-4 col-form-label required fw-semibold fs-5">العمل</label>
-                                <div class="col-lg-8">
-                                    <select class="form-select form-select-solid form-select-lg fw-semibold"
-                                            asp-for="@Model.WorkDailies[i].WorkTypeId" asp-items="@Model.WorkTypes">
-                                        <option value="">اختار العمل...</option>
-                                    </select>
-                                    <span asp-validation-for="@Model.WorkDailies[i].WorkTypeId" class="text-danger d-block"></span>
-                                </div>
-                            </div>
-                        }
-                    }
-
-                    <!-- New WorkDaily Section -->
-                    <div class="row" id="newWorkDailyContainer"></div>
-
-                    <!-- Button to Add New WorkDaily -->
-                    <div class="row mt-4">
-                        <button type="button" class="btn btn-info" id="addWorkDaily">إضافة يومية عمل جديدة</button>
-                    </div>
-                </div>
             </form>
-
-
+            <!-- Button to Add More WorkDaily Entries -->
+            <div class="row">
+                <div class="col-lg-12 m-5 text-end">
+                    <button type="button" class="btn btn-info" id="addMoreWorkDailies">إضافة عمل جديد</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -130,50 +87,63 @@
 {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        var workDailyIndex = @Model.WorkDailies.Count;
+        // Add more WorkDailies functionality
+        document.getElementById('addMoreWorkDailies').addEventListener('click', function () {
+            var form = document.getElementById('FormWorkDaily');
+            var formCount = document.querySelectorAll('textarea[name*="WorkDailies"]').length;
+            var date = '@Model.Date.Date';
 
-        // Function to add a new WorkDaily input
-        document.getElementById('addWorkDaily').addEventListener('click', function () {
-            var container = document.getElementById('newWorkDailyContainer');
-            var newWorkDailyHtml = `
-                                <div class="d-flex col-6 work-daily-item" data-index="` + workDailyIndex + `">
-                                    <div class="row col-12">
-                                        <label class="mb-5 col-lg-2 col-form-label fw-semibold fs-6">ملاحظات</label>
-                                        <div class="col-lg-10">
-                                            <textarea class="form-control form-control-lg form-control-solid mb-3 mb-lg-0"
-                                                      name="WorkDailies[` + workDailyIndex + `].Note" placeholder="ملاحظات جديدة"></textarea>
-                                        </div>
+            // Create a new form section with a unique ID
+            var newForm = `
+                            <div class="row mt-5 col-12" id="workDaily_${formCount}">
+                                <!-- Work Notes Section -->
+                                <div class="row mb-3 col-6">
+                                    <label class="col-lg-2 col-form-label fw-semibold fs-6">ملاحظات</label>
+                                    <div class="col-lg-10">
+                                        <textarea class="form-control form-control-lg form-control-solid mb-3 mb-lg-0"
+                                                  name="WorkDailies[${formCount}].Note" placeholder="ملاحظات"></textarea>
                                     </div>
                                 </div>
 
-                                <div class="row col-6">
-                                    <label class="mb-5 col-lg-4 col-form-label required fw-semibold fs-5">العمل</label>
-                                    <div class="col-lg-8">
-                                        <select class="form-select form-select-solid form-select-lg fw-semibold"
-                                                name="WorkDailies[` + workDailyIndex + `].WorkTypeId">
+                                <!-- Work Type Section -->
+                                <div class="row mb-3 col-4">
+                                    <label class="col-lg-2 col-form-label fw-semibold fs-6">العمل</label>
+                                    <div class="col-lg-10">
+                                        <select required class="form-select form-select-solid form-select-lg fw-semibold"
+                                                name="WorkDailies[${formCount}].WorkTypeId">
                                             <option value="">اختار العمل...</option>
-                                            ` + workTypeOptions + `
+        @foreach (var workType in Model.WorkTypes)
+        {
+                                                    <option value="@workType.Value">@workType.Text</option>
+        }
                                         </select>
                                     </div>
                                 </div>
 
-                                <!-- Button to delete the new WorkDaily -->
-                                <div class="mt-4">
-                                    <button type="button" class="btn btn-danger btn-delete-workdaily">حذف</button>
-                                </div>
-                            `;
-            container.insertAdjacentHTML('beforeend', newWorkDailyHtml);
-            workDailyIndex++;
-        });
+                                <!-- Hidden Date Field -->
+                                <input type="hidden" name="WorkDailies[${formCount}].Date" value="${date}" />
 
-        // Function to remove a WorkDaily input
-        document.addEventListener('click', function (event) {
-            if (event.target.classList.contains('btn-delete-workdaily')) {
-                var itemToRemove = event.target.closest('.work-daily-item');
-                itemToRemove.remove();
-            }
+                                <!-- Remove Button -->
+                                <div class="col-2">
+                                    <button type="button" class="btn btn-danger removeWorkDaily" data-id="${formCount}">حذف</button>
+                                </div>
+                            </div>`;
+
+            // Append new form section to the form
+            form.insertAdjacentHTML('beforeend', newForm);
+
+            // Attach event listener to the new Remove button to remove from UI
+            document.querySelector(`#workDaily_${formCount} .removeWorkDaily`).addEventListener('click', function () {
+                var id = this.getAttribute('data-id');
+                // Remove the corresponding WorkDaily section from the UI
+                document.getElementById(`workDaily_${id}`).remove();
+            });
         });
     </script>
+
+
+
 }
+
 
 

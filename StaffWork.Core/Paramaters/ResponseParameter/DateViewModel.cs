@@ -2,6 +2,6 @@
 {
     public class DateViewModel
     {
-        public DateTime Date { get; set; }=DateTime.Now;
+        public DateTime Date { get; set; } = DateTime.Now;
     }
 }
