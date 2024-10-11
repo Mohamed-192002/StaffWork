@@ -8,5 +8,9 @@
         public virtual string WorkType { get; set; }
         public virtual string FullName { get; set; }
         public virtual string DeptName { get; set; }
+        public virtual string Status { get; set; }
+        public virtual DateTime DateCreated { get; set; }
+
+        public virtual bool IsDisabled { get; set; }
     }
 }

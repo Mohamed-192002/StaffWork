@@ -1,4 +1,5 @@
-﻿using StaffWork.Core.Models.Base;
+﻿using StaffWork.Core.Consts;
+using StaffWork.Core.Models.Base;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StaffWork.Core.Models
@@ -15,5 +16,7 @@ namespace StaffWork.Core.Models
         public virtual string UserId { get; set; }
         [ForeignKey(nameof(UserId))]
         public virtual User? User { get; set; }
+
+        public virtual Status Status { get; set; }
     }
 }

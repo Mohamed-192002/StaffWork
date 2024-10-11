@@ -11,6 +11,7 @@ using StaffWork.Core.Paramaters;
 using StaffWork.Infrastructure.Filters;
 using StaffWork.Infrastructure.Implementations;
 using System.Security.Claims;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace StaffWork.Web.Controllers
 {
@@ -89,13 +90,15 @@ namespace StaffWork.Web.Controllers
                 foreach (var workDaily in model.WorkDailies)
                 {
                     // Add new WorkDaily
-                    user.WorkDailies.Add(new WorkDaily
+                    var work = new WorkDaily
                     {
                         Note = workDaily.Note,
                         WorkTypeId = workDaily.WorkTypeId,
                         UserId = user.Id,
                         Date = workDaily.Date,
-                    });
+                        DateCreated = DateTime.Now,
+                    };
+                    await BussinesService.InsertAsync(work);
 
                 }
 
@@ -217,10 +220,58 @@ namespace StaffWork.Web.Controllers
             //var data = WorkDaily.Skip(skip).Take(pageSize).ToList();
 
             var mappedData = _mapper.Map<IEnumerable<WorkDailyViewModel>>(WorkDaily);
-
+            foreach (var item in mappedData)
+            {
+                var createdDate = item.DateCreated;
+                var currentDate = DateTime.UtcNow;
+                var timeDifference = currentDate - createdDate;
+                var daysDifference = timeDifference.TotalDays;
+                if (daysDifference < 0) daysDifference = -daysDifference;
+                var isAdmin = !User.IsInRole(AppRoles.SuperAdmin);
+                item.IsDisabled = ((item.Status == Status.Pending.ToString()) && daysDifference > 7) && isAdmin;
+                Console.WriteLine(isAdmin);
+                Console.WriteLine(item.IsDisabled);
+            }
             var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = mappedData };
 
             return Ok(jsonData);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AcceptStatusAsync(int id)
+        {
+            var work = await BussinesService.GetAsync(d => d.Id == id);
+
+            if (work is null)
+                return NotFound();
+
+            // Check if the work item has been pending for more than 7 days 
+            var daysPending = (DateTime.UtcNow - work.DateCreated).TotalDays; // Assuming PendingDate is the date the item was set to pending
+            if (daysPending > 7)
+            {
+                return BadRequest(new { Message = "This item cannot be accepted after 7 days of pending status." });
+            }
+
+            work.Status = Status.Accepted;
+
+            await BussinesService.UpdateAsync(work.Id, work);
+
+            return Ok();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectedStatusAsync(int id)
+        {
+            var work = await BussinesService.GetAsync(d => d.Id == id);
+
+            if (work is null)
+                return NotFound();
+
+            work.Status = Status.Rejected;
+
+            await BussinesService.UpdateAsync(work.Id, work);
+
+            return Ok();
         }
         public async Task<IActionResult> ExportToExcelAsync(DateTime? fromDate, DateTime? toDate, string searchValue, string sortColumn, string sortColumnDirection)
         {

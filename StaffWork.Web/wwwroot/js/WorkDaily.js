@@ -22,14 +22,66 @@
                 }
                 return data; // return data as it is if it's empty or undefined
             }
-        },        {
+        },
+        {
             "name": "Date",
             "className": "text-center",
             "render": function (data, type, row) {
                 return moment(row.date).format('ll')
             }
         },
+        {
+            "data": "status", "name": "Status", "className": "text-center"
+            ,
+            "render": function (data, type, row) {
+                // Mapping status to Arabic values
+                let statusText = "";
+                let badgeClass = "";
+
+                if (data === "Pending" || data === 0) {
+                    statusText = "قيد الانتظار";
+                    badgeClass = "warning";
+                } else if (data === "Accepted" || data === 1) {
+                    statusText = "مقبول";
+                    badgeClass = "success";
+                } else if (data === "Rejected" || data === 2) {
+                    statusText = "مرفوض";
+                    badgeClass = "danger";
+                }
+
+                // Return the rendered HTML with the badge and status text
+                return '<span class="js-status fs-5 badge badge-light-' + badgeClass + '">' + statusText + '</span>';
+            }
+        },
     ];
+    if (isSuperAdminOrAdmin === true) {
+        columns.push(
+            {
+                "className": 'text-start',
+                "orderable": false,
+                "render": function (data, type, row) {
+                    return `
+                            <a href="javascript:;" class="btn ${row.isDisabled ? 'disabled' : ''} btn-sm btn-outline btn-outline-dashed btn-outline-success btn-active-light-success js-Accepted-status"
+                               data-title="قبول" data-url="/${tbody.data('controller')}/AcceptStatus/${row.id}" data-update="true" data-message="هل متأكد من قبول الحاله؟">
+                               قبول
+                            </a>
+                           `;
+                }
+            });
+        columns.push(
+            {
+                "className": 'text-start',
+                "orderable": false,
+                "render": function (data, type, row) {
+                    return `
+                 <a href="javascript:;" class="btn ${row.isDisabled ? 'disabled' : ''}  btn-sm btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger js-Rejected-status"
+                   data-title="رفض" data-url="/${tbody.data('controller')}/RejectedStatus/${row.id}" data-update="true" data-message="هل متأكد من رفض الحاله؟">
+                    رفض 
+                </a>`;
+                }
+            });
+    }
+
     columns.push(
         {
             "className": 'text-start',

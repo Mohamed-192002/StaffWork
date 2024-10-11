@@ -189,7 +189,89 @@ $(document).ready(function () {
         });
     });
 
+    //Handle Accepted Status
+    $('body').delegate('.js-Accepted-status', 'click', function () {
+        var btn = $(this);
 
+        bootbox.confirm({
+            message: "هل متأكد من قبول الحاله؟",
+            buttons: {
+                confirm: {
+                    label: 'نعم',
+                    className: 'btn-danger'
+                },
+                cancel: {
+                    label: 'لا',
+                    className: 'btn-secondary'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $.post({
+                        url: btn.data('url'),
+                        data: {
+                            '__RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (lastUpdatedOn) {
+                            var row = btn.parents('tr');
+                            var status = row.find('.js-status');
+                            var newStatus = 'مقبول';
+                            status.text(newStatus).removeClass('badge-light-danger badge-light-warning').addClass('badge-light-success');
+                            row.find('.js-updated-on').html(lastUpdatedOn);
+                            row.addClass('animate__animated animate__flash');
+
+                          //  showSuccessMessage();
+                        },
+                        error: function () {
+                            showErrorMessage();
+                        }
+                    });
+                }
+            }
+        });
+    });
+
+    //Handle Rejected Status
+    $('body').delegate('.js-Rejected-status', 'click', function () {
+        var btn = $(this);
+
+        bootbox.confirm({
+            message: "هل متأكد من رفض الحاله؟",
+            buttons: {
+                confirm: {
+                    label: 'نعم',
+                    className: 'btn-danger'
+                },
+                cancel: {
+                    label: 'لا',
+                    className: 'btn-secondary'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $.post({
+                        url: btn.data('url'),
+                        data: {
+                            '__RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (lastUpdatedOn) {
+                            var row = btn.parents('tr');
+                            var status = row.find('.js-status');
+                            var newStatus = 'مرفوض';
+                            status.text(newStatus).removeClass('badge-light-success badge-light-warning').addClass('badge-light-danger');
+                            row.find('.js-updated-on').html(lastUpdatedOn);
+                            row.addClass('animate__animated animate__flash');
+
+                           // showSuccessMessage();
+                        },
+                        error: function () {
+                            showErrorMessage();
+                        }
+                    });
+                }
+            }
+        });
+    });
     //Handle Confirm
     $('body').delegate('.js-confirm', 'click', function () {
         var btn = $(this);
@@ -222,20 +304,6 @@ $(document).ready(function () {
                         }
                     });
                 }
-            }
-        });
-
-    });
-
-    //Handle open folder
-    $('body').delegate('.js-open-folder', 'click', function () {
-        var btn = $(this);
-        var errormassege = btn.data('errormessage');
-        $.ajax({
-            url: btn.data('url'),
-            type: 'GET',
-            error: function () {
-                showErrorMessage(errormassege);
             }
         });
 

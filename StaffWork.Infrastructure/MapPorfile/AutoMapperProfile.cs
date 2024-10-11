@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using StaffWork.Core.Consts;
 using StaffWork.Core.Models;
 using StaffWork.Core.Paramaters;
 
@@ -14,6 +15,7 @@ namespace StaffWork.Infrastructure
                .ForMember(dest => dest.DeptName, opt => opt.MapFrom(src => src.User!.Department!.Name))
                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User!.FullName))
                .ForMember(dest => dest.WorkType, opt => opt.MapFrom(src => src.WorkType!.Name))
+               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => Enum.Parse<Status>(src.Status.ToString()))) // Convert String to Enum
                 .ReverseMap();
             CreateMap<WorkDaily, WorkDailyFormViewModel>().ReverseMap();
             CreateMap<WorkDaily, WorkDailyEditFormViewModel>().ReverseMap();

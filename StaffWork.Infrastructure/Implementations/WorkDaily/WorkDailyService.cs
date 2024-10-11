@@ -1,4 +1,5 @@
-﻿using StaffWork.Core.Interfaces;
+﻿using StaffWork.Core.Consts;
+using StaffWork.Core.Interfaces;
 using StaffWork.Core.Models;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace StaffWork.Infrastructure.Implementations
         public override Task InsertAsync(WorkDaily model)
         {
             model.IsActive = true;
+            model.Status = Status.Pending;
             model.DateCreated = DateTime.Now;
             return base.InsertAsync(model);
         }
