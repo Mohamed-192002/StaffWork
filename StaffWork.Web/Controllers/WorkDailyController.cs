@@ -9,9 +9,7 @@ using StaffWork.Core.Interfaces;
 using StaffWork.Core.Models;
 using StaffWork.Core.Paramaters;
 using StaffWork.Infrastructure.Filters;
-using StaffWork.Infrastructure.Implementations;
 using System.Security.Claims;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace StaffWork.Web.Controllers
 {
@@ -229,8 +227,6 @@ namespace StaffWork.Web.Controllers
                 if (daysDifference < 0) daysDifference = -daysDifference;
                 var isAdmin = !User.IsInRole(AppRoles.SuperAdmin);
                 item.IsDisabled = ((item.Status == Status.Pending.ToString()) && daysDifference > 7) && isAdmin;
-                Console.WriteLine(isAdmin);
-                Console.WriteLine(item.IsDisabled);
             }
             var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = mappedData };
 
@@ -276,9 +272,19 @@ namespace StaffWork.Web.Controllers
         public async Task<IActionResult> ExportToExcelAsync(DateTime? fromDate, DateTime? toDate, string searchValue, string sortColumn, string sortColumnDirection)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+            var user = await UserService.GetAsync(x => x.Id == userId, ["Department"]);
             IQueryable<WorkDaily> WorkDailyQuery;
-            WorkDailyQuery = (IQueryable<WorkDaily>)await BussinesService.GetAllAsync(w => w.UserId == userId, ["User", "User.Department", "WorkType"]);
+
+            if (User.IsInRole(AppRoles.SuperAdmin))
+                WorkDailyQuery = (IQueryable<WorkDaily>)await BussinesService.GetAllAsync(null!, ["User", "User.Department", "WorkType"]);
+            else if (User.IsInRole(AppRoles.Admin))
+                WorkDailyQuery = (IQueryable<WorkDaily>)await BussinesService.GetAllAsync(w => w.User!.DepartmentId == user.DepartmentId, ["User", "User.Department", "WorkType"]);
+
+            else
+                WorkDailyQuery = (IQueryable<WorkDaily>)await BussinesService.GetAllAsync(w => w.UserId == userId, ["User", "User.Department", "WorkType"]);
+
 
             if (!string.IsNullOrEmpty(searchValue))
             {

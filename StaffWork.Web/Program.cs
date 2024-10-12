@@ -58,7 +58,7 @@ namespace StaffWork.Web
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Department}/{action=Index}/{id?}");
+                pattern: "{controller=WorkDaily}/{action=IndexDate}/{id?}");
             app.MapRazorPages();
             app.InfrstructureConfigMiddleware();
 

@@ -10,19 +10,31 @@
         { "data": "fullName", "name": "FullName", "className": "text-center" },
         { "data": "deptName", "name": "DeptName", "className": "text-center" },
         { "data": "workType", "name": "WorkType", "className": "text-center" },
-        {
-            "data": "note",
-            "name": "Note",
-            "className": "text-center",
-            "render": function (data, type, row, meta) {
-                if (data) {
-                    // Split the note into words and take the first 5 words
-                    var firstFiveWords = data.split(' ').slice(0, 5).join(' ');
-                    return firstFiveWords + (data.split(' ').length > 5 ? '...' : '');
-                }
-                return data; // return data as it is if it's empty or undefined
-            }
-        },
+       {
+    "data": "note",
+    "name": "Note",
+    "className": "text-center",
+    "render": function (data, type, row, meta) {
+        if (data) {
+            // Split the note into words and take the first 5 words
+            var firstFiveWords = data.split(' ').slice(0, 5).join(' ');
+
+            // Escape single quotes in the note to prevent breaking the string
+            var escapedNote = row.note
+                .replace(/\\/g, '\\\\')  // Escape backslashes
+                .replace(/'/g, "\\'")    // Escape single quotes
+                .replace(/"/g, '\\"')    // Escape double quotes
+                .replace(/\n/g, '\\n')   // Escape newlines
+                .replace(/\r/g, '\\r');  // Escape carriage returns
+            // Create a clickable element for the first five words
+            return `
+            <span style="cursor: pointer;" onclick="showNote('${escapedNote}')">
+                ${firstFiveWords}${data.split(' ').length > 5 ? '...' : ''}
+            </span>`;
+        }
+        return data; // return data as it is if it's empty or undefined
+    }
+},
         {
             "name": "Date",
             "className": "text-center",
@@ -88,7 +100,7 @@
             "orderable": false,
             "render": function (data, type, row) {
                 return `
-                 <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-success btn-active-light-success js-render-modal"
+                 <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary js-render-modal"
                    data-title="تعديل" data-url="/${tbody.data('controller')}/Edit/${row.id}" data-update="true">
                     تعديل 
                 </a>`;
@@ -100,7 +112,7 @@
             "orderable": false,
             "render": function (data, type, row) {
                 return `
-                <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger js-confirm"
+                <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-info btn-active-light-info js-confirm"
                    data-title="حذف" data-url="/${tbody.data('controller')}/Delete/${row.id}" data-update="true"
                             data-message="هل متأكد من حذف هذا العنصر؟">
                     حذف 

@@ -10,6 +10,7 @@ using StaffWork.Core.Interfaces;
 using StaffWork.Core.Models;
 using StaffWork.Core.Paramaters;
 using StaffWork.Infrastructure.Filters;
+using StaffWork.Infrastructure.Implementations;
 using System.Security.Claims;
 
 namespace StaffWork.Web.Controllers
@@ -34,7 +35,18 @@ namespace StaffWork.Web.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var viewModels = _mapper.Map<IEnumerable<UserViewModel>>(await BussinesService.GetAllAsync(null, ["Department"]));
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+            var user = await BussinesService.GetAsync(x => x.Id == userId, ["Department"]);
+            var IsSuperAdmin = User.IsInRole(AppRoles.SuperAdmin);
+            IEnumerable<UserViewModel> viewModels;
+            if (IsSuperAdmin)
+                viewModels = _mapper.Map<IEnumerable<UserViewModel>>(await BussinesService.GetAllAsync(null!, ["Department"]));
+            else
+                viewModels = _mapper.Map<IEnumerable<UserViewModel>>(await BussinesService.GetAllAsync(d => d.DepartmentId == user.DepartmentId, ["Department"]));
+
+
             var model = new Tuple<IEnumerable<UserViewModel>, UserFormViewModel>(
                             viewModels, await PopulateViewModelAsync());
 

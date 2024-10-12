@@ -5,6 +5,15 @@ var exportedCols = [];
 
 
 
+function showNote(message) {
+    Swal.fire({
+        title: message,
+        confirmButtonText: "تمت القراءه",
+        customClass: {
+            confirmButton: "btn btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary"
+        }
+    });
+}
 
 function showSuccessMessage(message = 'اكتمل الحفظ بنجاح') {
     Swal.fire({
