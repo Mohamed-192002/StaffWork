@@ -46,6 +46,15 @@ namespace StaffWork.Web.Controllers
             else
                 viewModels = _mapper.Map<IEnumerable<UserViewModel>>(await BussinesService.GetAllAsync(d => d.DepartmentId == user.DepartmentId, ["Department"]));
 
+            foreach (var item in viewModels)
+            {
+                var NUser = await BussinesService.GetAsync(x => x.Id == item.Id);
+                var Roles = await _userManager.GetRolesAsync(NUser);
+                if (Roles.Contains(AppRoles.SuperAdmin))
+                    item.Role = AppRoles.SuperAdmin;
+                else
+                    item.Role = Roles.FirstOrDefault();
+            }
 
             var model = new Tuple<IEnumerable<UserViewModel>, UserFormViewModel>(
                             viewModels, await PopulateViewModelAsync());
@@ -106,20 +115,23 @@ namespace StaffWork.Web.Controllers
             var user = await BussinesService.GetAsync(d => d.Id == id, ["Department"]);
             if (user == null)
                 return NotFound();
-            var model = _mapper.Map<UserFormViewModel>(user);
-            var viewModel = await PopulateViewModelAsync(model);
+            var model = _mapper.Map<UpdateUserFormViewModel>(user);
+            var viewModel = await PopulateUpdateViewModelAsync(model);
 
             return PartialView("_FormEdit", viewModel);
         }
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        public async Task<IActionResult> EditAsync(UserFormViewModel viewModel)
+        public async Task<IActionResult> EditAsync(UpdateUserFormViewModel viewModel)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
             var user = await BussinesService.GetAsync(d => d.Id == viewModel.Id);
             if (user == null)
                 return NotFound();
+
+            if (viewModel.DepartmentId == null) viewModel.DepartmentId = user.DepartmentId;
+
             _mapper.Map(viewModel, user);
 
             await _userManager.UpdateAsync(user);
@@ -180,5 +192,37 @@ namespace StaffWork.Web.Controllers
 
             return viewModel;
         }
+
+        private async Task<UpdateUserFormViewModel> PopulateUpdateViewModelAsync(UpdateUserFormViewModel? model = null)
+        {
+            var userId = GetAuthenticatedUser();
+            UpdateUserFormViewModel viewModel = model is null ? new UpdateUserFormViewModel() : model;
+
+            IEnumerable<Department> departments;
+            if (User.IsInRole(AppRoles.SuperAdmin))
+                departments = await DeptService.GetAllAsync();
+            else
+                departments = await DeptService.GetAllAsync(d => d.Users.Any(u => u.Id == userId));
+
+            viewModel.Departments = _mapper.Map<IEnumerable<SelectListItem>>(departments);
+
+            List<IdentityRole> roles;
+            if (User.IsInRole(AppRoles.SuperAdmin))
+                roles = [.. _roleManager.Roles
+                   .OrderBy(a => a.Name)];
+            else
+                roles = [.. _roleManager.Roles
+                  .Where(r => r.Name!=AppRoles.SuperAdmin&&r.Name!=AppRoles.Admin)
+                  .OrderBy(a => a.Name)];
+
+            viewModel.Roles = roles.Select(r => new SelectListItem
+            {
+                Text = r.Name,
+                Value = r.Name
+            }).ToList();
+
+            return viewModel;
+        }
+
     }
 }

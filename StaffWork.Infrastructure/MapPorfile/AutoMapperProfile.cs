@@ -33,6 +33,7 @@ namespace StaffWork.Infrastructure
                .ForMember(dest => dest.Department, opt => opt.MapFrom(src => src.Department!.Name))
            .ReverseMap();
             CreateMap<User, UserFormViewModel>().ReverseMap();
+            CreateMap<User, UpdateUserFormViewModel>().ReverseMap();
 
         }
     }
