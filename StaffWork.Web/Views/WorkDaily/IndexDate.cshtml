@@ -4,7 +4,7 @@
 
 @{
     ViewData["Title"] = "الاجور اليوميه";
-    var isSuperAdminOrAdmin = User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin); 
+    var isSuperAdminOrAdmin = User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin);
 }
 
 @section Styles
@@ -103,9 +103,9 @@
                         {
                             <th>قبول</th>
                             <th>رفض</th>
+                            <th class="text-start">حذف</th>
                         }
                         <th class="text-start">تعديل</th>
-                        <th class="text-start">حذف</th>
                     </tr>
                 </thead>
                 <tbody data-url="/WorkDaily/GetWorkDailys" data-controller="WorkDaily">

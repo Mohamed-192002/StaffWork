@@ -92,6 +92,19 @@
                 </a>`;
                 }
             });
+        columns.push(
+            {
+                "className": 'text-start',
+                "orderable": false,
+                "render": function (data, type, row) {
+                    return `
+                <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-info btn-active-light-info js-confirm"
+                   data-title="حذف" data-url="/${tbody.data('controller')}/Delete/${row.id}" data-update="true"
+                            data-message="هل متأكد من حذف هذا العنصر؟">
+                    حذف 
+                </a> `;
+                }
+            });
     }
 
     columns.push(
@@ -106,19 +119,7 @@
                 </a>`;
             }
         });
-    columns.push(
-        {
-            "className": 'text-start',
-            "orderable": false,
-            "render": function (data, type, row) {
-                return `
-                <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-info btn-active-light-info js-confirm"
-                   data-title="حذف" data-url="/${tbody.data('controller')}/Delete/${row.id}" data-update="true"
-                            data-message="هل متأكد من حذف هذا العنصر؟">
-                    حذف 
-                </a> `;
-            }
-        });
+  
 
     // Handle title filter change event
     var titleFilter = $('#titleSearchId');
