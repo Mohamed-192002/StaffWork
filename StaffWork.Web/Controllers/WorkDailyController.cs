@@ -241,11 +241,14 @@ namespace StaffWork.Web.Controllers
             if (work is null)
                 return NotFound();
 
-            // Check if the work item has been pending for more than 7 days 
-            var daysPending = (DateTime.UtcNow - work.DateCreated).TotalDays; // Assuming PendingDate is the date the item was set to pending
-            if (daysPending > 7)
+            if (!User.IsInRole(AppRoles.SuperAdmin) || work.Status != Status.Accepted)
             {
-                return BadRequest(new { Message = "This item cannot be accepted after 7 days of pending status." });
+                // Check if the work item has been pending for more than 7 days 
+                var daysPending = (DateTime.UtcNow - work.DateCreated).TotalDays; // Assuming PendingDate is the date the item was set to pending
+                if (daysPending > 7)
+                {
+                    return BadRequest(new { Message = "This item cannot be accepted after 7 days of pending status." });
+                }
             }
 
             work.Status = Status.Accepted;

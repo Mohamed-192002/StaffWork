@@ -126,15 +126,35 @@ namespace StaffWork.Web.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest();
+
             var user = await BussinesService.GetAsync(d => d.Id == viewModel.Id);
             if (user == null)
                 return NotFound();
 
-            if (viewModel.DepartmentId == null) viewModel.DepartmentId = user.DepartmentId;
+            // If DepartmentId is not provided, keep the existing DepartmentId
+            if (viewModel.DepartmentId == null)
+                viewModel.DepartmentId = user.DepartmentId;
 
+            // Update user information using AutoMapper
             _mapper.Map(viewModel, user);
-
             await _userManager.UpdateAsync(user);
+
+            // Clear all current roles
+            if (viewModel.SelectedRole != null)
+            {
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                if (currentRoles.Any())
+                {
+                    await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                }
+
+                // Assign new roles from the view model
+                await _userManager.AddToRoleAsync(user, viewModel.SelectedRole);
+
+            }
+
+
+            // Redirect with updated UserViewModel
             return RedirectToAction("Index", _mapper.Map<UserViewModel>(user));
         }
 
