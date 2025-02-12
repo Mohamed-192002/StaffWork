@@ -1,0 +1,45 @@
+﻿@model Tuple<IEnumerable<VacationTypeViewModel>, VacationTypeViewModel>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+
+@{
+    ViewData["Title"] = "نوع الاجازات المتاحه";
+}
+@section Styles
+{
+    <link rel="stylesheet" href="~/assets/plugins/datatables/datatables.bundle.css" />
+}
+<partial name="_Form" model="@Model.Item2" />
+<div class="card shadow-sm">
+    <partial name="_DataTablesCardHeader" />
+    <div class="card-body pt-0">
+        <div class="table-responsive">
+            <table class="table table-row-dashed fs-2 gy-7 js-datatables" data-document-title="VacationTypes">
+                <thead>
+                    <tr class="fw-bold">
+                        <th style="text-align:start">نوع الاجازه</th>
+                        <th class="js-no-export" style="text-align:center">تعديل</th>
+                        <th class="js-no-export" style="text-align:end">حذف</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var type in @Model.Item1)
+                    {
+                        <partial name="_VacationTypeRow" model="@type" />
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" name="__RequestVerificationToken" value="@antiforgery.GetAndStoreTokens(Context).RequestToken" />
+
+@section Plugins
+{
+    <script src="~/assets/plugins/datatables/datatables.bundle.js"></script>
+}
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

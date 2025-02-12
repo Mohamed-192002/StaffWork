@@ -1,0 +1,16 @@
+﻿@model VacationTypeViewModel
+<tr>
+    <td>@Model.Name</td>
+    <td style="text-align:center">
+        <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary js-render-modal"
+           data-title="تعديل نوع الاجازه" data-url="/VacationType/Edit/@Model.Id" data-update="true">
+            تعديل نوع الاجازه
+        </a>
+    </td>
+    <td style="text-align:end">
+        <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger js-confirm"
+           data-title="حذف نوع الاجازه" data-url="/VacationType/Delete/@Model.Id" data-update="true" data-message="هل متأكد من حذف هذا نوع الاجازه؟">
+            حذف نوع الاجازه
+        </a>
+    </td>
+</tr>

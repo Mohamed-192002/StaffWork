@@ -28,6 +28,11 @@ namespace StaffWork.Infrastructure
             CreateMap<Department, SelectListItem>()
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
+            
+            CreateMap<VacationType, VacationTypeViewModel>().ReverseMap();
+            CreateMap<VacationType, SelectListItem>()
+               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
 
             CreateMap<User, UserViewModel>()
                .ForMember(dest => dest.Department, opt => opt.MapFrom(src => src.Department!.Name))
