@@ -24,6 +24,9 @@
                     <li class="nav-item" active-when="Employee">
                         <a class="nav-link" asp-controller="Employee" asp-action="Index">الموظفين</a>
                     </li>
+                    <li class="nav-item" active-when="Vacation">
+                        <a class="nav-link" asp-controller="Vacation" asp-action="Index">الاجازات</a>
+                    </li>
                 }
                 @if (User.IsInRole(AppRoles.SuperAdmin))
                 {

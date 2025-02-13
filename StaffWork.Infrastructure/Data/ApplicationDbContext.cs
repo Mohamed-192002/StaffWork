@@ -11,6 +11,7 @@ namespace StaffWork.Core.Data
         public DbSet<WorkDaily> WorkDailies { get; set; }
         public DbSet<VacationType> VacationTypes { get; set; }
         public DbSet<Employee> Employees { get; set; }
+        public DbSet<Vacation> Vacations{ get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

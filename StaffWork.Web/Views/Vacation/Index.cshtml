@@ -1,14 +1,20 @@
-﻿@model EmployeeViewModel
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
 
 @{
-    ViewData["Title"] = "الموظفين المتاحين";
+    ViewData["Title"] = "الاجازات";
 }
 @section Styles
 {
     <link rel="stylesheet" href="~/assets/plugins/datatables/datatables.bundle.css" />
 }
-<partial name="_Form" model="@Model" />
+<div class="alert bg-light-primary border border-primary border-3 border-dashed d-flex justify-content-between w-100 p-5 mb-10">
+    <div class=" align-content-center">
+        <button type="submit" asp-controller="Vacation" asp-action="Create" class="btn btn-sm btn-primary" form="Form">
+            <i class="bi bi-plus-square-dotted"></i>
+            اضافه
+        </button>
+    </div>
+</div>
 <div class="card shadow-sm">
     <div class="card-header align-items-center py-5 gap-2 gap-md-5">
         <div class="card-title">
@@ -23,8 +29,12 @@
             </div>
             <div id="kt_datatable_example_1_export" class="d-none"></div>
         </div>
-        <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-            <a href="javascript:void(0);" class="btn btn-light-primary" onclick="exportToExcel()">
+        <a asp-controller="Vacation" asp-action="Create" class="btn btn-sm btn-primary justify-content-end gap-5">
+            <i class="bi bi-plus-square-dotted"></i>
+            اضافه اجازه
+        </a>
+        <div class="card-toolbar  gap-5">
+            <a href="javascript:void(0);" class="btn btn-light-primary justify-content-end gap-5" onclick="exportToExcel()">
                 <span class="svg-icon svg-icon-2">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect opacity="0.3" width="12" height="2" rx="1" transform="matrix(0 -1 -1 0 12.75 19.75)" fill="currentColor"></rect>
@@ -38,19 +48,23 @@
     </div>
     <div class="card-body fs-5 pt-0">
         <div class="table-responsive">
-            <table id="Employees" class="text-center fs-4 table table-row-dashed table-row-gray-300 gy-5">
+            <table id="Vacations" class="text-center fs-4 table table-row-dashed table-row-gray-300 gy-5">
                 <thead>
                     <tr class="fw-bold">
                         <th class="d-none"></th>
                         <th style="text-align:start">اسم الموظف</th>
-                        <th style="text-align:start">المحكمه</th>
-                        <th style="text-align:start">الاستئناف</th>
+                        <th style="text-align:start">نوع الاجازه</th>
+                        <th style="text-align:start">بدايه الاجازه</th>
+                        <th style="text-align:start">ايام الاجازه</th>
+                        <th style="text-align:start">سبب الاجازه</th>
+                        <th style="text-align:start">هل تم العوده</th>
+                        <th style="text-align:start">تاريخ العوده</th>
                         <th style="text-align:center">تعديل</th>
                         <th style="text-align:end">حذف</th>
                     </tr>
                 </thead>
-                <tbody data-url="/Employee/GetEmployees" data-controller="Employee">
-                    @* Employee will be rendered here *@
+                <tbody data-url="/Vacation/GetVacations" data-controller="Vacation">
+                    @* Vacation will be rendered here *@
                 </tbody>
             </table>
         </div>
@@ -66,12 +80,12 @@
 
 @section Scripts
 {
-    <script src="~/js/employees.js" asp-append-version="true"></script>
+    <script src="~/js/vacations.js" asp-append-version="true"></script>
     <partial name="_ValidationScriptsPartial" />
     <script>
         function exportToExcel() {
             // Get the DataTable instance
-            var table = $('#Employees').DataTable();
+            var table = $('#Vacations').DataTable();
 
             // Get the current search value
             var searchValue = table.search();
@@ -85,7 +99,7 @@
             var sortColumn = table.settings().init().columns[sortColumnIndex].name;
 
             // Construct the export URL with the search and sort parameters
-            var url = `/Employee/ExportToExcel?searchValue=${encodeURIComponent(searchValue)}&sortColumn=${sortColumn}&sortColumnDirection=${sortColumnDirection}`;
+            var url = `/Vacation/ExportToExcel?searchValue=${encodeURIComponent(searchValue)}&sortColumn=${sortColumn}&sortColumnDirection=${sortColumnDirection}`;
 
             // Redirect to the generated URL to download the Excel file
             window.location.href = url;

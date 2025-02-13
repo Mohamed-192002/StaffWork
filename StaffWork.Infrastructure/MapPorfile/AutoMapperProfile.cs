@@ -44,6 +44,12 @@ namespace StaffWork.Infrastructure
             CreateMap<User, UserFormViewModel>().ReverseMap();
             CreateMap<User, UpdateUserFormViewModel>().ReverseMap();
 
+            CreateMap<Vacation, VacationViewModel>()
+              .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee!.FullName))
+              .ForMember(dest => dest.VacationType, opt => opt.MapFrom(src => src.VacationType!.Name))
+          .ReverseMap();
+            CreateMap<Vacation, VacationFormViewModel>()
+                .ReverseMap();
         }
     }
 }

@@ -53,7 +53,7 @@
         serverSide: true,
         processing: true,
         stateSave: false,
-        paging: false,
+        paging: true,
         ajax: {
             url: tbody.data('url'),
             type: 'POST'

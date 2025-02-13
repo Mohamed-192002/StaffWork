@@ -66,6 +66,7 @@
             }
         },
     ];
+
     if (isSuperAdminOrAdmin === true) {
         columns.push(
             {

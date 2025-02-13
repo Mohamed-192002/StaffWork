@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
 using StaffWork.Api.Controllers;
-using StaffWork.Core.Consts;
 using StaffWork.Core.Interfaces;
 using StaffWork.Core.Models;
 using StaffWork.Core.Paramaters;
 using StaffWork.Infrastructure.Filters;
-using StaffWork.Infrastructure.Implementations;
 using System.Security.Claims;
 
 namespace StaffWork.Web.Controllers
@@ -22,15 +21,11 @@ namespace StaffWork.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var model = await BussinesService.GetAllAsync();
-            var viewModel = _mapper.Map<IEnumerable<EmployeeViewModel>>(model);
+            var model = new EmployeeViewModel();
 
-            var model1 = new Tuple<IEnumerable<EmployeeViewModel>, EmployeeViewModel>(
-                            viewModel, new EmployeeViewModel());
-
-            return View(model1);
+            return View(model);
         }
         [HttpPost]
         public async Task<IActionResult> Create(EmployeeViewModel viewModel)
@@ -140,10 +135,76 @@ namespace StaffWork.Web.Controllers
             var data = Employee.Skip(skip).Take(pageSize).ToList();
 
             var mappedData = _mapper.Map<IEnumerable<EmployeeViewModel>>(Employee);
-          
+
             var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = mappedData };
 
             return Ok(jsonData);
         }
+        public async Task<IActionResult> ExportToExcelAsync(string searchValue, string sortColumn, string sortColumnDirection)
+        {
+            IQueryable<Employee> EmployeeQuery;
+            EmployeeQuery = (IQueryable<Employee>)await BussinesService.GetAllAsync(null!);
+
+            if (!string.IsNullOrEmpty(searchValue))
+            {
+                EmployeeQuery = EmployeeQuery.Where(b => b.FullName.Contains(searchValue!)
+                || (b.Court == null || b.Court.Contains(searchValue!))
+                || (b.Appeal == null || b.Appeal.Contains(searchValue!)));
+            }
+
+            var Employee = EmployeeQuery.ToList();
+
+            // Apply sorting in-memory based on known property names
+            if (!string.IsNullOrEmpty(sortColumn) && !string.IsNullOrEmpty(sortColumnDirection))
+            {
+                switch (sortColumn)
+                {
+                    case "FullName":
+                        Employee = sortColumnDirection == "asc" ? Employee.OrderBy(b => b.FullName).ToList() : Employee.OrderByDescending(b => b.FullName).ToList();
+                        break;
+                    case "Court":
+                        Employee = sortColumnDirection == "asc" ? Employee.OrderBy(b => b.Court).ToList() : Employee.OrderByDescending(b => b.Court).ToList();
+                        break;
+                    case "Appeal":
+                        Employee = sortColumnDirection == "asc" ? Employee.OrderBy(b => b.Appeal).ToList() : Employee.OrderByDescending(b => b.Appeal).ToList();
+                        break;
+                    default:
+                        Employee = Employee.OrderByDescending(b => b.DateCreated).ToList(); // Default sorting
+                        break;
+                }
+            }
+
+            // Fetch filtered and sorted data
+            var data = _mapper.Map<List<EmployeeViewModel>>(Employee);
+
+            // Create Excel file
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("سجل الموظفين"); // Arabic for "Date"
+
+                // Manually set the Arabic headers
+                worksheet.Cells[1, 1].Value = "اسم الموظف";
+                worksheet.Cells[1, 2].Value = "المحكمه";
+                worksheet.Cells[1, 3].Value = "الاستئناف";
+
+                // Load data starting from row 2 (after the headers)
+                for (int i = 0; i < data.Count; i++)
+                {
+                    worksheet.Cells[i + 2, 1].Value = data[i].FullName;
+                    worksheet.Cells[i + 2, 2].Value = data[i].Court;
+                    worksheet.Cells[i + 2, 3].Value = data[i].Appeal;
+
+                }
+
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+
+                string excelName = $"سجل الموظفين-{DateTime.Now:dd/MM/yyyy}.xlsx"; // Filename in Arabic
+
+                stream.Position = 0;
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
+            }
+        }
+
     }
 }

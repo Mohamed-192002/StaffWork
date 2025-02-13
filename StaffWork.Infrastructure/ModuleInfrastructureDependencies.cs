@@ -20,6 +20,7 @@ namespace StaffWork.Infrastructure
             services.AddScoped<IServicesBase<WorkDaily>, WorkDailyService>();
             services.AddScoped<IServicesBase<User>, UserService>();
             services.AddScoped<IServicesBase<Employee>, EmployeeService>();
+            services.AddScoped<IServicesBase<Vacation>, VacationsService>();
 
             return services;
         }
