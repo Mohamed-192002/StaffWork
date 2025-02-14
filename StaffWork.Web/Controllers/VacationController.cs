@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.CodeAnalysis;
 using OfficeOpenXml;
 using StaffWork.Api.Controllers;
@@ -10,24 +12,29 @@ using StaffWork.Core.Models;
 using StaffWork.Core.Paramaters;
 using StaffWork.Infrastructure.Filters;
 using StaffWork.Infrastructure.Implementations;
+using StaffWork.Web.Service;
 using System.Security.Claims;
 
 namespace StaffWork.Web.Controllers
 {
     public class VacationController : ApiBaseController<Vacation>
     {
+        private readonly IHubContext<NotificationHub> _hubContext;
+
         public readonly IServicesBase<Employee> _EmployeeService;
         public readonly IServicesBase<VacationType> _VacationTypeService;
-        public VacationController(IServicesBase<Vacation> servicesBase, IMapper mapper, IServicesBase<Employee> EmployeeService, IServicesBase<VacationType> vacationTypeService)
+        public VacationController(IServicesBase<Vacation> servicesBase, IMapper mapper, IServicesBase<Employee> EmployeeService, IServicesBase<VacationType> vacationTypeService, IHubContext<NotificationHub> hubContext)
             : base(servicesBase, mapper)
         {
             _EmployeeService = EmployeeService;
             _VacationTypeService = vacationTypeService;
+            _hubContext = hubContext;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification", "تم إرسال تنبيهات الإجازات القادمة");
             var model = await PopulateVacationViewModel();
             return View(model);
         }
@@ -43,6 +50,12 @@ namespace StaffWork.Web.Controllers
                 return BadRequest(ModelState);
             var Vacation = _mapper.Map<Vacation>(viewModel);
             await BussinesService.InsertAsync(Vacation);
+
+            #region Send Notification
+            var vacation = await BussinesService.GetAsync(x => x.Id == Vacation.Id, ["Employee"]);
+            var timeSent = vacation.StartDate.Day + vacation.VacationDays - 1;
+            BackgroundJob.Schedule<NotifiJob>(x => x.ScheduleNotifiJob(vacation), TimeSpan.FromDays(timeSent));
+            #endregion
             return RedirectToAction("Index", _mapper.Map<VacationViewModel>(Vacation));
         }
         [HttpGet]

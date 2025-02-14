@@ -3,7 +3,8 @@ using StaffWork.Core;
 using StaffWork.Core.Data;
 using StaffWork.Core.Models;
 using StaffWork.Infrastructure;
-using Microsoft.EntityFrameworkCore;
+using StaffWork.Web.Service;
+using Hangfire;
 
 namespace StaffWork.Web
 {
@@ -12,8 +13,8 @@ namespace StaffWork.Web
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+			builder.Services.AddSignalR();
+			builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddIdentity<User, IdentityRole>(options =>
             {
@@ -27,6 +28,12 @@ namespace StaffWork.Web
             .AddDefaultUI()
             .AddDefaultTokenProviders();
 
+            builder.Services.AddHangfire(config =>
+            {
+                config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
+
+            builder.Services.AddHangfireServer();
 
             builder.Services.AddControllersWithViews();
 
@@ -48,13 +55,22 @@ namespace StaffWork.Web
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+			app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
+			app.MapHub<NotificationHub>("/notificationHub");
+
+
+            //app.UseHangfireServer(new BackgroundJobServerOptions
+            //{
+            //    WorkerCount = Environment.ProcessorCount
+            //});
+           
+            app.UseHangfireDashboard("/Jobs");
 
             app.MapControllerRoute(
                 name: "default",
@@ -62,7 +78,9 @@ namespace StaffWork.Web
             app.MapRazorPages();
             app.InfrstructureConfigMiddleware();
 
-            app.Run();
+			
+
+			app.Run();
         }
     }
 }

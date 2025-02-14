@@ -3,8 +3,12 @@ var datatable;
 var updatedRow;
 var exportedCols = [];
 
-
-
+function updateNotificationCount() {
+    $.get("/Notification/GetUnreadNotificationCount", function (data) {
+        $("#notifiCount").text(data.count);
+    });
+}
+//setInterval(updateNotificationCount, 5000); // Update count every 5 seconds
 function showNote(message) {
     Swal.fire({
         title: message,
@@ -107,6 +111,9 @@ function applySelect2() {
 }
 
 $(document).ready(function () {
+
+    updateNotificationCount();
+
     //SweetAlert
     var message = $('#Message').text();
     if (message !== '') {

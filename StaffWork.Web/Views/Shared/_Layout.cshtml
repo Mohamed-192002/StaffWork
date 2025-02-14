@@ -18,6 +18,13 @@
     <link rel="stylesheet" href="~/StaffWork.Web.styles.css" asp-append-version="true" />
 </head>
 <body id="kt_body" style="font-family:system-ui" class="header-fixed header-tablet-and-mobile-fixed">
+
+	<audio id="NotifyAudio" type="hidden">
+		<source src="~/assets/sounds/notify.ogg" type="application/ogg" />
+		<source src="~/assets/sounds/notify.mp3" type="audio/mpeg" />
+		<source src="~/assets/sounds/notify.wav " type="audio/wav" />
+	</audio>
+
 	<!--begin::Theme mode setup on page load-->
 	<script>var defaultThemeMode = "dark"; var themeMode; if (document.documentElement) { if (document.documentElement.hasAttribute("data-theme-mode")) { themeMode = document.documentElement.getAttribute("data-theme-mode"); } else { if (localStorage.getItem("data-theme") !== null) { themeMode = localStorage.getItem("data-theme"); } else { themeMode = defaultThemeMode; } } if (themeMode === "system") { themeMode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; } document.documentElement.setAttribute("data-theme", themeMode); }</script>
 	<!--end::Theme mode setup on page load-->
@@ -79,13 +86,17 @@
 	<partial name="_Modal" />
 	<script>var hostUrl = "assets/";</script>
 	<!--begin::Global Javascript Bundle(used by all pages)-->
+
 	<script src="~/assets/js/plugins.bundle.js"></script>
 	<script src="~/assets/js/scripts.bundle.js"></script>
+    <script src="~/lib/signalr.js/signalr.min.js"></script>
+    <script src="~/js/realnotification.js"></script>
+    <script src="~/js/site.js"></script>
 	<!--end::Global Javascript Bundle-->
 	@await RenderSectionAsync("Plugins", required: false)
-    <script src="~/lib/bootbox.js/bootbox.js"></script>
-	<script src="~/js/site.js" asp-append-version="true"></script>
-	@await RenderSectionAsync("Scripts", required: false)
 
+   
+	@await RenderSectionAsync("Scripts", required: false)
+    
 </body>
 </html>

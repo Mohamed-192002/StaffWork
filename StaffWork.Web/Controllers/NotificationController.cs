@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Humanizer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using StaffWork.Api.Controllers;
 using StaffWork.Core.Interfaces;
 using StaffWork.Core.Models;
@@ -15,7 +16,15 @@ namespace StaffWork.Web.Controllers
         {
         }
 
-        [HttpGet]
+		[HttpGet]
+		public async Task<IActionResult> GetUnreadNotificationCount()
+		{
+			var unreadCount = await BussinesService.GetAllAsync(n => !n.IsRead);
+			return Json(new { count = unreadCount.Count() });
+		}
+
+
+		[HttpGet]
         public async Task<IActionResult> Index(DateTime? fromDate, DateTime? toDate)
         {
             fromDate ??= DateTime.Today; // Default to today if null
