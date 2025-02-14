@@ -21,6 +21,7 @@ namespace StaffWork.Infrastructure
             services.AddScoped<IServicesBase<User>, UserService>();
             services.AddScoped<IServicesBase<Employee>, EmployeeService>();
             services.AddScoped<IServicesBase<Vacation>, VacationsService>();
+            services.AddScoped<IServicesBase<Notification>, NotificationService>();
 
             return services;
         }

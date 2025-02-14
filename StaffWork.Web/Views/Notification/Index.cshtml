@@ -1,0 +1,111 @@
+﻿@model IEnumerable<NotificationViewModel>
+
+@{
+    ViewData["Title"] = "الاشعارات";
+}
+<style>
+    .notification-card {
+        border-left: 5px solid #ffcc00; /* Default yellow border */
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        border-radius: 10px; /* Rectangular shape with smooth edges */
+        width: 80%; /* Adjust width for a better layout */
+        transform: scale(1); /* Default scale */
+    }
+
+    .border-left-success {
+        border-left-color: #28a745 !important; /* Green for read notifications */
+    }
+
+    .border-left-warning {
+        border-left-color: #ffcc00 !important; /* Yellow for unread notifications */
+    }
+
+    .notification-card:hover {
+        transform: scale(1.05); /* Slight zoom-in effect */
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .notification-card:active {
+        transform: scale(0.98); /* Slight zoom-out effect when clicked */
+    }
+
+</style>
+<div class="alert bg-light-primary border border-primary border-3 border-dashed d-flex justify-content-between w-100 p-5 mb-10">
+    <form method="get" action="/Notification/Index" class="d-flex col-12 justify-content-between">
+        <div class="d-flex">
+            <span class="input-group-text" style="margin-left:10px">من تاريخ</span>
+            <input type="date" id="fromDate" name="fromDate" value="@ViewBag.FromDate" class="form-control form-control-solid" placeholder="من تاريخ" />
+        </div>
+        <div class="d-flex">
+            <span class="input-group-text" style="margin-left:10px">إلى تاريخ</span>
+            <input type="date" id="toDate" name="toDate" value="@ViewBag.ToDate" class="form-control form-control-solid" placeholder="إلى تاريخ" />
+        </div>
+        <div>
+            <button type="submit" id="searchButton" class="btn btn-primary">بحث</button>
+            <button type="button" id="deleteSearch" class="btn btn-secondary" onclick="clearFilters()">حذف البحث</button>
+        </div>
+    </form>
+</div>
+
+<div class="container">
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">لا توجد إشعارات جديدة.</div>
+    }
+
+    @foreach (var notification in Model)
+    {
+        <div class="d-flex justify-content-center">
+            <div class="notification-card bg-light shadow-lg rounded-3 p-4 w-75 position-relative mb-4
+                @(notification.IsRead ? "border-left-success" : "border-left-warning")">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold text-dark mb-1">@notification.Title</h5>
+                    <span class="badge @(notification.IsRead ? "bg-success" : "bg-warning text-dark")">
+                        @(notification.IsRead ? "مقروء" : "غير مقروء")
+                    </span>
+                </div>
+                <hr />
+                <div class="vacation-details mt-3">
+                    <div class="d-flex row">
+                        <h4> الموظف :  @notification.Vacation?.EmployeeName</h4>
+                    </div>
+                    @if (notification.Vacation?.IsReturned == true)
+                    {
+                        <p>📆 تاريخ العودة :  @notification.Vacation?.ReturnedDate?.ToString("yyyy-MM-dd")</p>
+                    }
+                </div>
+
+                <div class="text-start mt-1">
+                    <small class="text-muted">⏳ تم الإرسال في: @notification.DateCreated.ToString("yyyy-MM-dd")</small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            $('#searchButton').on('click', function () {
+                var fromDate = $('#fromDate').val();
+                var toDate = $('#toDate').val();
+
+                // Ensure valid date selection
+                if (!fromDate || !toDate) {
+                    alert("الرجاء تحديد التواريخ قبل البحث!");
+                    return;
+                }
+            });
+        });
+        function clearFilters() {
+            document.getElementById("fromDate").value = "";
+            document.getElementById("toDate").value = "";
+            window.location.href = "/Notification/Index"; // Redirect to remove query params
+        }
+    </script>
+
+}

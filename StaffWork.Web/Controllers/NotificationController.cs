@@ -1,0 +1,54 @@
+﻿using AutoMapper;
+using Humanizer;
+using Microsoft.AspNetCore.Mvc;
+using StaffWork.Api.Controllers;
+using StaffWork.Core.Interfaces;
+using StaffWork.Core.Models;
+using StaffWork.Core.Paramaters;
+
+namespace StaffWork.Web.Controllers
+{
+    public class NotificationController : ApiBaseController<Notification>
+    {
+        public NotificationController(IServicesBase<Notification> servicesBase, IMapper mapper)
+            : base(servicesBase, mapper)
+        {
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Index(DateTime? fromDate, DateTime? toDate)
+        {
+            fromDate ??= DateTime.Today; // Default to today if null
+            toDate ??= DateTime.Today.AddDays(1).AddSeconds(-1); // Include the full day
+
+            var model = await BussinesService.GetAllAsync(
+                x => x.DateCreated >= fromDate.Value && x.DateCreated <= toDate.Value,
+                ["Vacation", "Vacation.Employee", "Vacation.VacationType"]
+            );
+
+            ViewBag.FromDate = fromDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.ToDate = toDate.Value.ToString("yyyy-MM-dd");
+
+            var viewModel = _mapper.Map<IEnumerable<NotificationViewModel>>(model);
+
+            return View(viewModel);
+        }
+
+
+        [HttpPost]
+        [AutoValidateAntiforgeryToken]
+        public async Task<IActionResult> EditAsync(NotificationViewModel viewModel)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+            var Notification = await BussinesService.GetAsync(d => d.Id == viewModel.Id);
+            if (Notification == null)
+                return NotFound();
+            _mapper.Map(viewModel, Notification);
+
+            await BussinesService.UpdateAsync(Notification.Id, Notification);
+            return RedirectToAction("Index", _mapper.Map<NotificationViewModel>(Notification));
+        }
+    }
+
+}

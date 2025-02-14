@@ -32,7 +32,7 @@ namespace StaffWork.Infrastructure
             CreateMap<Employee, SelectListItem>()
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.FullName));
-            
+
             CreateMap<VacationType, VacationTypeViewModel>().ReverseMap();
             CreateMap<VacationType, SelectListItem>()
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
@@ -50,6 +50,10 @@ namespace StaffWork.Infrastructure
           .ReverseMap();
             CreateMap<Vacation, VacationFormViewModel>()
                 .ReverseMap();
+
+            CreateMap<Notification, NotificationViewModel>()
+               .ReverseMap();
+
         }
     }
 }

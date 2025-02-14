@@ -1,4 +1,8 @@
 ﻿@using StaffWork.Core.Consts
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
 <div class="mb-5 header d-flex row">
     <nav class="navbar navbar-expand-custom navbar-mainbg" style="padding-right: 40px;padding-left: 60px;">
         <button class="navbar-toggler" type="button" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -6,10 +10,14 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ml-auto">
-                <div class="hori-selector">
-                    <div class="left"></div>
-                    <div class="right"></div>
-                </div>
+
+                @if (currentController != "Notification")
+                {
+                    <div class="hori-selector">
+                        <div class="left"></div>
+                        <div class="right"></div>
+                    </div>
+                }
                 @if (User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin))
                 {
                     <li class="nav-item" active-when="User">
@@ -41,7 +49,7 @@
         </div>
         <div class="d-flex align-items-center ms-1">
             <!--begin::Menu wrapper-->
-            <a href="#" class="btn btn-icon" id="kt_drawer_chat_toggle">
+            <a asp-controller="Notification" asp-action="Index" class="btn btn-icon" id="kt_drawer_chat_toggle">
                 <i class="bi bi-bell-fill  fs-1 text-warning"></i>
                 <!--begin::Animation notification-->
                 <div class="animation-blink bg-success bullet bullet-dot h-auto position-absolute translate-middle w-auto">500</div>
