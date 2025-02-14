@@ -29,8 +29,12 @@
         transform: scale(0.98); /* Slight zoom-out effect when clicked */
     }
 
+    .notification-item {
+        cursor: pointer; /* Change cursor to pointer */
+    }
+
 </style>
-<div class="alert bg-light-primary border border-primary border-3 border-dashed d-flex justify-content-between w-100 p-5 mb-10">
+@* <div class="alert bg-light-primary border border-primary border-3 border-dashed d-flex justify-content-between w-100 p-5 mb-10">
     <form method="get" action="/Notification/Index" class="d-flex col-12 justify-content-between">
         <div class="d-flex">
             <span class="input-group-text" style="margin-left:10px">من تاريخ</span>
@@ -45,9 +49,9 @@
             <button type="button" id="deleteSearch" class="btn btn-secondary" onclick="clearFilters()">حذف البحث</button>
         </div>
     </form>
-</div>
+</div> *@
 
-<div class="container">
+<div class="container" id="notificationList">
     @if (!Model.Any())
     {
         <div class="alert alert-info text-center">لا توجد إشعارات جديدة.</div>
@@ -55,9 +59,10 @@
 
     @foreach (var notification in Model)
     {
-        <div class="d-flex justify-content-center">
+        <div class="notification-item d-flex justify-content-center"
+             data-id="@notification.Id" data-read="@notification.IsRead" data-vacationId="@notification.Vacation.Id">
             <div class="notification-card bg-light shadow-lg rounded-3 p-4 w-75 position-relative mb-4
-                @(notification.IsRead ? "border-left-success" : "border-left-warning")">
+                    @(notification.IsRead ? "border-left-success" : "border-left-warning")">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="fw-bold text-dark mb-1">@notification.Title</h5>
                     <span class="badge @(notification.IsRead ? "bg-success" : "bg-warning text-dark")">
@@ -74,7 +79,6 @@
                         <p>📆 تاريخ العودة :  @notification.Vacation?.ReturnedDate?.ToString("yyyy-MM-dd")</p>
                     }
                 </div>
-
                 <div class="text-start mt-1">
                     <small class="text-muted">⏳ تم الإرسال في: @notification.DateCreated.ToString("yyyy-MM-dd")</small>
                 </div>
@@ -99,6 +103,26 @@
                     alert("الرجاء تحديد التواريخ قبل البحث!");
                     return;
                 }
+            });
+            $(".notification-item").on("click", function () {
+                var notificationId = $(this).data("id");
+                var vacation_Id = $(this).data("vacationid");
+                var isRead = $(this).data("read");
+
+                // Update notification status as read before redirecting
+                $.ajax({
+                    url: '/Notification/MarkAsRead', // Adjust according to your controller route
+                    type: 'POST',
+                    data: { id: notificationId },
+                    success: function () {
+                        // Redirect to the Edit page
+                        window.location.href = '/Vacation/Edit/' + vacation_Id;
+                    },
+                    error: function () {
+                        console.error("Failed to mark notification as read.");
+                        window.location.href = '/Vacation/Edit/' + vacation_Id;
+                    }
+                });
             });
         });
         function clearFilters() {

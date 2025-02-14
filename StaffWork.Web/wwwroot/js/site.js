@@ -8,6 +8,37 @@ function updateNotificationCount() {
         $("#notifiCount").text(data.count);
     });
 }
+function updateNotification(notification) {
+    // Construct the notification HTML
+    var notificationHtml = `
+            <div class="notification-item d-flex justify-content-center"
+             data-id="${notification.Id}" data-read="${notification.IsRead}" data-vacationId="${notification.Vacation.Id}">
+            <div class="notification-card bg-light shadow-lg rounded-3 p-4 w-75 position-relative mb-4
+                    ${notification.isRead ? "border-left-success" : "border-left-warning"}">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold text-dark mb-1">${notification.title}</h5>
+                    <span class="badge ${notification.isRead ? "bg-success" : "bg-warning text-dark"}">
+                        ${notification.isRead ? "مقروء" : "غير مقروء"}
+                    </span>
+                </div>
+                <hr />
+                <div class="vacation-details mt-3">
+                    <div class="d-flex row">
+                        <h4> الموظف :  ${notification.vacation?.employeeName || "غير متوفر"}</h4>
+                    </div>
+                     ${notification.vacation?.isReturned ? `<p>📆 تاريخ العودة : ${notification.vacation?.returnedDate}</p>` : ""}
+                </div>
+                <div class="text-start mt-1">
+                    <small class="text-muted">⏳ تم الإرسال في: ${notification.dateCreated}</small>
+                </div>
+            </div>
+        </div>
+        `;
+    console.log(notificationHtml);
+    // Append to the notification list
+    $("#notificationList").prepend(notificationHtml);
+
+}
 //setInterval(updateNotificationCount, 5000); // Update count every 5 seconds
 function showNote(message) {
     Swal.fire({

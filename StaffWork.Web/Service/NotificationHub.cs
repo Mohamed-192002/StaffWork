@@ -1,16 +1,18 @@
 ﻿
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using StaffWork.Core.Models;
 
 namespace StaffWork.Web.Service
 {
     [AllowAnonymous]
     public class NotificationHub : Hub
     {
-		public async Task ReceiveNotification(string message)
-		{
-			await Clients.All.SendAsync("ReceiveNotification", message);
-		}
+        public async Task ReceiveNotification(Notification notification)
+        {
+            await Clients.All.SendAsync("ReceiveNotification", notification);
+        }
+
 
         public override async Task<Task> OnConnectedAsync()
         {

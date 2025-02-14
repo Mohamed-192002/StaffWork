@@ -16,24 +16,37 @@ namespace StaffWork.Web.Controllers
         {
         }
 
-		[HttpGet]
-		public async Task<IActionResult> GetUnreadNotificationCount()
-		{
-			var unreadCount = await BussinesService.GetAllAsync(n => !n.IsRead);
-			return Json(new { count = unreadCount.Count() });
-		}
+        [HttpGet]
+        public async Task<IActionResult> GetUnreadNotificationCount()
+        {
+            var unreadCount = await BussinesService.GetAllAsync(n => !n.IsRead);
+            return Json(new { count = unreadCount.Count() });
+        }
+        [HttpPost]
+        public async Task<IActionResult> MarkAsRead(int id)
+        {
+            var notification = await BussinesService.GetAsync(x => x.Id == id);
+            if (notification == null)
+                return NotFound();
+
+            notification.IsRead = true;
+            await BussinesService.UpdateAsync(id,notification);
+
+            return Ok();
+        }
 
 
-		[HttpGet]
+        [HttpGet]
         public async Task<IActionResult> Index(DateTime? fromDate, DateTime? toDate)
         {
             fromDate ??= DateTime.Today; // Default to today if null
             toDate ??= DateTime.Today.AddDays(1).AddSeconds(-1); // Include the full day
 
-            var model = await BussinesService.GetAllAsync(
-                x => x.DateCreated >= fromDate.Value && x.DateCreated <= toDate.Value,
-                ["Vacation", "Vacation.Employee", "Vacation.VacationType"]
-            );
+            //var model = await BussinesService.GetAllAsync(
+            //    x => x.DateCreated >= fromDate.Value && x.DateCreated <= toDate.Value,
+            //    ["Vacation", "Vacation.Employee", "Vacation.VacationType"]
+            //);
+            var model = await BussinesService.GetAllAsync(null!,["Vacation", "Vacation.Employee", "Vacation.VacationType"]);
 
             ViewBag.FromDate = fromDate.Value.ToString("yyyy-MM-dd");
             ViewBag.ToDate = toDate.Value.ToString("yyyy-MM-dd");

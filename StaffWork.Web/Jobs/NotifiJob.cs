@@ -24,7 +24,7 @@ public class NotifiJob
         // Send notification logic
         var notification = new Notification
         {
-            Title = "Vacation Ending Soon",
+            Title = "اشعار انتهاء اجازه",
             Content = message,
             DateCreated = DateTime.Now,
             IsRead = false,
@@ -32,6 +32,7 @@ public class NotifiJob
         };
         await _NotificationService.InsertAsync(notification);
 
-        await _hubContext.Clients.All.SendAsync("ReceiveNotification", "تم إرسال تنبيهات الإجازات القادمة");
+      //  await _hubContext.Clients.All.SendAsync("ReceiveNotification", "تم إرسال تنبيهات الإجازات القادمة");
+        await _hubContext.Clients.All.SendAsync("ReceiveNotification", notification);
     }
 }

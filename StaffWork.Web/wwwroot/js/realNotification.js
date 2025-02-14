@@ -5,7 +5,6 @@ function PlayNotify() {
 }
 
 
-
 var connection = new signalR.HubConnectionBuilder().withUrl("/notificationHub", {
     accessTokenFactory: () => "testAccessToken"
 }).build();
@@ -21,20 +20,20 @@ function invoke(message) {
 //    .build();
 
 connection.on("RegisterOnlineUser", function (MyConnectionID) {
-  //  var Userid = $('#UserId').val();
-    console.log(MyConnectionID);
-   
+    //  var Userid = $('#UserId').val();
+  //  console.log(MyConnectionID);
+
 
 });
-connection.on("ReceiveNotification", function (message) {
-    console.log(message);
-
+connection.on("ReceiveNotification", function (notification) {
+  //  console.log(notification);
+   // updateNotification(notification);
     updateNotificationCount();
     PlayNotify();
 
 });
 connection.start().then(function () {
-    console.log('connection start');
+  //  console.log('connection start');
 }).catch(function (err) {
     return console.error(err.toString());
 });
