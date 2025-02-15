@@ -8,37 +8,7 @@ function updateNotificationCount() {
         $("#notifiCount").text(data.count);
     });
 }
-function updateNotification(notification) {
-    // Construct the notification HTML
-    var notificationHtml = `
-            <div class="notification-item d-flex justify-content-center"
-             data-id="${notification.Id}" data-read="${notification.IsRead}" data-vacationId="${notification.Vacation.Id}">
-            <div class="notification-card bg-light shadow-lg rounded-3 p-4 w-75 position-relative mb-4
-                    ${notification.isRead ? "border-left-success" : "border-left-warning"}">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold text-dark mb-1">${notification.title}</h5>
-                    <span class="badge ${notification.isRead ? "bg-success" : "bg-warning text-dark"}">
-                        ${notification.isRead ? "مقروء" : "غير مقروء"}
-                    </span>
-                </div>
-                <hr />
-                <div class="vacation-details mt-3">
-                    <div class="d-flex row">
-                        <h4> الموظف :  ${notification.vacation?.employeeName || "غير متوفر"}</h4>
-                    </div>
-                     ${notification.vacation?.isReturned ? `<p>📆 تاريخ العودة : ${notification.vacation?.returnedDate}</p>` : ""}
-                </div>
-                <div class="text-start mt-1">
-                    <small class="text-muted">⏳ تم الإرسال في: ${notification.dateCreated}</small>
-                </div>
-            </div>
-        </div>
-        `;
-    console.log(notificationHtml);
-    // Append to the notification list
-    $("#notificationList").prepend(notificationHtml);
 
-}
 //setInterval(updateNotificationCount, 5000); // Update count every 5 seconds
 function showNote(message) {
     Swal.fire({
@@ -143,7 +113,31 @@ function applySelect2() {
 
 $(document).ready(function () {
 
+    // Update notification count
     updateNotificationCount();
+
+    // Handle notification click
+    $(document).on("click", ".notification-item", function () {
+        var notificationId = $(this).data("id");
+        var vacation_Id = $(this).data("vacationid");
+        var isRead = $(this).data("read");
+
+        // Update notification status as read before redirecting
+        $.ajax({
+            url: '/Notification/MarkAsRead', // Adjust according to your controller route
+            type: 'POST',
+            data: { id: notificationId },
+            success: function () {
+                // Redirect to the Edit page
+                window.location.href = '/Vacation/Edit/' + vacation_Id;
+            },
+            error: function () {
+                console.error("Failed to mark notification as read.");
+                window.location.href = '/Vacation/Edit/' + vacation_Id;
+            }
+        });
+    });
+
 
     //SweetAlert
     var message = $('#Message').text();

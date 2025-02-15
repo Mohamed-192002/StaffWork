@@ -130,6 +130,7 @@ namespace StaffWork.Web.Controllers
                         break;
                 }
             }
+
             var recordsTotal = Employee.Count;
             Employee = Employee.ToList();
             var data = Employee.Skip(skip).Take(pageSize).ToList();

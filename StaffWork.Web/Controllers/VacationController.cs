@@ -34,7 +34,7 @@ namespace StaffWork.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            await _hubContext.Clients.All.SendAsync("ReceiveNotification", "تم إرسال تنبيهات الإجازات القادمة");
+          //  await _hubContext.Clients.All.SendAsync("ReceiveNotification", "تم إرسال تنبيهات الإجازات القادمة");
             var model = await PopulateVacationViewModel();
             return View(model);
         }

@@ -30,7 +30,7 @@ namespace StaffWork.Web.Controllers
                 return NotFound();
 
             notification.IsRead = true;
-            await BussinesService.UpdateAsync(id,notification);
+            await BussinesService.UpdateAsync(id, notification);
 
             return Ok();
         }
@@ -46,7 +46,11 @@ namespace StaffWork.Web.Controllers
             //    x => x.DateCreated >= fromDate.Value && x.DateCreated <= toDate.Value,
             //    ["Vacation", "Vacation.Employee", "Vacation.VacationType"]
             //);
-            var model = await BussinesService.GetAllAsync(null!,["Vacation", "Vacation.Employee", "Vacation.VacationType"]);
+            IQueryable<Notification> NotificationQuery;
+            NotificationQuery = (IQueryable<Notification>)await BussinesService.GetAllAsync(null!, ["Vacation", "Vacation.Employee", "Vacation.VacationType"]
+            , orderBy: x => x.DateCreated, orderByDirection: "DESC");
+
+            var model = NotificationQuery.Take(5000).ToList();
 
             ViewBag.FromDate = fromDate.Value.ToString("yyyy-MM-dd");
             ViewBag.ToDate = toDate.Value.ToString("yyyy-MM-dd");
