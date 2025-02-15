@@ -159,7 +159,7 @@ namespace StaffWork.Web.Controllers
             Vacation = Vacation.ToList();
             var data = Vacation.Skip(skip).Take(pageSize).ToList();
 
-            var mappedData = _mapper.Map<IEnumerable<VacationViewModel>>(Vacation);
+            var mappedData = _mapper.Map<IEnumerable<VacationViewModel>>(data);
 
             var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = mappedData };
 

@@ -135,7 +135,7 @@ namespace StaffWork.Web.Controllers
             Employee = Employee.ToList();
             var data = Employee.Skip(skip).Take(pageSize).ToList();
 
-            var mappedData = _mapper.Map<IEnumerable<EmployeeViewModel>>(Employee);
+            var mappedData = _mapper.Map<IEnumerable<EmployeeViewModel>>(data);
 
             var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = mappedData };
 
