@@ -39,23 +39,28 @@
         </div>
     </div>
     <div class="card-body fs-5 pt-0">
-        <div class="table-responsive">
-            <table id="Vacations" class="text-center fs-4 table table-row-dashed table-row-gray-300 gy-5">
+        <div class="table-responsive me-3">
+            <table style="width:100%" id="Vacations" class="nowrap fs-4  table table-row-dashed table-row-gray-300 gy-5">
                 <thead>
-                    <tr class="fw-bold">
+                    <tr class="fw-bold border">
                         <th class="d-none"></th>
                         <th style="text-align:start">اسم الموظف</th>
+                        <th style="text-align:start">دار القضاء</th>
+                        <th style="text-align:start">الاستئناف</th>
                         <th style="text-align:start">نوع الاجازه</th>
                         <th style="text-align:start">بدايه الاجازه</th>
-                        <th style="text-align:start">ايام الاجازه</th>
+                        <th style="text-align:start">فتره الاجازه</th>
+                        <th style="text-align:start">مده الاجازه</th>
                         <th style="text-align:start">سبب الاجازه</th>
-                        <th style="text-align:start">هل تم العوده</th>
-                        <th style="text-align:start">تاريخ العوده</th>
+                        <th style="text-align:start">الحاله</th>
+                        <th style="text-align:start">هل تمت المباشرة</th>
+                        <th style="text-align:start">تاريخ المباشرة</th>
+                        <th style="text-align:start">تاريخ المباشرة المتوقع </th>
                         <th style="text-align:center">تعديل</th>
                         <th style="text-align:end">حذف</th>
                     </tr>
                 </thead>
-                <tbody data-url="/Vacation/GetVacations" data-controller="Vacation">
+                <tbody data-url="/Vacation/GetVacations" data-controller="Vacation" class="border">
                     @* Vacation will be rendered here *@
                 </tbody>
             </table>

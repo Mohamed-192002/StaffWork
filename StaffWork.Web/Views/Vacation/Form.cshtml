@@ -97,7 +97,32 @@
                 </div>
                 <div class="row col-4">
                     <!--begin::Label-->
-                    <label class="col-lg-4 col-form-label fs-5" asp-for="VacationDays">ايام الاجازه</label>
+                    <label class="col-lg-4 col-form-label fs-5 required" asp-for="VacationDuration">فتره الاجازه</label>
+                    <!--end::Label-->
+                    <!--begin::Col-->
+                    <div class="col-lg-8">
+                        <!--begin::Row-->
+                        <div class="row">
+                            <!--begin::Col-->
+                            <div class="fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
+                                <select aria-label="Select a Country" data-control="select2" data-placeholder="اختار فتره الاجازه..." class="form-select form-select-solid form-select-lg fw-semibold"
+                                        asp-for="VacationDuration">
+                                    <option value="">اختار فتره</option>
+                                    <option value="0">يوم</option>
+                                    <option value="1">شهر</option>
+                                    <option value="2">سنه</option>
+                                </select>
+                                <span asp-validation-for="VacationDuration" class="text-danger d-block"></span>
+                            </div>
+                            <!--end::Col-->
+                        </div>
+                        <!--end::Row-->
+                    </div>
+                    <!--end::Col-->
+                </div>
+                <div class="row col-4">
+                    <!--begin::Label-->
+                    <label class="col-lg-4 col-form-label fs-5 required" asp-for="VacationDays">مده الاجازه</label>
                     <!--end::Label-->
                     <!--begin::Col-->
                     <div class="col-lg-8">
@@ -105,7 +130,7 @@
                         <div class="row">
                             <!--begin::Col-->
                             <div class="col-lg-12 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
-                                <input class="form-control form-control-solid fs-5" type="number" placeholder="ادحل ايام الاجازه" asp-for="VacationDays" />
+                                <input class="form-control form-control-solid fs-5" type="number" placeholder="ادحل مده الاجازه" asp-for="VacationDays" />
                                 <span asp-validation-for="VacationDays" class="fv-plugins-message-container invalid-feedback"></span>
                                 <!--end::Col-->
                             </div>
@@ -116,7 +141,7 @@
                 </div>
                 <div class="row col-4">
                     <!--begin::Label-->
-                    <label class="col-lg-4 col-form-label fs-5" asp-for="ReturnedDate">تاريخ الرجوع</label>
+                    <label class="col-lg-4 col-form-label fs-5" asp-for="ReturnedDate">تاريخ المباشرة</label>
                     <!--end::Label-->
                     <!--begin::Col-->
                     <div class="col-lg-8">
@@ -124,7 +149,7 @@
                         <div class="row">
                             <!--begin::Col-->
                             <div class="col-lg-12 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
-                                <input class="form-control form-control-solid fs-5" type="date" placeholder="ادحل تاريخ الرجوع" asp-for="ReturnedDate" />
+                                <input class="form-control form-control-solid fs-5" type="date" placeholder="ادحل تاريخ المباشرة" asp-for="ReturnedDate" />
                                 <span asp-validation-for="ReturnedDate" class="fv-plugins-message-container invalid-feedback"></span>
                                 <!--end::Col-->
                             </div>
@@ -135,7 +160,7 @@
                 </div>
                 <div class="row col-4">
                     <!--begin::Label-->
-                    <label class="col-lg-4 col-form-label fw-semibold fs-6">هل تم العوده؟</label>
+                    <label class="col-lg-4 col-form-label fw-semibold fs-6">هل تمت المباشرة؟</label>
                     <!--begin::Label-->
                     <!--begin::Label-->
                     <div class="col-lg-8 d-flex align-items-center">

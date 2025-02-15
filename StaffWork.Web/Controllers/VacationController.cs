@@ -34,7 +34,7 @@ namespace StaffWork.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-          //  await _hubContext.Clients.All.SendAsync("ReceiveNotification", "تم إرسال تنبيهات الإجازات القادمة");
+            //  await _hubContext.Clients.All.SendAsync("ReceiveNotification", "تم إرسال تنبيهات الإجازات القادمة");
             var model = await PopulateVacationViewModel();
             return View(model);
         }
@@ -49,12 +49,37 @@ namespace StaffWork.Web.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             var Vacation = _mapper.Map<Vacation>(viewModel);
+            if (viewModel.VacationDuration == VacationDuration.Day)
+            {
+                Vacation.EndDate = viewModel.StartDate.AddDays(Vacation.VacationDays);
+            }
+            else if (viewModel.VacationDuration == VacationDuration.Month)
+            {
+                Vacation.EndDate = viewModel.StartDate.AddMonths(Vacation.VacationDays);
+            }
+            else if (viewModel.VacationDuration == VacationDuration.Year)
+            {
+                Vacation.EndDate = viewModel.StartDate.AddYears(Vacation.VacationDays);
+            }
+
             await BussinesService.InsertAsync(Vacation);
 
             #region Send Notification
             var vacation = await BussinesService.GetAsync(x => x.Id == Vacation.Id, ["Employee"]);
-            var timeSent = vacation.StartDate.Day + vacation.VacationDays - 1;
-            BackgroundJob.Schedule<NotifiJob>(x => x.ScheduleNotifiJob(vacation), TimeSpan.FromDays(timeSent));
+            var scheduleTime = vacation.EndDate.AddDays(-1) - DateTime.Now;
+            if (scheduleTime.TotalSeconds > 0) // Ensure scheduling in the future
+            {
+                BackgroundJob.Schedule<NotifiJob>(
+                    x => x.ScheduleNotifiJob(vacation),
+                    scheduleTime
+                );
+            }
+            else
+            {
+                // If the EndDate is in less than a day, schedule immediately
+                BackgroundJob.Enqueue<NotifiJob>(x => x.ScheduleNotifiJob(vacation));
+            }
+          //  BackgroundJob.Schedule<NotifiJob>(x => x.ScheduleNotifiJob(vacation), TimeSpan.FromDays(timeSent));
             #endregion
             return RedirectToAction("Index", _mapper.Map<VacationViewModel>(Vacation));
         }
@@ -77,6 +102,18 @@ namespace StaffWork.Web.Controllers
             if (Vacation == null)
                 return NotFound();
             _mapper.Map(viewModel, Vacation);
+            if (viewModel.VacationDuration == VacationDuration.Day)
+            {
+                Vacation.EndDate = viewModel.StartDate.AddDays(Vacation.VacationDays);
+            }
+            else if (viewModel.VacationDuration == VacationDuration.Month)
+            {
+                Vacation.EndDate = viewModel.StartDate.AddMonths(Vacation.VacationDays);
+            }
+            else if (viewModel.VacationDuration == VacationDuration.Year)
+            {
+                Vacation.EndDate = viewModel.StartDate.AddYears(Vacation.VacationDays);
+            }
 
             await BussinesService.UpdateAsync(Vacation.Id, Vacation);
             return RedirectToAction("Index", _mapper.Map<VacationViewModel>(Vacation));
@@ -116,11 +153,17 @@ namespace StaffWork.Web.Controllers
 
             if (!string.IsNullOrEmpty(searchValue))
             {
-                VacationQuery = VacationQuery.Where(b => b.Employee.FullName.Contains(searchValue!)
-                || (b.VacationType.Name == null || b.VacationType.Name.Contains(searchValue!))
-                || b.VacationDays.ToString().Contains(searchValue!)
-                || (b.Description == null || b.Description.Contains(searchValue!)));
+                VacationQuery = VacationQuery.Where(
+                    b => b.Employee.FullName.Contains(searchValue!)
+                    || (b.Employee.Court != null && b.Employee.Court.Contains(searchValue!))
+                    || (b.Employee.Appeal != null && b.Employee.Appeal.Contains(searchValue!))
+                    || (b.VacationType.Name != null && b.VacationType.Name.Contains(searchValue!))
+                  //  || b.VacationDuration.ToString().Contains(searchValue!)
+                    || b.VacationDays.ToString().Contains(searchValue!)
+                    || (b.Description != null && b.Description.Contains(searchValue!))
+                );
             }
+
 
             var Vacation = VacationQuery.ToList();
 
@@ -129,10 +172,16 @@ namespace StaffWork.Web.Controllers
             {
                 switch (sortColumn)
                 {
-                    case "Employee.FullName":
+                    case "EmployeeName":
                         Vacation = sortColumnDirection == "asc" ? Vacation.OrderBy(b => b.Employee.FullName).ToList() : Vacation.OrderByDescending(b => b.Employee.FullName).ToList();
                         break;
-                    case "VacationType.Name":
+                    case "Court":
+                        Vacation = sortColumnDirection == "asc" ? Vacation.OrderBy(b => b.Employee.Court).ToList() : Vacation.OrderByDescending(b => b.Employee.Court).ToList();
+                        break;
+                    case "Appeal":
+                        Vacation = sortColumnDirection == "asc" ? Vacation.OrderBy(b => b.Employee.Appeal).ToList() : Vacation.OrderByDescending(b => b.Employee.Appeal).ToList();
+                        break;
+                    case "VacationType":
                         Vacation = sortColumnDirection == "asc" ? Vacation.OrderBy(b => b.VacationType.Name).ToList() : Vacation.OrderByDescending(b => b.VacationType.Name).ToList();
                         break;
                     case "Description":
@@ -140,6 +189,9 @@ namespace StaffWork.Web.Controllers
                         break;
                     case "VacationDays":
                         Vacation = sortColumnDirection == "asc" ? Vacation.OrderBy(b => b.VacationDays).ToList() : Vacation.OrderByDescending(b => b.VacationDays).ToList();
+                        break;
+                    case "VacationDuration":
+                        Vacation = sortColumnDirection == "asc" ? Vacation.OrderBy(b => b.VacationDuration).ToList() : Vacation.OrderByDescending(b => b.VacationDuration).ToList();
                         break;
                     case "IsReturned":
                         Vacation = sortColumnDirection == "asc" ? Vacation.OrderBy(b => b.IsReturned).ToList() : Vacation.OrderByDescending(b => b.IsReturned).ToList();
@@ -172,10 +224,15 @@ namespace StaffWork.Web.Controllers
 
             if (!string.IsNullOrEmpty(searchValue))
             {
-                VacationQuery = VacationQuery.Where(b => b.Employee.FullName.Contains(searchValue!)
-                || (b.VacationType.Name == null || b.VacationType.Name.Contains(searchValue!))
-                || b.VacationDays.ToString().Contains(searchValue!)
-                || (b.Description == null || b.Description.Contains(searchValue!)));
+                VacationQuery = VacationQuery.Where(
+                   b => b.Employee.FullName.Contains(searchValue!)
+                   || (b.Employee.Court != null && b.Employee.Court.Contains(searchValue!))
+                   || (b.Employee.Appeal != null && b.Employee.Appeal.Contains(searchValue!))
+                   || (b.VacationType.Name != null && b.VacationType.Name.Contains(searchValue!))
+                   //  || b.VacationDuration.ToString().Contains(searchValue!)
+                   || b.VacationDays.ToString().Contains(searchValue!)
+                   || (b.Description != null && b.Description.Contains(searchValue!))
+               );
             }
 
             var Vacation = VacationQuery.ToList();
@@ -185,10 +242,16 @@ namespace StaffWork.Web.Controllers
             {
                 switch (sortColumn)
                 {
-                    case "Employee.FullName":
+                    case "EmployeeName":
                         Vacation = sortColumnDirection == "asc" ? Vacation.OrderBy(b => b.Employee.FullName).ToList() : Vacation.OrderByDescending(b => b.Employee.FullName).ToList();
                         break;
-                    case "VacationType.Name":
+                    case "Court":
+                        Vacation = sortColumnDirection == "asc" ? Vacation.OrderBy(b => b.Employee.Court).ToList() : Vacation.OrderByDescending(b => b.Employee.Court).ToList();
+                        break;
+                    case "Appeal":
+                        Vacation = sortColumnDirection == "asc" ? Vacation.OrderBy(b => b.Employee.Appeal).ToList() : Vacation.OrderByDescending(b => b.Employee.Appeal).ToList();
+                        break;
+                    case "VacationType":
                         Vacation = sortColumnDirection == "asc" ? Vacation.OrderBy(b => b.VacationType.Name).ToList() : Vacation.OrderByDescending(b => b.VacationType.Name).ToList();
                         break;
                     case "Description":
@@ -196,6 +259,9 @@ namespace StaffWork.Web.Controllers
                         break;
                     case "VacationDays":
                         Vacation = sortColumnDirection == "asc" ? Vacation.OrderBy(b => b.VacationDays).ToList() : Vacation.OrderByDescending(b => b.VacationDays).ToList();
+                        break;
+                    case "VacationDuration":
+                        Vacation = sortColumnDirection == "asc" ? Vacation.OrderBy(b => b.VacationDuration).ToList() : Vacation.OrderByDescending(b => b.VacationDuration).ToList();
                         break;
                     case "IsReturned":
                         Vacation = sortColumnDirection == "asc" ? Vacation.OrderBy(b => b.IsReturned).ToList() : Vacation.OrderByDescending(b => b.IsReturned).ToList();
@@ -222,25 +288,34 @@ namespace StaffWork.Web.Controllers
 
                 // Manually set the Arabic headers
                 worksheet.Cells[1, 1].Value = "اسم الموظف";
-                worksheet.Cells[1, 2].Value = "نوع الاجازه";
-                worksheet.Cells[1, 3].Value = "بدايه الاجازه";
-                worksheet.Cells[1, 4].Value = "ايام الاجازه";
-                worksheet.Cells[1, 5].Value = "سبب الاجازه";
-                worksheet.Cells[1, 6].Value = "هل تم العوده";
-                worksheet.Cells[1, 7].Value = "تاريخ العوده";
+                worksheet.Cells[1, 2].Value = "دار القضاء";
+                worksheet.Cells[1, 3].Value = "الاستئناف";
+                worksheet.Cells[1, 4].Value = "نوع الاجازه";
+                worksheet.Cells[1, 5].Value = "بدايه الاجازه";
+                worksheet.Cells[1, 6].Value = "فتره الاجازه";
+                worksheet.Cells[1, 7].Value = "مده الاجازه";
+                worksheet.Cells[1, 8].Value = "سبب الاجازه";
+                worksheet.Cells[1, 9].Value = "هل تم المباشرة";
+                worksheet.Cells[1, 10].Value = "تاريخ المباشرة";
+                worksheet.Cells[1, 11].Value = "تاريخ المباشرة المتوقع";
 
                 // Load data starting from row 2 (after the headers)
                 for (int i = 0; i < data.Count; i++)
                 {
                     worksheet.Cells[i + 2, 1].Value = data[i].EmployeeName;
-                    worksheet.Cells[i + 2, 2].Value = data[i].VacationType;
-                    worksheet.Cells[i + 2, 3].Value = data[i].StartDate;
-                    worksheet.Cells[i + 2, 3].Style.Numberformat.Format = "dd/MM/yyyy";
-                    worksheet.Cells[i + 2, 4].Value = data[i].VacationDays;
-                    worksheet.Cells[i + 2, 5].Value = data[i].Description;
-                    worksheet.Cells[i + 2, 6].Value = data[i].IsReturned;
-                    worksheet.Cells[i + 2, 7].Value = data[i].ReturnedDate;
-                    worksheet.Cells[i + 2, 7].Style.Numberformat.Format = "dd/MM/yyyy";
+                    worksheet.Cells[i + 2, 2].Value = data[i].Court;
+                    worksheet.Cells[i + 2, 3].Value = data[i].Appeal;
+                    worksheet.Cells[i + 2, 4].Value = data[i].VacationType;
+                    worksheet.Cells[i + 2, 5].Value = data[i].StartDate;
+                    worksheet.Cells[i + 2, 5].Style.Numberformat.Format = "dd/MM/yyyy";
+                    worksheet.Cells[i + 2, 6].Value = data[i].VacationDuration == VacationDuration.Day ? "يوم" : data[i].VacationDuration == VacationDuration.Month ? "شهر" : "سنه";
+                    worksheet.Cells[i + 2, 7].Value = data[i].VacationDays;
+                    worksheet.Cells[i + 2, 8].Value = data[i].Description;
+                    worksheet.Cells[i + 2, 9].Value = data[i].IsReturned;
+                    worksheet.Cells[i + 2, 10].Value = data[i].ReturnedDate;
+                    worksheet.Cells[i + 2, 10].Style.Numberformat.Format = "dd/MM/yyyy";
+                    worksheet.Cells[i + 2, 11].Value = data[i].EndDate;
+                    worksheet.Cells[i + 2, 11].Style.Numberformat.Format = "dd/MM/yyyy";
 
                 }
 

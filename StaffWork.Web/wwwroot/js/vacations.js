@@ -8,12 +8,32 @@
     let columns = [
         { "data": "id", "name": "Id", "className": "d-none" },
         { "data": "employeeName", "name": "EmployeeName", "className": "text-center" },
+        { "data": "court", "name": "Court", "className": "text-center" },
+        { "data": "appeal", "name": "Appeal", "className": "text-center" },
         { "data": "vacationType", "name": "VacationType", "className": "text-center" },
         {
-            "name": "StartDate",
+            "name": "centerDate",
             "className": "text-center",
             "render": function (data, type, row) {
-                return moment(row.startDate).format('ll')
+                return moment(row.centerDate).format('ll')
+            }
+        },
+        {
+            "name": "VacationDuration",
+            "className": "text-center",
+            "render": function (data, type, row) {
+
+                switch (row.vacationDuration) {
+                    case 0: // Assuming Day is 0
+                        return "يوم";
+                    case 1: // Assuming Month is 1
+                        return "شهر";
+                    case 2: // Assuming Year is 2
+                        return "سنه";
+                    default:
+                        return "";
+                }
+
             }
         },
         { "data": "vacationDays", "name": "VacationDays", "className": "text-center" },
@@ -42,8 +62,32 @@
                 return data; // return data as it is if it's empty or undefined
             }
         },
-        { "data": "isReturned", "name": "IsReturned", "className": "text-center" },
+        {
+            "name": "EndDate",
+            "className": "text-center",
+            "render": function (data, type, row) {
+                if (!row.endDate) {
+                    return "";
+                }
 
+                var endDate = moment(row.endDate);
+                var today = moment();
+                var diffDays = endDate.diff(today, 'days');
+
+                if (diffDays >= 3) {
+                    return '<span class="badge badge-success">متبقي 3 أيام أو أكثر</span>';
+                } else if (diffDays === 2) {
+                    return '<span class="badge badge-warning">متبقي يومان</span>';
+                } else if (diffDays === 1) {
+                    return '<span class="badge badge-danger">متبقي يوم</span>';
+                } else if (diffDays <= 0) {
+                    return '<span class="badge badge-dark">منتهي</span>';
+                }
+
+                return "";
+            }
+        },
+        { "data": "isReturned", "name": "IsReturned", "className": "text-center" },
         {
             "name": "ReturnedDate",
             "className": "text-center",
@@ -53,11 +97,21 @@
                 }
                 return "";
             }
+        },
+        {
+            "name": "EndDate",
+            "className": "text-center",
+            "render": function (data, type, row) {
+                if (row.endDate) {
+                    return moment(row.endDate).format('ll')
+                }
+                return "";
+            }
         }
     ];
     columns.push(
         {
-            "className": 'text-start',
+            "className": 'text-center',
             "orderable": false,
             "render": function (data, type, row) {
                 return `
@@ -70,7 +124,7 @@
 
     columns.push(
         {
-            "className": 'text-start',
+            "className": 'text-center',
             "orderable": false,
             "render": function (data, type, row) {
                 return `
@@ -108,7 +162,6 @@
         'drawCallback': function () {
             KTMenu.createInstances();
         },
-        order: [[1, 'asc']],
         columnDefs: [{
             targets: [0],
             visible: false,

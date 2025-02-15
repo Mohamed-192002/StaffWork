@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using StaffWork.Core.Consts;
 using System.ComponentModel.DataAnnotations;
 
 namespace StaffWork.Core.Paramaters
@@ -9,14 +10,22 @@ namespace StaffWork.Core.Paramaters
 
         [Display(Name = "اسم الموظف")]
         public string EmployeeName { get; set; }
+        [Display(Name = "دار القضاء")]
+        public string? Court { get; set; }
+        [Display(Name = "الاستئناف")]
+        public string? Appeal { get; set; }
 
         [Display(Name = "نوع الاجازه")]
         public string VacationType { get; set; }
 
         [Display(Name = "بدايه الاجازه")]
         public virtual DateTime StartDate { get; set; }
-        [Display(Name = "ايام الاجازه")]
+        public virtual DateTime EndDate { get; set; }
+        [Display(Name = "مده الاجازه")]
         public int VacationDays { get; set; }
+        [Display(Name = "فتره الاجازه")]
+        public VacationDuration VacationDuration { get; set; }
+
         [Display(Name = "سبب الاجازه")]
         public string? Description { get; set; }
         [Display(Name = "هل تم العوده؟")]

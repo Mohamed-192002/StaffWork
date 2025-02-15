@@ -46,6 +46,8 @@ namespace StaffWork.Infrastructure
 
             CreateMap<Vacation, VacationViewModel>()
               .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee!.FullName))
+              .ForMember(dest => dest.Court, opt => opt.MapFrom(src => src.Employee!.Court))
+              .ForMember(dest => dest.Appeal, opt => opt.MapFrom(src => src.Employee!.Appeal))
               .ForMember(dest => dest.VacationType, opt => opt.MapFrom(src => src.VacationType!.Name))
           .ReverseMap();
             CreateMap<Vacation, VacationFormViewModel>()

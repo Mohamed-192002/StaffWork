@@ -47,16 +47,19 @@
                 </li>
             </ul>
         </div>
-        <div class="d-flex align-items-center ms-1">
-            <!--begin::Menu wrapper-->
-            <a asp-controller="Notification" asp-action="Index" class="btn btn-icon" id="kt_drawer_chat_toggle">
-                <i class="bi bi-bell-fill  fs-1 text-warning"></i>
-                <!--begin::Animation notification-->
-                <div id="notifiCount" class="animation-blink bg-success bullet bullet-dot h-20px position-absolute translate-middle w-20px">0</div>
-                <!--begin::Animation notification-->
-            </a>
-            <!--end::Menu wrapper-->
-        </div>
+        @if (User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin))
+        {
+            <div class="d-flex align-items-center ms-1">
+                <!--begin::Menu wrapper-->
+                <a asp-controller="Notification" asp-action="Index" class="btn btn-icon" id="kt_drawer_chat_toggle">
+                    <i class="bi bi-bell-fill  fs-1 text-warning"></i>
+                    <!--begin::Animation notification-->
+                    <div id="notifiCount" class="animation-blink bg-success bullet bullet-dot h-20px position-absolute translate-middle w-20px">0</div>
+                    <!--begin::Animation notification-->
+                </a>
+                <!--end::Menu wrapper-->
+            </div>
+        }
         <!--begin::Topbar-->
         <div class="d-flex align-items-center flex-shrink-0">
             <!--begin::Theme mode-->

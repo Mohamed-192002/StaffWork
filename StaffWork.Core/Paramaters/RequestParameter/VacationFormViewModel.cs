@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using StaffWork.Core.Consts;
+using StaffWork.Core.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace StaffWork.Core.Paramaters
@@ -19,7 +21,7 @@ namespace StaffWork.Core.Paramaters
         [Required(ErrorMessage = "الحقل مطلوب")]
         [Display(Name = "بدايه الاجازه")]
         public virtual DateTime StartDate { get; set; } = DateTime.Now;
-        [Display(Name = "ايام الاجازه")]
+        [Display(Name = "مده الاجازه")]
         [Required(ErrorMessage = "الحقل مطلوب")]
         public int? VacationDays { get; set; }
         [Display(Name = "سبب الاجازه")]
@@ -29,5 +31,9 @@ namespace StaffWork.Core.Paramaters
 
         [Display(Name = "تاريخ العوده")]
         public virtual DateTime? ReturnedDate { get; set; }
+
+        [Display(Name = "فتره الاجازه")]
+        [Required(ErrorMessage = "الحقل مطلوب")]
+        public VacationDuration VacationDuration { get; set; }
     }
 }
