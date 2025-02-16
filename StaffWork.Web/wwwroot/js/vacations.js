@@ -87,7 +87,19 @@
                 return "";
             }
         },
-        { "data": "isReturned", "name": "IsReturned", "className": "text-center" },
+        {
+            "name": "IsReturned",
+            "className": "text-center",
+            "render": function (data, type, row) {
+                if (row.isReturned) {
+                    return 'نعم'
+                }
+                else {
+                    return 'لا'
+                }
+                return "";
+            }
+        },
         {
             "name": "ReturnedDate",
             "className": "text-center",

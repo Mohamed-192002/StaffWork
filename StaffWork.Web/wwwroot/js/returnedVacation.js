@@ -62,8 +62,19 @@
                 return data; // return data as it is if it's empty or undefined
             }
         },
-        { "data": "isReturned", "name": "IsReturned", "className": "text-center" },
         {
+            "name": "IsReturned",
+            "className": "text-center",
+            "render": function (data, type, row) {
+                if (row.isReturned) {
+                    return 'نعم'
+                }
+                else {
+                    return 'لا'
+                }
+                return "";
+            }
+        },        {
             "name": "ReturnedDate",
             "className": "text-center",
             "render": function (data, type, row) {
