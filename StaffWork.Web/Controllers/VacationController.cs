@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Hangfire;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.SignalR;
@@ -334,8 +335,8 @@ namespace StaffWork.Web.Controllers
         {
             VacationFormViewModel viewModel = model is null ? new VacationFormViewModel() : model;
 
-            var employees = await _EmployeeService.GetAllAsync(null!);
-            viewModel.Employees = _mapper.Map<IEnumerable<SelectListItem>>(employees);
+            //var employees = await _EmployeeService.GetAllAsync(null!);
+            //viewModel.Employees = _mapper.Map<IEnumerable<SelectListItem>>(employees);
 
             var vacationTypes = await _VacationTypeService.GetAllAsync(null!);
             viewModel.VacationTypes = _mapper.Map<IEnumerable<SelectListItem>>(vacationTypes);
@@ -348,5 +349,43 @@ namespace StaffWork.Web.Controllers
 
             return viewModel;
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetEmployees(string search, int page = 1, int pageSize = 10, int? selectedId = null)
+        {
+            var query =await _EmployeeService.GetAllAsync(null!);
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(e => e.FullName.Contains(search));
+            }
+
+            // If an employee is selected (for edit mode), fetch it explicitly
+            if (selectedId.HasValue)
+            {
+                var selectedEmployee =  query.FirstOrDefault(e => e.Id == selectedId.Value);
+                if (selectedEmployee != null)
+                {
+                    return Json(new
+                    {
+                        id = selectedEmployee.Id,
+                        name = selectedEmployee.FullName
+                    });
+                }
+            }
+
+            var totalCount =  query.Count();
+            var employees =  query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            return Json(new
+            {
+                items = employees.Select(e => new { id = e.Id, name = e.FullName }),
+                hasMore = (page * pageSize) < totalCount
+            });
+        }
+
+
+
     }
 }

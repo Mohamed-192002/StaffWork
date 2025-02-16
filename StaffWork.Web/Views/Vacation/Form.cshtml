@@ -23,8 +23,8 @@
                         <div class="row">
                             <!--begin::Col-->
                             <div class="fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
-                                <select aria-label="Select a Country" data-control="select2" data-placeholder="اختار الموظف..." class="form-select form-select-solid form-select-lg fw-semibold"
-                                        asp-for="EmployeeId" asp-items="@Model.Employees">
+                                <select id="EmployeeDropdown" aria-label="Select a Country" data-control="select2" data-placeholder="اختار الموظف..." class="form-select form-select-solid form-select-lg fw-semibold"
+                                        asp-for="EmployeeId" data-selected-id="@Model.EmployeeId" asp-items="@Model.Employees">
                                     <option value="">اختار الموظف...</option>
                                 </select>
                                 <span asp-validation-for="EmployeeId" class="text-danger d-block"></span>
@@ -176,7 +176,6 @@
             <button type="submit" class="btn btn-sm btn-primary">
                 <i class="bi bi-plus-square-dotted"></i>
                 @(Model?.Id > 0 ? "تعديل" : "اضافه")
-                
             </button>
         </div>
     </form>
@@ -184,4 +183,5 @@
 </div>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/employeedropdown.js"></script>
 }
