@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-    var tbody = $('#Vacations').find('tbody');
+    var tbody = $('#returnedVacation').find('tbody');
     $('[data-kt-filter="search"]').on('keyup', function () {
         var input = $(this);
         datatable.search(this.value).draw();
@@ -62,31 +62,6 @@
                 return data; // return data as it is if it's empty or undefined
             }
         },
-        {
-            "name": "EndDate",
-            "className": "text-center",
-            "render": function (data, type, row) {
-                if (!row.endDate) {
-                    return "";
-                }
-
-                var endDate = moment(row.endDate);
-                var today = moment();
-                var diffDays = endDate.diff(today, 'days');
-                if (diffDays >= 3) {
-                    return '<span class="badge badge-success">متبقي 3 أيام أو أكثر</span>';
-                } else if (diffDays === 2) {
-                    return '<span class="badge badge-warning">متبقي يومان</span>';
-                } else if (diffDays === 1) {
-                    return '<span class="badge badge-danger">متبقي يوم</span>';
-                } else if (diffDays === 0) {
-                    return '<span class="badge badge-dark">اليوم</span>';
-                } else {
-                    return `<span class="badge badge-dark">متأخر بـ ${Math.abs(diffDays)} يوم</span>`;
-                }
-                return "";
-            }
-        },
         { "data": "isReturned", "name": "IsReturned", "className": "text-center" },
         {
             "name": "ReturnedDate",
@@ -147,7 +122,7 @@
         datatable.search(selectedTitle).draw();
     });
 
-    datatable = $('#Vacations').DataTable({
+    datatable = $('#returnedVacation').DataTable({
         serverSide: true,
         processing: true,
         stateSave: false,

@@ -32,8 +32,11 @@
                     <li class="nav-item" active-when="Employee">
                         <a class="nav-link" asp-controller="Employee" asp-action="Index">الموظفين</a>
                     </li>
-                    <li class="nav-item" active-when="Vacation">
-                        <a class="nav-link" asp-controller="Vacation" asp-action="Index">الاجازات</a>
+                    <li class="nav-item" active-controller="Vacation" active-action="Index,Create,Edit">
+                        <a class="nav-link" asp-controller="Vacation" asp-action="Index">متابعه الاجازات</a>
+                    </li>
+                    <li class="nav-item" active-controller="Vacation" active-action="ReturnedVacation">
+                        <a class="nav-link" asp-controller="Vacation" asp-action="ReturnedVacation">الاجازات</a>
                     </li>
                 }
                 @if (User.IsInRole(AppRoles.SuperAdmin))
