@@ -80,9 +80,9 @@
                 } else if (diffDays === 1) {
                     return '<span class="badge badge-danger">متبقي يوم</span>';
                 } else if (diffDays === 0) {
-                    return '<span class="badge badge-dark">اليوم</span>';
+                    return '<span class="badge badge-danger">اليوم</span>';
                 } else {
-                    return `<span class="badge badge-dark">متأخر بـ ${Math.abs(diffDays)} يوم</span>`;
+                    return `<span class="badge badge-danger">متأخر بـ ${Math.abs(diffDays)} يوم</span>`;
                 }
                 return "";
             }
