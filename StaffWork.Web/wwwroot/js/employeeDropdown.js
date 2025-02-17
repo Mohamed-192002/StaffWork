@@ -1,4 +1,13 @@
 ﻿$(document).ready(function () {
+    // Run on page load
+    toggleCustomSection();
+
+    // Bind event to checkbox change
+    $('#IsAutoNotifi').change(function () {
+        toggleCustomSection();
+    });
+
+
     let selectedEmployeeId = $("#EmployeeDropdown").data("selected-id");
 
     if (selectedEmployeeId) {
@@ -45,3 +54,10 @@
         }
     });
 });
+function toggleCustomSection() {
+    if ($('#IsAutoNotifi').is(':checked')) {
+        $('#customSection').hide();
+    } else {
+        $('#customSection').show();
+    }
+}

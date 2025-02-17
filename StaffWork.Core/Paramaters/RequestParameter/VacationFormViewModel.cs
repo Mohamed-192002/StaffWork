@@ -2,6 +2,7 @@
 using StaffWork.Core.Consts;
 using StaffWork.Core.Models;
 using System.ComponentModel.DataAnnotations;
+using UoN.ExpressiveAnnotations.NetCore.Attributes;
 
 namespace StaffWork.Core.Paramaters
 {
@@ -13,7 +14,7 @@ namespace StaffWork.Core.Paramaters
         [Display(Name = "الموظف")]
         public int EmployeeId { get; set; }
         public IEnumerable<SelectListItem>? Employees { get; set; }
-        
+
         [Required(ErrorMessage = "الحقل مطلوب")]
         [Display(Name = "نوع الاجازه")]
         public int VacationTypeId { get; set; }
@@ -39,8 +40,10 @@ namespace StaffWork.Core.Paramaters
         public bool IsAutoNotifi { get; set; } = true;
 
         [Display(Name = "مده التنبيه")]
+        [RequiredIf("IsAutoNotifi == false", ErrorMessage = "الحقل مطلوب")]
         public int? CustomNotifiBeforeDays { get; set; }
         [Display(Name = "فتره التنبيه")]
+        [RequiredIf("IsAutoNotifi == false", ErrorMessage = "الحقل مطلوب")]
         public VacationDuration? CustomNotifiDuration { get; set; }
     }
 }

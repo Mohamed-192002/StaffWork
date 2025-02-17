@@ -5,6 +5,7 @@ using StaffWork.Core.Models;
 using StaffWork.Infrastructure;
 using StaffWork.Web.Service;
 using Hangfire;
+using UoN.ExpressiveAnnotations.NetCore.DependencyInjection;
 
 namespace StaffWork.Web
 {
@@ -36,6 +37,7 @@ namespace StaffWork.Web
             builder.Services.AddHangfireServer();
 
             builder.Services.AddControllersWithViews();
+            builder.Services.AddExpressiveAnnotations();
 
             builder.Services.AddInfrastructureDependencies()
                            .AddCoreDependencies()
