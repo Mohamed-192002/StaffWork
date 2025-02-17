@@ -42404,7 +42404,7 @@ code:not([class*=language-]) {
   ul,
   pre,
   div {
-    scrollbar-width: thin;
+   /* scrollbar-width: thin;*/
     scrollbar-color: var(--bs-scrollbar-color) transparent;
   }
   main::-webkit-scrollbar,

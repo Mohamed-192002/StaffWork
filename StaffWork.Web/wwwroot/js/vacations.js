@@ -12,12 +12,13 @@
         { "data": "appeal", "name": "Appeal", "className": "text-center" },
         { "data": "vacationType", "name": "VacationType", "className": "text-center" },
         {
-            "name": "centerDate",
+            "name": "StartDate",
             "className": "text-center",
             "render": function (data, type, row) {
-                return moment(row.centerDate).format('ll')
+                return moment(row.startDate).format('ll')
             }
         },
+        { "data": "vacationDays", "name": "VacationDays", "className": "text-center" },
         {
             "name": "VacationDuration",
             "className": "text-center",
@@ -36,7 +37,6 @@
 
             }
         },
-        { "data": "vacationDays", "name": "VacationDays", "className": "text-center" },
         {
             "data": "description",
             "name": "Description",
@@ -121,6 +121,7 @@
             }
         }
     ];
+
     columns.push(
         {
             "className": 'text-center',
@@ -180,5 +181,21 @@
             searchable: false
         }],
         columns: columns,
+        "rowCallback": function (row, data) {
+            if (!data.endDate) return;
+
+            var endDate = moment(data.endDate);
+            var today = moment();
+            var diffDays = endDate.diff(today, 'days');
+
+
+            if (diffDays >= 3) {
+                $(row).addClass("bg-success");
+            } else if (diffDays === 2) {
+                $(row).addClass("bg-warning");
+            } else if (diffDays <= 1) {
+                $(row).addClass("bg-danger");
+            }
+        }
     });
 });

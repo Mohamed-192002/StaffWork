@@ -299,8 +299,8 @@ namespace StaffWork.Web.Controllers
                 worksheet.Cells[1, 3].Value = "الاستئناف";
                 worksheet.Cells[1, 4].Value = "نوع الاجازه";
                 worksheet.Cells[1, 5].Value = "بدايه الاجازه";
-                worksheet.Cells[1, 6].Value = "فتره الاجازه";
-                worksheet.Cells[1, 7].Value = "مده الاجازه";
+                worksheet.Cells[1, 6].Value = "مده الاجازه";
+                worksheet.Cells[1, 7].Value = "فتره الاجازه";
                 worksheet.Cells[1, 8].Value = "سبب الاجازه";
                 worksheet.Cells[1, 9].Value = "هل تم المباشرة";
                 worksheet.Cells[1, 10].Value = "تاريخ المباشرة";
@@ -315,8 +315,8 @@ namespace StaffWork.Web.Controllers
                     worksheet.Cells[i + 2, 4].Value = data[i].VacationType;
                     worksheet.Cells[i + 2, 5].Value = data[i].StartDate;
                     worksheet.Cells[i + 2, 5].Style.Numberformat.Format = "dd/MM/yyyy";
-                    worksheet.Cells[i + 2, 6].Value = data[i].VacationDuration == VacationDuration.Day ? "يوم" : data[i].VacationDuration == VacationDuration.Month ? "شهر" : "سنه";
-                    worksheet.Cells[i + 2, 7].Value = data[i].VacationDays;
+                    worksheet.Cells[i + 2, 6].Value = data[i].VacationDays;
+                    worksheet.Cells[i + 2, 7].Value = data[i].VacationDuration == VacationDuration.Day ? "يوم" : data[i].VacationDuration == VacationDuration.Month ? "شهر" : "سنه";
                     worksheet.Cells[i + 2, 8].Value = data[i].Description;
                     worksheet.Cells[i + 2, 9].Value = data[i].IsReturned;
                     worksheet.Cells[i + 2, 10].Value = data[i].ReturnedDate;
@@ -494,8 +494,8 @@ namespace StaffWork.Web.Controllers
                 worksheet.Cells[1, 3].Value = "الاستئناف";
                 worksheet.Cells[1, 4].Value = "نوع الاجازه";
                 worksheet.Cells[1, 5].Value = "بدايه الاجازه";
-                worksheet.Cells[1, 6].Value = "فتره الاجازه";
-                worksheet.Cells[1, 7].Value = "مده الاجازه";
+                worksheet.Cells[1, 6].Value = "مده الاجازه";
+                worksheet.Cells[1, 7].Value = "فتره الاجازه";
                 worksheet.Cells[1, 8].Value = "سبب الاجازه";
                 worksheet.Cells[1, 9].Value = "هل تم المباشرة";
                 worksheet.Cells[1, 10].Value = "تاريخ المباشرة";
@@ -510,8 +510,8 @@ namespace StaffWork.Web.Controllers
                     worksheet.Cells[i + 2, 4].Value = data[i].VacationType;
                     worksheet.Cells[i + 2, 5].Value = data[i].StartDate;
                     worksheet.Cells[i + 2, 5].Style.Numberformat.Format = "dd/MM/yyyy";
-                    worksheet.Cells[i + 2, 6].Value = data[i].VacationDuration == VacationDuration.Day ? "يوم" : data[i].VacationDuration == VacationDuration.Month ? "شهر" : "سنه";
-                    worksheet.Cells[i + 2, 7].Value = data[i].VacationDays;
+                    worksheet.Cells[i + 2, 6].Value = data[i].VacationDays;
+                    worksheet.Cells[i + 2, 7].Value = data[i].VacationDuration == VacationDuration.Day ? "يوم" : data[i].VacationDuration == VacationDuration.Month ? "شهر" : "سنه";
                     worksheet.Cells[i + 2, 8].Value = data[i].Description;
                     worksheet.Cells[i + 2, 9].Value = data[i].IsReturned;
                     worksheet.Cells[i + 2, 10].Value = data[i].ReturnedDate;

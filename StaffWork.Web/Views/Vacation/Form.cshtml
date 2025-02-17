@@ -78,7 +78,7 @@
                 </div>
                 <div class="row col-4">
                     <!--begin::Label-->
-                    <label class="mb-5 col-lg-4 col-form-label required fw-semibold fs-5" asp-for="StartDate">تاريخ البدايه</label>
+                    <label class="mb-5 col-lg-4 col-form-label required fw-semibold fs-5" asp-for="StartDate">تاريخ الانفكاك</label>
                     <!--end::Label-->
                     <!--begin::Col-->
                     <div class="col-lg-8">
@@ -86,8 +86,27 @@
                         <div class="row">
                             <!--begin::Col-->
                             <div class="col-lg-12 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
-                                <input class="form-control form-control-solid fs-5" type="date" placeholder="ادحل تاريخ البدايه" asp-for="StartDate" />
+                                <input class="form-control form-control-solid fs-5" type="date" placeholder="ادحل تاريخ الانفكاك" asp-for="StartDate" />
                                 <span asp-validation-for="StartDate" class="fv-plugins-message-container invalid-feedback"></span>
+                                <!--end::Col-->
+                            </div>
+                        </div>
+                        <!--end::Row-->
+                    </div>
+                    <!--end::Col-->
+                </div>
+                <div class="row col-4">
+                    <!--begin::Label-->
+                    <label class="col-lg-4 col-form-label fs-5 required" asp-for="VacationDays">مده الاجازه</label>
+                    <!--end::Label-->
+                    <!--begin::Col-->
+                    <div class="col-lg-8">
+                        <!--begin::Row-->
+                        <div class="row">
+                            <!--begin::Col-->
+                            <div class="col-lg-12 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
+                                <input class="form-control form-control-solid fs-5" type="number" placeholder="ادحل مده الاجازه" asp-for="VacationDays" />
+                                <span asp-validation-for="VacationDays" class="fv-plugins-message-container invalid-feedback"></span>
                                 <!--end::Col-->
                             </div>
                         </div>
@@ -115,25 +134,6 @@
                                 <span asp-validation-for="VacationDuration" class="text-danger d-block"></span>
                             </div>
                             <!--end::Col-->
-                        </div>
-                        <!--end::Row-->
-                    </div>
-                    <!--end::Col-->
-                </div>
-                <div class="row col-4">
-                    <!--begin::Label-->
-                    <label class="col-lg-4 col-form-label fs-5 required" asp-for="VacationDays">مده الاجازه</label>
-                    <!--end::Label-->
-                    <!--begin::Col-->
-                    <div class="col-lg-8">
-                        <!--begin::Row-->
-                        <div class="row">
-                            <!--begin::Col-->
-                            <div class="col-lg-12 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
-                                <input class="form-control form-control-solid fs-5" type="number" placeholder="ادحل مده الاجازه" asp-for="VacationDays" />
-                                <span asp-validation-for="VacationDays" class="fv-plugins-message-container invalid-feedback"></span>
-                                <!--end::Col-->
-                            </div>
                         </div>
                         <!--end::Row-->
                     </div>

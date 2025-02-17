@@ -12,12 +12,13 @@
         { "data": "appeal", "name": "Appeal", "className": "text-center" },
         { "data": "vacationType", "name": "VacationType", "className": "text-center" },
         {
-            "name": "centerDate",
+            "name": "StartDate",
             "className": "text-center",
             "render": function (data, type, row) {
-                return moment(row.centerDate).format('ll')
+                return moment(row.startDate).format('ll')
             }
         },
+        { "data": "vacationDays", "name": "VacationDays", "className": "text-center" },
         {
             "name": "VacationDuration",
             "className": "text-center",
@@ -36,7 +37,6 @@
 
             }
         },
-        { "data": "vacationDays", "name": "VacationDays", "className": "text-center" },
         {
             "data": "description",
             "name": "Description",
