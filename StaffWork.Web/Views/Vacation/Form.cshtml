@@ -86,7 +86,7 @@
                         <div class="row">
                             <!--begin::Col-->
                             <div class="col-lg-12 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
-                                <input class="form-control form-control-solid fs-5" type="date" placeholder="ادحل تاريخ الانفكاك" asp-for="StartDate" />
+                                <input class="form-control form-control-solid fs-5" type="datetime-local" placeholder="ادحل تاريخ الانفكاك" asp-for="StartDate" />
                                 <span asp-validation-for="StartDate" class="fv-plugins-message-container invalid-feedback"></span>
                                 <!--end::Col-->
                             </div>
@@ -114,6 +114,7 @@
                     </div>
                     <!--end::Col-->
                 </div>
+               
                 <div class="row col-4">
                     <!--begin::Label-->
                     <label class="col-lg-4 col-form-label fs-5 required" asp-for="VacationDuration">فتره الاجازه</label>
@@ -132,6 +133,62 @@
                                     <option value="2">سنه</option>
                                 </select>
                                 <span asp-validation-for="VacationDuration" class="text-danger d-block"></span>
+                            </div>
+                            <!--end::Col-->
+                        </div>
+                        <!--end::Row-->
+                    </div>
+                    <!--end::Col-->
+                </div>
+                <div class="row col-4">
+                    <!--begin::Label-->
+                    <label class="col-lg-4 col-form-label fw-semibold fs-6">التنبيه تلقائى</label>
+                    <!--begin::Label-->
+                    <!--begin::Label-->
+                    <div class="col-lg-8 d-flex align-items-center">
+                        <div class="form-check form-check-solid form-switch form-check-custom fv-row">
+                            <input class="form-check-input w-45px h-30px" type="checkbox" asp-for="IsAutoNotifi">
+                        </div>
+                    </div>
+                    <!--begin::Label-->
+                </div>
+                <div class="row col-4">
+                    <!--begin::Label-->
+                    <label class="col-lg-4 col-form-label fs-5 required" asp-for="CustomNotifiBeforeDays">مده التنبيه</label>
+                    <!--end::Label-->
+                    <!--begin::Col-->
+                    <div class="col-lg-8">
+                        <!--begin::Row-->
+                        <div class="row">
+                            <!--begin::Col-->
+                            <div class="col-lg-12 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
+                                <input class="form-control form-control-solid fs-5" type="number" placeholder="ادحل مده التنبيه" asp-for="CustomNotifiBeforeDays" />
+                                <span asp-validation-for="CustomNotifiBeforeDays" class="fv-plugins-message-container invalid-feedback"></span>
+                                <!--end::Col-->
+                            </div>
+                        </div>
+                        <!--end::Row-->
+                    </div>
+                    <!--end::Col-->
+                </div>
+                <div class="row col-4">
+                    <!--begin::Label-->
+                    <label class="col-lg-4 col-form-label fs-5 required" asp-for="CustomNotifiDuration">فتره التنبيه</label>
+                    <!--end::Label-->
+                    <!--begin::Col-->
+                    <div class="col-lg-8">
+                        <!--begin::Row-->
+                        <div class="row">
+                            <!--begin::Col-->
+                            <div class="fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
+                                <select aria-label="Select a Country" data-control="select2" data-placeholder="اختار فتره التنبيه..." class="form-select form-select-solid form-select-lg fw-semibold"
+                                        asp-for="CustomNotifiDuration">
+                                    <option value="">اختار فتره</option>
+                                    <option value="0">يوم</option>
+                                    <option value="1">شهر</option>
+                                    <option value="2">سنه</option>
+                                </select>
+                                <span asp-validation-for="CustomNotifiDuration" class="text-danger d-block"></span>
                             </div>
                             <!--end::Col-->
                         </div>

@@ -33,5 +33,11 @@ namespace StaffWork.Core.Paramaters
 
         [Display(Name = "تاريخ العوده")]
         public virtual DateTime? ReturnedDate { get; set; }
+
+        ////////////////////
+        public bool IsAutoNotifi { get; set; }
+        public VacationDuration? CustomNotifiDuration { get; set; }
+        public int? CustomNotifiBeforeDays { get; set; }
+        public virtual DateTime CustomNotifiDate { get; set; } = DateTime.Now;
     }
 }

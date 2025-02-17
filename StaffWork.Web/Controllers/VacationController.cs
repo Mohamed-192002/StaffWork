@@ -68,25 +68,63 @@ namespace StaffWork.Web.Controllers
             {
                 Vacation.EndDate = viewModel.StartDate.AddYears(Vacation.VacationDays);
             }
+            ////////////////
+
+            if (!viewModel.IsAutoNotifi)
+            {
+                if (viewModel.CustomNotifiDuration == VacationDuration.Day)
+                {
+                    Vacation.CustomNotifiDate = Vacation.EndDate.AddDays(-Vacation.CustomNotifiBeforeDays ?? 0);
+                }
+                else if (viewModel.CustomNotifiDuration == VacationDuration.Month)
+                {
+                    Vacation.CustomNotifiDate = Vacation.EndDate.AddMonths(-Vacation.CustomNotifiBeforeDays ?? 0);
+                }
+                else if (viewModel.CustomNotifiDuration == VacationDuration.Year)
+                {
+                    Vacation.CustomNotifiDate = Vacation.EndDate.AddYears(-Vacation.CustomNotifiBeforeDays ?? 0);
+                }
+
+            }
 
             await BussinesService.InsertAsync(Vacation);
 
             #region Send Notification
             var vacation = await BussinesService.GetAsync(x => x.Id == Vacation.Id, ["Employee"]);
-            var scheduleTime = vacation.EndDate.AddDays(-1) - DateTime.Now;
-            if (scheduleTime.TotalSeconds > 0) // Ensure scheduling in the future
+            if (viewModel.IsAutoNotifi)
             {
-                BackgroundJob.Schedule<NotifiJob>(
-                    x => x.ScheduleNotifiJob(vacation),
-                    scheduleTime
-                );
+                var scheduleTime = vacation.EndDate.AddDays(-1) - DateTime.Now;
+                if (scheduleTime.TotalSeconds > 0) // Ensure scheduling in the future
+                {
+                    BackgroundJob.Schedule<NotifiJob>(
+                        x => x.ScheduleNotifiJob(vacation),
+                        scheduleTime
+                    );
+                }
+                else
+                {
+                    // If the EndDate is in less than a day, schedule immediately
+                    BackgroundJob.Enqueue<NotifiJob>(x => x.ScheduleNotifiJob(vacation));
+                }
             }
             else
             {
-                // If the EndDate is in less than a day, schedule immediately
-                BackgroundJob.Enqueue<NotifiJob>(x => x.ScheduleNotifiJob(vacation));
+                // var scheduleTime = (vacation.EndDate.AddDays(-1) - vacation.CustomNotifiDate);
+                var scheduleTime = vacation.CustomNotifiDate - DateTime.UtcNow;
+                if (scheduleTime.TotalSeconds > 0) // Ensure scheduling in the future
+                {
+                    BackgroundJob.Schedule<NotifiJob>(
+                        x => x.ScheduleNotifiJob(vacation),
+                        scheduleTime
+                    );
+                }
+                else
+                {
+                    // If the CustomNotifiDate is after EndDate, schedule immediately
+                    BackgroundJob.Enqueue<NotifiJob>(x => x.ScheduleNotifiJob(vacation));
+                }
             }
-          //  BackgroundJob.Schedule<NotifiJob>(x => x.ScheduleNotifiJob(vacation), TimeSpan.FromDays(timeSent));
+
             #endregion
             return RedirectToAction("Index", _mapper.Map<VacationViewModel>(Vacation));
         }
@@ -156,7 +194,7 @@ namespace StaffWork.Web.Controllers
             var sortColumnDirection = Request.Form["order[0][dir]"];
 
             IQueryable<Vacation> VacationQuery;
-            VacationQuery = (IQueryable<Vacation>)await BussinesService.GetAllAsync(x=>!x.IsReturned, ["Employee", "VacationType"]);
+            VacationQuery = (IQueryable<Vacation>)await BussinesService.GetAllAsync(x => !x.IsReturned, ["Employee", "VacationType"], orderBy: x => x.EndDate);
 
             if (!string.IsNullOrEmpty(searchValue))
             {
@@ -165,7 +203,7 @@ namespace StaffWork.Web.Controllers
                     || (b.Employee.Court != null && b.Employee.Court.Contains(searchValue!))
                     || (b.Employee.Appeal != null && b.Employee.Appeal.Contains(searchValue!))
                     || (b.VacationType.Name != null && b.VacationType.Name.Contains(searchValue!))
-                  //  || b.VacationDuration.ToString().Contains(searchValue!)
+                    //  || b.VacationDuration.ToString().Contains(searchValue!)
                     || b.VacationDays.ToString().Contains(searchValue!)
                     || (b.Description != null && b.Description.Contains(searchValue!))
                 );
@@ -210,7 +248,7 @@ namespace StaffWork.Web.Controllers
                         Vacation = sortColumnDirection == "asc" ? Vacation.OrderBy(b => b.ReturnedDate).ToList() : Vacation.OrderByDescending(b => b.ReturnedDate).ToList();
                         break;
                     default:
-                        Vacation = Vacation.OrderByDescending(b => b.DateCreated).ToList(); // Default sorting
+                        Vacation = Vacation.OrderBy(b => b.EndDate).ToList(); // Default sorting
                         break;
                 }
             }
@@ -553,7 +591,7 @@ namespace StaffWork.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetEmployees(string search, int page = 1, int pageSize = 10, int? selectedId = null)
         {
-            var query =await _EmployeeService.GetAllAsync(null!);
+            var query = await _EmployeeService.GetAllAsync(null!);
 
             if (!string.IsNullOrEmpty(search))
             {
@@ -563,7 +601,7 @@ namespace StaffWork.Web.Controllers
             // If an employee is selected (for edit mode), fetch it explicitly
             if (selectedId.HasValue)
             {
-                var selectedEmployee =  query.FirstOrDefault(e => e.Id == selectedId.Value);
+                var selectedEmployee = query.FirstOrDefault(e => e.Id == selectedId.Value);
                 if (selectedEmployee != null)
                 {
                     return Json(new
@@ -574,8 +612,8 @@ namespace StaffWork.Web.Controllers
                 }
             }
 
-            var totalCount =  query.Count();
-            var employees =  query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            var totalCount = query.Count();
+            var employees = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
             return Json(new
             {

@@ -20,7 +20,7 @@ public class NotifiJob
     }
     public async Task CheckVacationEndDates(Vacation vacation)
     {
-        string message = $"🔔 تنبيه: إجازة الموظف {vacation.Employee.FullName} ستنتهي غدًا!";
+        string message = $"🔔 تنبيه: إجازة الموظف {vacation.Employee.FullName} ستنتهي فى {vacation.EndDate}!";
         // Send notification logic
         var notification = new Notification
         {

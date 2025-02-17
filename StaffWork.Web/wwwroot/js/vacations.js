@@ -73,18 +73,42 @@
                 var endDate = moment(row.endDate);
                 var today = moment();
                 var diffDays = endDate.diff(today, 'days');
-                if (diffDays >= 3) {
-                    return '<span class="badge badge-success">متبقي 3 أيام أو أكثر</span>';
-                } else if (diffDays === 2) {
-                    return '<span class="badge badge-warning">متبقي يومان</span>';
-                } else if (diffDays === 1) {
-                    return '<span class="badge badge-danger">متبقي يوم</span>';
-                } else if (diffDays === 0) {
-                    return '<span class="badge badge-danger">اليوم</span>';
-                } else {
-                    return `<span class="badge badge-danger">متأخر بـ ${Math.abs(diffDays)} يوم</span>`;
+                if (row.isAutoNotifi) {
+                    if (diffDays > 3) {
+                        return `<span class="badge badge-dark">متبقي  ${Math.abs(diffDays)} يوم</span>`;
+                    }
+                    switch (diffDays) {
+                        case 0:
+                            return '<span class="badge badge-danger">اليوم</span>';
+                        case 1:
+                            return '<span class="badge badge-danger">متبقي يوم</span>';
+                        case 2:
+                            return '<span class="badge badge-warning">متبقي يومان</span>';
+                        case 3: 
+                            return '<span class="badge badge-success">متبقي 3 أيام</span>';
+                        default:
+                            return `<span class="badge badge-danger">متأخر بـ ${Math.abs(diffDays)} يوم</span>`;
+                    }
                 }
-                return "";
+                else {
+                    if (diffDays < 0) {
+                        return `<span class="badge badge-danger">متأخر بـ ${Math.abs(diffDays)} يوم</span>`;
+                    }
+                    switch (diffDays) {
+                        case 0:
+                            return '<span class="badge badge-danger">اليوم</span>';
+                        case 1:
+                            return '<span class="badge badge-danger">متبقي يوم</span>';
+                        case 2:
+                            return '<span class="badge badge-warning">متبقي يومان</span>';
+                        case 3:
+                            return '<span class="badge badge-success">متبقي 3 أيام</span>';
+                        default:
+                            return `<span class="badge badge-warning">متبقي  ${Math.abs(diffDays)} يوم</span>`;
+                    }
+                }
+
+                // return "";
             }
         },
         {
@@ -181,21 +205,21 @@
             searchable: false
         }],
         columns: columns,
-        "rowCallback": function (row, data) {
-            if (!data.endDate) return;
+        //"rowCallback": function (row, data) {
+        //    if (!data.endDate) return;
 
-            var endDate = moment(data.endDate);
-            var today = moment();
-            var diffDays = endDate.diff(today, 'days');
+        //    var endDate = moment(data.endDate);
+        //    var today = moment();
+        //    var diffDays = endDate.diff(today, 'days');
 
 
-            if (diffDays >= 3) {
-                $(row).addClass("bg-success");
-            } else if (diffDays === 2) {
-                $(row).addClass("bg-warning");
-            } else if (diffDays <= 1) {
-                $(row).addClass("bg-danger");
-            }
-        }
+        //    if (diffDays >= 3) {
+        //        $(row).addClass("bg-success");
+        //    } else if (diffDays === 2) {
+        //        $(row).addClass("bg-warning");
+        //    } else if (diffDays <= 1) {
+        //        $(row).addClass("bg-danger");
+        //    }
+        //}
     });
 });

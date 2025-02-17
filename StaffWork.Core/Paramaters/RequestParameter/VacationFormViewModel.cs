@@ -31,9 +31,16 @@ namespace StaffWork.Core.Paramaters
 
         [Display(Name = "تاريخ العوده")]
         public virtual DateTime? ReturnedDate { get; set; }
-
         [Display(Name = "فتره الاجازه")]
         [Required(ErrorMessage = "الحقل مطلوب")]
         public VacationDuration VacationDuration { get; set; }
+
+        [Display(Name = "هل التنبيه تلقائى ؟")]
+        public bool IsAutoNotifi { get; set; } = true;
+
+        [Display(Name = "مده التنبيه")]
+        public int? CustomNotifiBeforeDays { get; set; }
+        [Display(Name = "فتره التنبيه")]
+        public VacationDuration? CustomNotifiDuration { get; set; }
     }
 }

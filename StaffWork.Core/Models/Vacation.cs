@@ -18,5 +18,11 @@ namespace StaffWork.Core.Models
         public virtual DateTime EndDate { get; set; } = DateTime.Now;
         public virtual DateTime? ReturnedDate { get; set; }
         public virtual string? Description { get; set; }
+        ////////////////////
+        public bool IsAutoNotifi { get; set; } = true;
+        public VacationDuration? CustomNotifiDuration { get; set; }
+        public int? CustomNotifiBeforeDays { get; set; }
+        public virtual DateTime CustomNotifiDate { get; set; } = DateTime.Now;
+
     }
 }
