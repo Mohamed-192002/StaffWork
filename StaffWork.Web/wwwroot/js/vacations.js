@@ -165,7 +165,7 @@
             "orderable": false,
             "render": function (data, type, row) {
                 return `
-                <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger js-confirm"
+                <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-info btn-active-light-danger js-confirm"
                    data-title="حذف" data-url="/${tbody.data('controller')}/Delete/${row.id}" data-update="true"
                             data-message="هل متأكد من حذف هذا العنصر؟">
                     حذف 
@@ -205,21 +205,59 @@
             searchable: false
         }],
         columns: columns,
-        //"rowCallback": function (row, data) {
-        //    if (!data.endDate) return;
+        "rowCallback": function (row, data) {
+            if (!data.endDate) return;
 
-        //    var endDate = moment(data.endDate);
-        //    var today = moment();
-        //    var diffDays = endDate.diff(today, 'days');
+            var endDate = moment(data.endDate);
+            var today = moment();
+            var diffDays = endDate.diff(today, 'days');
 
+            if (data.isAutoNotifi) {
+                if (diffDays > 3) {
+                    $(row).addClass("bg-Default");
+                } else {
+                    switch (diffDays) {
+                        case 0:
+                            $(row).addClass("bg-danger");
+                            break;
+                        case 1:
+                            $(row).addClass("bg-danger");
+                            break;
+                        case 2:
+                            $(row).addClass("bg-warning");
+                            break;
+                        case 3:
+                            $(row).addClass("bg-success");
+                            break;
+                        default:
+                            $(row).addClass("bg-danger");
+                            break;
+                    }
+                }
+            } else {
+                if (diffDays < 0) {
+                    $(row).addClass("bg-danger");
+                } else {
+                    switch (diffDays) {
+                        case 0:
+                            $(row).addClass("bg-danger");
+                            break;
+                        case 1:
+                            $(row).addClass("bg-danger");
+                            break;
+                        case 2:
+                            $(row).addClass("bg-warning");
+                            break;
+                        case 3:
+                            $(row).addClass("bg-success");
+                            break;
+                        default:
+                            $(row).addClass("bg-warning");
+                            break;
+                    }
+                }
+            }
+        }
 
-        //    if (diffDays >= 3) {
-        //        $(row).addClass("bg-success");
-        //    } else if (diffDays === 2) {
-        //        $(row).addClass("bg-warning");
-        //    } else if (diffDays <= 1) {
-        //        $(row).addClass("bg-danger");
-        //    }
-        //}
     });
 });
