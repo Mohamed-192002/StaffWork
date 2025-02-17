@@ -22,14 +22,16 @@ namespace StaffWork.Web.Controllers
     {
         private readonly IHubContext<NotificationHub> _hubContext;
 
+        public readonly IServicesBase<Notification> _NotificationService;
         public readonly IServicesBase<Employee> _EmployeeService;
         public readonly IServicesBase<VacationType> _VacationTypeService;
-        public VacationController(IServicesBase<Vacation> servicesBase, IMapper mapper, IServicesBase<Employee> EmployeeService, IServicesBase<VacationType> vacationTypeService, IHubContext<NotificationHub> hubContext)
+        public VacationController(IServicesBase<Vacation> servicesBase, IMapper mapper, IServicesBase<Employee> EmployeeService, IServicesBase<VacationType> vacationTypeService, IHubContext<NotificationHub> hubContext, IServicesBase<Notification> notificationService)
             : base(servicesBase, mapper)
         {
             _EmployeeService = EmployeeService;
             _VacationTypeService = vacationTypeService;
             _hubContext = hubContext;
+            _NotificationService = notificationService;
         }
 
         [HttpGet]
@@ -126,6 +128,7 @@ namespace StaffWork.Web.Controllers
             }
 
             #endregion
+
             return RedirectToAction("Index", _mapper.Map<VacationViewModel>(Vacation));
         }
         [HttpGet]
@@ -160,6 +163,25 @@ namespace StaffWork.Web.Controllers
                 Vacation.EndDate = viewModel.StartDate.AddYears(Vacation.VacationDays);
             }
 
+            ////////////////
+
+            if (!viewModel.IsAutoNotifi)
+            {
+                if (viewModel.CustomNotifiDuration == VacationDuration.Day)
+                {
+                    Vacation.CustomNotifiDate = Vacation.EndDate.AddDays(-Vacation.CustomNotifiBeforeDays ?? 0);
+                }
+                else if (viewModel.CustomNotifiDuration == VacationDuration.Month)
+                {
+                    Vacation.CustomNotifiDate = Vacation.EndDate.AddMonths(-Vacation.CustomNotifiBeforeDays ?? 0);
+                }
+                else if (viewModel.CustomNotifiDuration == VacationDuration.Year)
+                {
+                    Vacation.CustomNotifiDate = Vacation.EndDate.AddYears(-Vacation.CustomNotifiBeforeDays ?? 0);
+                }
+
+            }
+
             await BussinesService.UpdateAsync(Vacation.Id, Vacation);
             return RedirectToAction("Index", _mapper.Map<VacationViewModel>(Vacation));
         }
@@ -171,6 +193,11 @@ namespace StaffWork.Web.Controllers
                 return NotFound();
             try
             {
+                var notifications = await _NotificationService.GetAllAsync(x => x.VacationId == id);
+                foreach (var notification in notifications.ToList())
+                {
+                    await _NotificationService.DeleteAsync(notification.Id);
+                }
                 await BussinesService.DeleteAsync(id);
             }
             catch (Exception)

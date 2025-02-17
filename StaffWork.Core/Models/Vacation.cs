@@ -24,5 +24,6 @@ namespace StaffWork.Core.Models
         public int? CustomNotifiBeforeDays { get; set; }
         public virtual DateTime CustomNotifiDate { get; set; } = DateTime.Now;
 
+        public ICollection<Notification> Notifications { get; set; } = [];
     }
 }
