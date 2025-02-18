@@ -75,36 +75,36 @@
                 var diffDays = endDate.diff(today, 'days');
                 if (row.isAutoNotifi) {
                     if (diffDays > 3) {
-                        return `<span class="badge badge-dark">متبقي  ${Math.abs(diffDays)} يوم</span>`;
+                        return `<span class="badge badge-dark fw-bold">متبقي  ${Math.abs(diffDays)} يوم</span>`;
                     }
                     switch (diffDays) {
                         case 0:
-                            return '<span class="badge badge-danger">اليوم</span>';
+                            return '<span class="badge badge-danger fw-bold">اليوم</span>';
                         case 1:
-                            return '<span class="badge badge-danger">متبقي يوم</span>';
+                            return '<span class="badge badge-danger fw-bold">متبقي يوم</span>';
                         case 2:
-                            return '<span class="badge badge-warning">متبقي يومان</span>';
+                            return '<span class="badge badge-warning fw-bold">متبقي يومان</span>';
                         case 3: 
-                            return '<span class="badge badge-success">متبقي 3 أيام</span>';
+                            return '<span class="badge badge-success fw-bold">متبقي 3 أيام</span>';
                         default:
-                            return `<span class="badge badge-danger">متأخر بـ ${Math.abs(diffDays)} يوم</span>`;
+                            return `<span class="badge badge-danger fw-bold">متأخر بـ ${Math.abs(diffDays)} يوم</span>`;
                     }
                 }
                 else {
                     if (diffDays < 0) {
-                        return `<span class="badge badge-danger">متأخر بـ ${Math.abs(diffDays)} يوم</span>`;
+                        return `<span class="badge badge-danger fw-bold">متأخر بـ ${Math.abs(diffDays)} يوم</span>`;
                     }
                     switch (diffDays) {
                         case 0:
-                            return '<span class="badge badge-danger">اليوم</span>';
+                            return '<span class="badge badge-danger fw-bold">اليوم</span>';
                         case 1:
-                            return '<span class="badge badge-danger">متبقي يوم</span>';
+                            return '<span class="badge badge-danger fw-bold">متبقي يوم</span>';
                         case 2:
-                            return '<span class="badge badge-warning">متبقي يومان</span>';
+                            return '<span class="badge badge-warning fw-bold">متبقي يومان</span>';
                         case 3:
-                            return '<span class="badge badge-success">متبقي 3 أيام</span>';
+                            return '<span class="badge badge-success fw-bold">متبقي 3 أيام</span>';
                         default:
-                            return `<span class="badge badge-warning">متبقي  ${Math.abs(diffDays)} يوم</span>`;
+                            return `<span class="badge badge-warning fw-bold">متبقي  ${Math.abs(diffDays)} يوم</span>`;
                     }
                 }
 
