@@ -224,7 +224,7 @@
                             $(row).addClass("bg-danger");
                             break;
                         case 2:
-                            $(row).addClass("bg-warning");
+                            $(row).addClass("bg-warning-coustom");
                             break;
                         case 3:
                             $(row).addClass("bg-success");
@@ -246,13 +246,13 @@
                             $(row).addClass("bg-danger");
                             break;
                         case 2:
-                            $(row).addClass("bg-warning");
+                            $(row).addClass("bg-warning-coustom");
                             break;
                         case 3:
                             $(row).addClass("bg-success");
                             break;
                         default:
-                            $(row).addClass("bg-warning");
+                            $(row).addClass("bg-warning-coustom");
                             break;
                     }
                 }

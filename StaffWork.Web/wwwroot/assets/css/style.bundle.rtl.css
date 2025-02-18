@@ -42398,15 +42398,15 @@ code:not([class*=language-]) {
 }
 
 @media (min-width: 992px) {
-  main,
-  span,
-  ol,
-  ul,
-  pre,
-  div {
-   /* scrollbar-width: thin;*/
-    scrollbar-color: var(--bs-scrollbar-color) transparent;
-  }
+    main,
+    span,
+    ol,
+    ul,
+    pre,
+    div {
+        /* scrollbar-width: thin;*/
+        scrollbar-color: #4848d5 transparent;
+    }
   main::-webkit-scrollbar,
   span::-webkit-scrollbar,
   ol::-webkit-scrollbar,
