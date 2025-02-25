@@ -69,10 +69,13 @@
                 if (!row.endDate) {
                     return "";
                 }
-
                 var endDate = moment(row.endDate);
                 var today = moment();
                 var diffDays = endDate.diff(today, 'days');
+
+                var customNotifiDate = moment(row.customNotifiDate);
+                var diffcustomNotifiDateDays = endDate.diff(customNotifiDate, 'days');
+
                 if (row.isAutoNotifi) {
                     if (diffDays > 3) {
                         return `<span class="badge badge-dark fw-bold">متبقي  ${Math.abs(diffDays)} يوم</span>`;
@@ -84,7 +87,7 @@
                             return '<span class="badge badge-danger fw-bold">متبقي يوم</span>';
                         case 2:
                             return '<span class="badge badge-warning fw-bold">متبقي يومان</span>';
-                        case 3: 
+                        case 3:
                             return '<span class="badge badge-success fw-bold">متبقي 3 أيام</span>';
                         default:
                             return `<span class="badge badge-danger fw-bold">متأخر بـ ${Math.abs(diffDays)} يوم</span>`;
@@ -93,6 +96,11 @@
                 else {
                     if (diffDays < 0) {
                         return `<span class="badge badge-danger fw-bold">متأخر بـ ${Math.abs(diffDays)} يوم</span>`;
+                    }
+                    if (today.isBetween(customNotifiDate, endDate, null, '[]')) {
+                        if (diffcustomNotifiDateDays > 4) {
+                            return `<span class="badge badge-warning fw-bold">متبقي  ${Math.abs(diffDays)} يوم</span>`;
+                        }
                     }
                     switch (diffDays) {
                         case 0:
@@ -104,7 +112,7 @@
                         case 3:
                             return '<span class="badge badge-success fw-bold">متبقي 3 أيام</span>';
                         default:
-                            return `<span class="badge badge-warning fw-bold">متبقي  ${Math.abs(diffDays)} يوم</span>`;
+                            return `<span class="badge badge-dark fw-bold">متبقي  ${Math.abs(diffDays)} يوم</span>`;
                     }
                 }
 
@@ -173,10 +181,6 @@
             }
         });
 
-
-
-
-
     // Handle title filter change event
     var titleFilter = $('#titleSearchId');
     titleFilter.on('change', function () {
@@ -212,51 +216,49 @@
             var today = moment();
             var diffDays = endDate.diff(today, 'days');
 
+            var customNotifiDate = moment(data.customNotifiDate);
+            var diffcustomNotifiDateDays = endDate.diff(customNotifiDate, 'days');
+
             if (data.isAutoNotifi) {
                 if (diffDays > 3) {
-                    $(row).addClass("bg-Default");
-                } else {
-                    switch (diffDays) {
-                        case 0:
-                            $(row).addClass("bg-danger");
-                            break;
-                        case 1:
-                            $(row).addClass("bg-danger");
-                            break;
-                        case 2:
-                            $(row).addClass("bg-warning-coustom");
-                            break;
-                        case 3:
-                            $(row).addClass("bg-success");
-                            break;
-                        default:
-                            $(row).addClass("bg-danger");
-                            break;
-                    }
+                    return  $(row).addClass("bg-Default");
                 }
-            } else {
-                if (diffDays < 0) {
-                    $(row).addClass("bg-danger");
-                } else {
-                    switch (diffDays) {
-                        case 0:
-                            $(row).addClass("bg-danger");
-                            break;
-                        case 1:
-                            $(row).addClass("bg-danger");
-                            break;
-                        case 2:
-                            $(row).addClass("bg-warning-coustom");
-                            break;
-                        case 3:
-                            $(row).addClass("bg-success");
-                            break;
-                        default:
-                            $(row).addClass("bg-warning-coustom");
-                            break;
-                    }
+                switch (diffDays) {
+                    case 0:
+                        return $(row).addClass("bg-danger");
+                    case 1:
+                        return $(row).addClass("bg-danger");
+                    case 2:
+                        return $(row).addClass("bg-warning-coustom");
+                    case 3:
+                        return $(row).addClass("bg-success");
+                    default:
+                        return $(row).addClass("bg-danger");
                 }
             }
+            else {
+                if (diffDays < 0) {
+                    return  $(row).addClass("bg-danger");
+                }
+                if (today.isBetween(customNotifiDate, endDate, null, '[]')) {
+                    if (diffcustomNotifiDateDays > 4) {
+                        return  $(row).addClass("bg-warning-coustom");
+                    }
+                }
+                switch (diffDays) {
+                    case 0:
+                        return $(row).addClass("bg-danger");
+                    case 1:
+                        return $(row).addClass("bg-danger");
+                    case 2:
+                        return $(row).addClass("bg-warning-coustom");
+                    case 3:
+                        return $(row).addClass("bg-success");
+                    default:
+                        return $(row).addClass("bg-Default");
+                }
+            }
+
         }
 
     });
