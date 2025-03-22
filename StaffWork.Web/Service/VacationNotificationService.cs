@@ -19,7 +19,7 @@ public class VacationNotificationService
 	public async Task CheckVacationEndDates()
 	{
 		var vacationsEndingSoon = await _VacationService.GetAllAsync
-			(v => !v.IsReturned && v.StartDate.AddDays(v.VacationDays) <= DateTime.Now.AddDays(1), ["Employee", "VacationType"]);
+			(v => !v.IsReturned && v.StartDate.Value.AddDays(v.VacationDays) <= DateTime.Now.AddDays(1), ["Employee", "VacationType"]);
 
 
 		foreach (var vacation in vacationsEndingSoon)

@@ -1,7 +1,7 @@
 ﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
 
 @{
-    ViewData["Title"] = "الاجازات";
+    ViewData["Title"] = "اجازات لم تباشر";
 }
 @section Styles
 {
@@ -40,7 +40,7 @@
     </div>
     <div class="card-body fs-5 pt-0">
         <div class="table-responsive me-3">
-            <table style="width:100%" id="returnedVacation" class="nowrap fs-4  table table-row-dashed table-row-gray-300 gy-5">
+            <table style="width:100%" id="notStartVacation" class="nowrap fs-4  table table-row-dashed table-row-gray-300 gy-5">
                 <thead>
                     <tr class="fw-bold border">
                         <th class="d-none"></th>
@@ -48,7 +48,7 @@
                         <th style="text-align:start">دار القضاء</th>
                         <th style="text-align:start">الاستئناف</th>
                         <th style="text-align:start">نوع الاجازه</th>
-                        <th style="text-align:start">تاريخ الانفكاك</th>
+                        @* <th style="text-align:start">تاريخ الانفكاك</th> *@
                         <th style="text-align:start">مده الاجازه</th>
                         <th style="text-align:start">فتره الاجازه</th>
                         <th style="text-align:start">سبب الاجازه</th>
@@ -60,7 +60,7 @@
                         <th style="text-align:end">حذف</th>
                     </tr>
                 </thead>
-                <tbody data-url="/Vacation/GetReturnedVacations" data-controller="Vacation" class="border">
+                <tbody data-url="/Vacation/GetNotStartVacations" data-controller="Vacation" class="border">
                     @* Vacation will be rendered here *@
                 </tbody>
             </table>
@@ -77,12 +77,12 @@
 
 @section Scripts
 {
-    <script src="~/js/returnedVacation.js" asp-append-version="true"></script>
+    <script src="~/js/notStartVacation.js" asp-append-version="true"></script>
     <partial name="_ValidationScriptsPartial" />
     <script>
         function exportToExcel() {
             // Get the DataTable instance
-            var table = $('#returnedVacation').DataTable();
+            var table = $('#notStartVacation').DataTable();
 
             // Get the current search value
             var searchValue = table.search();
@@ -96,7 +96,7 @@
             var sortColumn = table.settings().init().columns[sortColumnIndex].name;
 
             // Construct the export URL with the search and sort parameters
-            var url = `/Vacation/ReturnedVacationExportToExcel?searchValue=${encodeURIComponent(searchValue)}&sortColumn=${sortColumn}&sortColumnDirection=${sortColumnDirection}`;
+            var url = `/Vacation/NotStartVacationExportToExcel?searchValue=${encodeURIComponent(searchValue)}&sortColumn=${sortColumn}&sortColumnDirection=${sortColumnDirection}`;
 
             // Redirect to the generated URL to download the Excel file
             window.location.href = url;

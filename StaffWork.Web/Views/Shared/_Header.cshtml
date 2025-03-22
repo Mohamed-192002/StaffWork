@@ -38,6 +38,9 @@
                     <li class="nav-item" active-controller="Vacation" active-action="ReturnedVacation">
                         <a class="nav-link" asp-controller="Vacation" asp-action="ReturnedVacation">الاجازات</a>
                     </li>
+                    <li class="nav-item" active-controller="Vacation" active-action="NotStartVacation">
+                        <a class="nav-link" asp-controller="Vacation" asp-action="NotStartVacation">اجازات لم تباشر</a>
+                    </li>
                 }
                 @if (User.IsInRole(AppRoles.SuperAdmin))
                 {

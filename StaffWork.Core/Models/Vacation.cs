@@ -14,8 +14,8 @@ namespace StaffWork.Core.Models
         public VacationDuration VacationDuration { get; set; }
 
         public bool IsReturned { get; set; } = false;
-        public virtual DateTime StartDate { get; set; }
-        public virtual DateTime EndDate { get; set; } = DateTime.Now;
+        public virtual DateTime? StartDate { get; set; }
+        public virtual DateTime? EndDate { get; set; } = DateTime.Now;
         public virtual DateTime? ReturnedDate { get; set; }
         public virtual string? Description { get; set; }
         ////////////////////
@@ -25,5 +25,7 @@ namespace StaffWork.Core.Models
         public virtual DateTime CustomNotifiDate { get; set; } = DateTime.Now;
 
         public ICollection<Notification> Notifications { get; set; } = [];
+
+        public string? JobId { get; set; }
     }
 }
