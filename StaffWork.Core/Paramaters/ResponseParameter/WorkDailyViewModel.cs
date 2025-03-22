@@ -11,6 +11,6 @@
         public virtual string Status { get; set; }
         public virtual DateTime DateCreated { get; set; }
 
-        public virtual bool IsDisabled { get; set; }
+      //  public virtual bool IsDisabled { get; set; }
     }
 }

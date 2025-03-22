@@ -121,7 +121,7 @@ namespace StaffWork.Web.Controllers
             }
             return Ok();
         }
-        [HttpGet]
+        [HttpGet]                                                                                                                                                                                           
         [AjaxOnly]
         public async Task<IActionResult> EditAsync(int id)
         {
@@ -226,7 +226,7 @@ namespace StaffWork.Web.Controllers
                 var daysDifference = timeDifference.TotalDays;
                 if (daysDifference < 0) daysDifference = -daysDifference;
                 var isAdmin = !User.IsInRole(AppRoles.SuperAdmin);
-                item.IsDisabled = ((item.Status == Status.Pending.ToString()) && daysDifference > 7) && isAdmin;
+              //  item.IsDisabled = ((item.Status == Status.Pending.ToString()) && daysDifference > 7) && isAdmin;
             }
             var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = mappedData };
 

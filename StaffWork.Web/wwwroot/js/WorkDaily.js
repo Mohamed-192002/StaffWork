@@ -74,7 +74,7 @@
                 "orderable": false,
                 "render": function (data, type, row) {
                     return `
-                            <a href="javascript:;" class="btn ${row.isDisabled ? 'disabled' : ''} btn-sm btn-outline btn-outline-dashed btn-outline-success btn-active-light-success js-Accepted-status"
+                            <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-success btn-active-light-success js-Accepted-status"
                                data-title="قبول" data-url="/${tbody.data('controller')}/AcceptStatus/${row.id}" data-update="true" data-message="هل متأكد من قبول الحاله؟">
                                قبول
                             </a>
@@ -87,7 +87,7 @@
                 "orderable": false,
                 "render": function (data, type, row) {
                     return `
-                 <a href="javascript:;" class="btn ${row.isDisabled ? 'disabled' : ''}  btn-sm btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger js-Rejected-status"
+                 <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger js-Rejected-status"
                    data-title="رفض" data-url="/${tbody.data('controller')}/RejectedStatus/${row.id}" data-update="true" data-message="هل متأكد من رفض الحاله؟">
                     رفض 
                 </a>`;
