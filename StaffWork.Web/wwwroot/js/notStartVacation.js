@@ -62,38 +62,38 @@
                 return data; // return data as it is if it's empty or undefined
             }
         },
-        {
-            "name": "IsReturned",
-            "className": "text-center",
-            "render": function (data, type, row) {
-                if (row.isReturned) {
-                    return 'نعم'
-                }
-                else {
-                    return 'لا'
-                }
-                return "";
-            }
-        },        {
-            "name": "ReturnedDate",
-            "className": "text-center",
-            "render": function (data, type, row) {
-                if (row.returnedDate) {
-                    return moment(row.returnedDate).format('ll')
-                }
-                return "";
-            }
-        },
-        {
-            "name": "EndDate",
-            "className": "text-center",
-            "render": function (data, type, row) {
-                if (row.endDate) {
-                    return moment(row.endDate).format('ll')
-                }
-                return "";
-            }
-        }
+        //{
+        //    "name": "IsReturned",
+        //    "className": "text-center",
+        //    "render": function (data, type, row) {
+        //        if (row.isReturned) {
+        //            return 'نعم'
+        //        }
+        //        else {
+        //            return 'لا'
+        //        }
+        //        return "";
+        //    }
+        //},        {
+        //    "name": "ReturnedDate",
+        //    "className": "text-center",
+        //    "render": function (data, type, row) {
+        //        if (row.returnedDate) {
+        //            return moment(row.returnedDate).format('ll')
+        //        }
+        //        return "";
+        //    }
+        //},
+        //{
+        //    "name": "EndDate",
+        //    "className": "text-center",
+        //    "render": function (data, type, row) {
+        //        if (row.endDate) {
+        //            return moment(row.endDate).format('ll')
+        //        }
+        //        return "";
+        //    }
+        //}
     ];
     columns.push(
         {
