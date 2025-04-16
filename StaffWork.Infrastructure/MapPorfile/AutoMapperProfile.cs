@@ -24,8 +24,18 @@ namespace StaffWork.Infrastructure
               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
 
-            CreateMap<Department, DepartmentViewModel>().ReverseMap();
+            CreateMap<Department, DepartmentViewModel>()
+               .ForMember(dest => dest.AdministrationName, opt => opt.MapFrom(src => src.Administration!.Name))
+               .ForMember(dest => dest.AdminName, opt => opt.MapFrom(src => src.DepartmentAdmin!.Admin!.FullName))
+                .ReverseMap();
+            CreateMap<Department, DepartmentFormViewModel>().ReverseMap();
             CreateMap<Department, SelectListItem>()
+               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
+            CreateMap<Administration, AdministrationViewModel>()
+               .ForMember(dest => dest.AdminName, opt => opt.MapFrom(src => src.Manager!.FullName))
+                .ReverseMap();
+            CreateMap<Administration, SelectListItem>()
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
             CreateMap<Employee, EmployeeViewModel>().ReverseMap();

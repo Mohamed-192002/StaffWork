@@ -44,6 +44,9 @@
                 }
                 @if (User.IsInRole(AppRoles.SuperAdmin))
                 {
+                    <li class="nav-item" active-when="Administration">
+                        <a class="nav-link" asp-controller="Administration" asp-action="Index">الادارات</a>
+                    </li>
                     <li class="nav-item" active-when="Department">
                         <a class="nav-link" asp-controller="Department" asp-action="Index">الاقسام</a>
                     </li>

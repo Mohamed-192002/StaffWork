@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StaffWork.Core.Data;
 
@@ -11,9 +12,11 @@ using StaffWork.Core.Data;
 namespace StaffWork.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250414183707_Add_Administration")]
+    partial class Add_Administration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -185,7 +188,7 @@ namespace StaffWork.Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[ManagerId] IS NOT NULL");
 
-                    b.ToTable("Administrations", (string)null);
+                    b.ToTable("Administrations");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.Department", b =>
@@ -223,7 +226,7 @@ namespace StaffWork.Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[DepartmentAdminId] IS NOT NULL");
 
-                    b.ToTable("Departments", (string)null);
+                    b.ToTable("Departments");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.DepartmentAdmin", b =>
@@ -253,7 +256,7 @@ namespace StaffWork.Infrastructure.Migrations
 
                     b.HasIndex("AdminId");
 
-                    b.ToTable("DepartmentAdmin", (string)null);
+                    b.ToTable("DepartmentAdmin");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.Employee", b =>
@@ -295,7 +298,7 @@ namespace StaffWork.Infrastructure.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("Employees", (string)null);
+                    b.ToTable("Employees");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.Notification", b =>
@@ -331,7 +334,7 @@ namespace StaffWork.Infrastructure.Migrations
 
                     b.HasIndex("VacationId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.User", b =>
@@ -499,7 +502,7 @@ namespace StaffWork.Infrastructure.Migrations
 
                     b.HasIndex("VacationTypeId");
 
-                    b.ToTable("Vacations", (string)null);
+                    b.ToTable("Vacations");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.VacationType", b =>
@@ -525,7 +528,7 @@ namespace StaffWork.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("VacationTypes", (string)null);
+                    b.ToTable("VacationTypes");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.WorkDaily", b =>
@@ -567,7 +570,7 @@ namespace StaffWork.Infrastructure.Migrations
 
                     b.HasIndex("WorkTypeId");
 
-                    b.ToTable("WorkDailies", (string)null);
+                    b.ToTable("WorkDailies");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.WorkType", b =>
@@ -603,7 +606,7 @@ namespace StaffWork.Infrastructure.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("WorkTypes", (string)null);
+                    b.ToTable("WorkTypes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

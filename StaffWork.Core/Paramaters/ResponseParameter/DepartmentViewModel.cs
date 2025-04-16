@@ -7,10 +7,13 @@ namespace StaffWork.Core.Paramaters
     {
         public virtual int Id { get; set; }
 
-        [MaxLength(500, ErrorMessage = "لا يمكن أن يكون الحد الأقصى للطول أكثر من 100 حروف.")]
         [Display(Name = "اسم القسم")]
-        [Required(ErrorMessage = "الحقل مطلوب")]
         public virtual string Name { get; set; }
 
+        [Display(Name = "الاداره")]
+        public string AdministrationName { get; set; }
+
+        [Display(Name = "مدير القسم")]
+        public string AdminName { get; set; }
     }
 }

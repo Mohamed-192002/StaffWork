@@ -14,11 +14,16 @@ namespace StaffWork.Core.Models
         public virtual DateTime DateCreated { get; set; }
         public virtual DateTime? DateModified { get; set; }
         public virtual bool IsActive { get; set; }
-
+        public int? AdministrationId { get; set; }
+        public Administration? Administration { get; set; }
         public virtual int? DepartmentId { get; set; }
         [ForeignKey(nameof(DepartmentId))]
         public virtual Department? Department { get; set; }
+
         public virtual ICollection<WorkDaily> WorkDailies { get; set; } = [];
 
+        public int? DepartmentAdminId { get; set; }
+        [ForeignKey(nameof(DepartmentAdminId))]
+        public virtual DepartmentAdmin? DepartmentAdmin { get; set; }
     }
 }

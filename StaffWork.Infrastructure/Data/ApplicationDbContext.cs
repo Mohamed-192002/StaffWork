@@ -14,6 +14,7 @@ namespace StaffWork.Core.Data
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Vacation> Vacations { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Administration> Administrations { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

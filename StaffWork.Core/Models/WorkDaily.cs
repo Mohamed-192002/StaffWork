@@ -16,7 +16,6 @@ namespace StaffWork.Core.Models
         public virtual string UserId { get; set; }
         [ForeignKey(nameof(UserId))]
         public virtual User? User { get; set; }
-
-        public virtual Status Status { get; set; }
+        public virtual Status Status { get; set; } 
     }
 }

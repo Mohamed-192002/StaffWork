@@ -1,18 +1,17 @@
-﻿@model DepartmentViewModel
+﻿@model AdministrationViewModel
 <tr>
     <td>@Model.Name</td>
     <td>@Model.AdminName</td>
-    <td>@Model.AdministrationName</td>
     <td style="text-align:center">
         <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary js-render-modal"
-           data-title="تعديل القسم" data-url="/Department/Edit/@Model.Id" data-update="true">
-            تعديل القسم
+           data-title="تعديل الاداره" data-url="/Administration/Edit/@Model.Id" data-update="true">
+            تعديل الاداره
         </a>
     </td>
     <td style="text-align:end">
         <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger js-confirm"
-           data-title="حذف القسم" data-url="/Department/Delete/@Model.Id" data-update="true" data-message="هل متأكد من حذف هذا القسم؟">
-            حذف القسم
+           data-title="حذف الاداره" data-url="/Administration/Delete/@Model.Id" data-update="true" data-message="هل متأكد من حذف هذا الاداره؟">
+            حذف الاداره
         </a>
     </td>
 </tr>

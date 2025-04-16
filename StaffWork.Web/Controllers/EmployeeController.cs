@@ -34,7 +34,7 @@ namespace StaffWork.Web.Controllers
                 return BadRequest(ModelState);
             var Employee = _mapper.Map<Employee>(viewModel);
             await BussinesService.InsertAsync(Employee);
-            return RedirectToAction("Index", _mapper.Map<EmployeeViewModel>(Employee));
+            return RedirectToAction(nameof(Index), _mapper.Map<EmployeeViewModel>(Employee));
         }
         [HttpGet]
         [AjaxOnly]
@@ -58,7 +58,7 @@ namespace StaffWork.Web.Controllers
             _mapper.Map(viewModel, Employee);
 
             await BussinesService.UpdateAsync(Employee.Id, Employee);
-            return RedirectToAction("Index", _mapper.Map<EmployeeViewModel>(Employee));
+            return RedirectToAction(nameof(Index), _mapper.Map<EmployeeViewModel>(Employee));
         }
         public async Task<IActionResult> Delete(int id)
         {
