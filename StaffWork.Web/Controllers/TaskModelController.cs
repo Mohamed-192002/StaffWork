@@ -1,0 +1,262 @@
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using NuGet.ProjectModel;
+using StaffWork.Api.Controllers;
+using StaffWork.Core.Consts;
+using StaffWork.Core.Interfaces;
+using StaffWork.Core.Models;
+using StaffWork.Core.Paramaters;
+using StaffWork.Infrastructure.Filters;
+using StaffWork.Infrastructure.Implementations;
+
+namespace StaffWork.Web.Controllers
+{
+    public class TaskModelController : ApiBaseController<TaskModel>
+    {
+        public readonly IServicesBase<User> UserService;
+        public readonly IServicesBase<TaskFile> TaskFileService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        public TaskModelController(IServicesBase<TaskModel> servicesBase, IMapper mapper, IServicesBase<User> userService, IWebHostEnvironment webHostEnvironment, IServicesBase<TaskFile> taskFileService) : base(servicesBase, mapper)
+        {
+            UserService = userService;
+            _webHostEnvironment = webHostEnvironment;
+            TaskFileService = taskFileService;
+        }
+        private string GetAuthenticatedUser()
+        {
+            var userUidClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            return userUidClaim?.Value!;
+        }
+        [HttpGet]
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View("Form", PopulateViewModel());
+        }
+        [HttpPost]
+        public async Task<IActionResult> Create(TaskModelFormViewModel viewModel)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var TaskModel = _mapper.Map<TaskModel>(viewModel);
+            foreach (var userId in viewModel.SelectedUsers)
+            {
+                var user = await UserService.GetAsync(x => x.Id == userId);
+                if (user != null)
+                {
+                    TaskModel.AssignedUsers.Add(new TaskUser
+                    {
+                        UserId = user.Id,
+                        TaskModel = TaskModel
+                    });
+                }
+            }
+            // Handle Book images
+            if (viewModel.TaskFiles != null && viewModel.TaskFiles.Count > 0)
+            {
+                foreach (var image in viewModel.TaskFiles)
+                {
+                    if (image.Length > 0)
+                    {
+                        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
+                        var filePath = "/files/Tasks";
+                        if (!Directory.Exists($"{_webHostEnvironment.WebRootPath}{filePath}"))
+                            Directory.CreateDirectory($"{_webHostEnvironment.WebRootPath}{filePath}");
+
+                        var path = Path.Combine($"{_webHostEnvironment.WebRootPath}{filePath}", fileName);
+
+                        using var stream = System.IO.File.Create(path);
+                        await image.CopyToAsync(stream);
+
+                        var taskFile = new TaskFile
+                        {
+                            FileUrl = $"{filePath}/{fileName}",
+                            FileName = image.FileName,
+                            TaskModel = TaskModel
+                        };
+                    }
+                }
+            }
+            await BussinesService.InsertAsync(TaskModel);
+            return RedirectToAction("Index", _mapper.Map<TaskModelViewModel>(TaskModel));
+        }
+        [HttpGet]
+        public async Task<IActionResult> EditAsync(int id)
+        {
+            var TaskModel = await BussinesService.GetAsync(d => d.Id == id, ["AssignedUsers", "AssignedUsers.User", "TaskFiles"]);
+            if (TaskModel == null)
+                return NotFound();
+            var viewModel = _mapper.Map<TaskModelFormViewModel>(TaskModel);
+            viewModel.SelectedUsers = TaskModel.AssignedUsers.Select(x => x.UserId).ToList();
+            viewModel.ExistingFiles = _mapper.Map<List<TaskFileDisplay>>(TaskModel.TaskFiles);
+            return View("Form", PopulateViewModel(viewModel));
+        }
+        [HttpPost]
+        [AutoValidateAntiforgeryToken]
+        public async Task<IActionResult> EditAsync(TaskModelViewModel viewModel)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+            var TaskModel = await BussinesService.GetAsync(d => d.Id == viewModel.Id);
+            if (TaskModel == null)
+                return NotFound();
+            _mapper.Map(viewModel, TaskModel);
+            #region Files List
+            //// Handle file uploads
+            //if (model.BookFiles.Any())
+            //{
+            //    foreach (var file in model.BookFiles)
+            //    {
+            //        if (file.Length > 0)
+            //        {
+
+            //            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            //            var filePath = "/images/files/Book";
+            //            if (!Directory.Exists($"{_webHostEnvironment.WebRootPath}{filePath}"))
+            //                Directory.CreateDirectory($"{_webHostEnvironment.WebRootPath}{filePath}");
+
+            //            var path = Path.Combine($"{_webHostEnvironment.WebRootPath}{filePath}", fileName);
+
+            //            using var stream = System.IO.File.Create(path);
+            //            await file.CopyToAsync(stream);
+            //            stream.Dispose();
+
+            //            var bookImage = new BookFile
+            //            {
+            //                FileUrl = $"{filePath}/{fileName}",
+            //                FileName = file.FileName,
+            //                Book = book
+            //            };
+
+            //            book.BookImages.Add(bookImage);
+            //        }
+            //    }
+            //}
+
+            //// Handle image deletions
+            //var deletedImageUrls = model.DeletedFileUrls?.Split(',') ?? Array.Empty<string>();
+            //foreach (var imageUrl in deletedImageUrls)
+            //{
+            //    if (!string.IsNullOrEmpty(imageUrl))
+            //    {
+            //        var file = _context.BookFiles.FirstOrDefault(r => r.FileUrl == imageUrl);
+            //        if (file != null)
+            //        {
+            //            _context.BookFiles.Remove(file);
+            //            _context.SaveChanges();  // Save changes to the database
+            //        }
+
+            //        var oldFilePath = Path.Combine(_webHostEnvironment.WebRootPath, imageUrl.TrimStart('/'));
+            //        if (System.IO.File.Exists(oldFilePath))
+            //        {
+            //            System.IO.File.Delete(oldFilePath);
+            //        }
+            //    }
+            //}
+            #endregion
+            await BussinesService.UpdateAsync(TaskModel.Id, TaskModel);
+            return RedirectToAction("Index", _mapper.Map<TaskModelViewModel>(TaskModel));
+        }
+        public async Task<IActionResult> Delete(int id)
+        {
+            var TaskModel = await BussinesService.GetAsync(d => d.Id == id);
+            if (TaskModel == null)
+                return NotFound();
+            try
+            {
+                await BussinesService.DeleteAsync(id);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return Ok();
+        }
+        private TaskModelFormViewModel PopulateViewModel(TaskModelFormViewModel? model = null)
+        {
+            var userId = GetAuthenticatedUser();
+            var user = UserService.GetAsync(x => x.Id == userId, ["Department"]).Result;
+
+            TaskModelFormViewModel viewModel = model is null ? new TaskModelFormViewModel() : model;
+
+            List<User> users = [];
+            if (User.IsInRole(AppRoles.SuperAdmin))
+                users = UserService.GetAllAsync(null!, ["Department"]).Result.ToList();
+            else if (User.IsInRole(AppRoles.Admin))
+                users = UserService.GetAllAsync(x => x.DepartmentId == user.DepartmentId, ["Department"]).Result.ToList();
+            else
+                users = UserService.GetAllAsync(x => x.Id == user.Id, ["Department"]).Result.ToList();
+
+            viewModel.Users = _mapper.Map<IEnumerable<SelectListItem>>(users);
+
+            return viewModel;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetTaskModels(DateTime? fromDate, DateTime? toDate)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+            var user = await UserService.GetAsync(x => x.Id == userId, ["Department"]);
+
+            var skip = int.Parse(Request.Form["start"]!);
+            var pageSize = int.Parse(Request.Form["length"]!);
+            var searchValue = Request.Form["search[value]"];
+            var sortColumnIndex = Request.Form["order[0][column]"];
+            var sortColumn = Request.Form[$"columns[{sortColumnIndex}][name]"];
+            var sortColumnDirection = Request.Form["order[0][dir]"];
+
+            IQueryable<TaskModel> TaskModelQuery;
+
+            if (User.IsInRole(AppRoles.SuperAdmin))
+                TaskModelQuery = (IQueryable<TaskModel>)await BussinesService.GetAllAsync(null!, ["AssignedUsers", "Reminders", "AssignedUsers.User"]);
+            else if (User.IsInRole(AppRoles.Admin))
+                TaskModelQuery = (IQueryable<TaskModel>)await BussinesService
+                    .GetAllAsync(w => w.AssignedUsers.Any(x => x.User.DepartmentId == user.DepartmentId)
+                    , ["AssignedUsers", "Reminders", "AssignedUsers.User"]);
+            else
+                TaskModelQuery = (IQueryable<TaskModel>)await BussinesService
+                                   .GetAllAsync(w => w.AssignedUsers.Any(x => x.UserId == user.Id)
+                                   , ["AssignedUsers", "Reminders", "AssignedUsers.User"]);
+
+            if (!string.IsNullOrEmpty(searchValue))
+            {
+                TaskModelQuery = TaskModelQuery.Where(b => b.AssignedUsers.Any(x => x.User.FullName.Contains(searchValue!))
+                || (string.IsNullOrEmpty(b.Notes) || b.Notes.Contains(searchValue!))
+                );
+            }
+
+            var TaskModel = TaskModelQuery.ToList();
+
+            if (fromDate.HasValue)
+                TaskModel = TaskModel.Where(x => x.DateCreated >= fromDate.Value).ToList();
+            if (toDate.HasValue)
+                TaskModel = TaskModel.Where(x => x.DateCreated <= toDate.Value).ToList();
+
+            var recordsTotal = TaskModel.Count;
+            TaskModel = TaskModel.ToList();
+            var data = TaskModel.Skip(skip).Take(pageSize).ToList();
+
+            var mappedData = _mapper.Map<IEnumerable<TaskModelViewModel>>(TaskModel);
+
+
+            var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = mappedData };
+
+            return Ok(jsonData);
+        }
+    }
+
+}

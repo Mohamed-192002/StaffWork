@@ -1,4 +1,5 @@
-﻿using StaffWork.Core.Models.Base;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using StaffWork.Core.Models.Base;
 
 namespace StaffWork.Core.Models
 {
@@ -8,5 +9,8 @@ namespace StaffWork.Core.Models
         public string? Content { get; set; }
         public bool IsRead { get; set; }
         
+        public int? TaskReminderId { get; set; }
+        [ForeignKey(nameof(TaskReminderId))]
+        public TaskReminder? TaskReminder { get; set; }
     }
 }

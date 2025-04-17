@@ -11,6 +11,10 @@ namespace StaffWork.Core.Data
         public DbSet<WorkType> WorkTypes { get; set; }
         public DbSet<WorkDaily> WorkDailies { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<TaskModel> TaskModels { get; set; }
+        public DbSet<TaskUser> TaskUsers { get; set; }
+        public DbSet<TaskReminder> TaskReminders { get; set; }
+        public DbSet<TaskFile> TaskFiles { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

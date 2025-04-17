@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StaffWork.Core.Data;
 
@@ -11,9 +12,11 @@ using StaffWork.Core.Data;
 namespace StaffWork.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250417110716_add_TaskModel")]
+    partial class add_TaskModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -217,41 +220,6 @@ namespace StaffWork.Infrastructure.Migrations
                     b.ToTable("Notifications");
                 });
 
-            modelBuilder.Entity("StaffWork.Core.Models.TaskFile", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateModified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("TaskModelId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskModelId");
-
-                    b.ToTable("TaskFiles");
-                });
-
             modelBuilder.Entity("StaffWork.Core.Models.TaskModel", b =>
                 {
                     b.Property<int>("Id")
@@ -259,9 +227,6 @@ namespace StaffWork.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("DateCompleted")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
@@ -271,6 +236,9 @@ namespace StaffWork.Infrastructure.Migrations
 
                     b.Property<DateTime?>("DateReceived")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("FilePath")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -287,12 +255,9 @@ namespace StaffWork.Infrastructure.Migrations
                     b.Property<string>("ReceivedByUserId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
-                    b.ToTable("TaskModels");
+                    b.ToTable("TaskModel");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.TaskReminder", b =>
@@ -331,7 +296,7 @@ namespace StaffWork.Infrastructure.Migrations
 
                     b.HasIndex("TaskModelId");
 
-                    b.ToTable("TaskReminders");
+                    b.ToTable("TaskReminder");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.TaskUser", b =>
@@ -364,7 +329,7 @@ namespace StaffWork.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TaskUsers");
+                    b.ToTable("TaskUser");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.User", b =>
@@ -596,17 +561,6 @@ namespace StaffWork.Infrastructure.Migrations
                     b.Navigation("TaskReminder");
                 });
 
-            modelBuilder.Entity("StaffWork.Core.Models.TaskFile", b =>
-                {
-                    b.HasOne("StaffWork.Core.Models.TaskModel", "TaskModel")
-                        .WithMany("TaskFiles")
-                        .HasForeignKey("TaskModelId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("TaskModel");
-                });
-
             modelBuilder.Entity("StaffWork.Core.Models.TaskReminder", b =>
                 {
                     b.HasOne("StaffWork.Core.Models.User", "CreatedByUser")
@@ -683,8 +637,6 @@ namespace StaffWork.Infrastructure.Migrations
                     b.Navigation("AssignedUsers");
 
                     b.Navigation("Reminders");
-
-                    b.Navigation("TaskFiles");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.TaskReminder", b =>

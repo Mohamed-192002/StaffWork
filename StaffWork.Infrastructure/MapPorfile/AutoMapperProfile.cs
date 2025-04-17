@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Security.Principal;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using StaffWork.Core.Consts;
 using StaffWork.Core.Models;
@@ -28,15 +29,29 @@ namespace StaffWork.Infrastructure
             CreateMap<Department, SelectListItem>()
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
-          
+
             CreateMap<User, UserViewModel>()
                .ForMember(dest => dest.Department, opt => opt.MapFrom(src => src.Department!.Name))
            .ReverseMap();
             CreateMap<User, UserFormViewModel>().ReverseMap();
             CreateMap<User, UpdateUserFormViewModel>().ReverseMap();
+            CreateMap<User, SelectListItem>()
+           .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
+           .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.FullName));
 
-           
+
             CreateMap<Notification, NotificationViewModel>()
+               .ReverseMap();
+
+            CreateMap<TaskModel, TaskModelViewModel>()
+               .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.AssignedUsers!.Select(x => x.User.FullName)))
+               .ReverseMap();
+            CreateMap<TaskModel, TaskModelFormViewModel>()
+               .ForMember(dest => dest.TaskFiles, opt => opt.Ignore());
+            CreateMap<TaskModelFormViewModel, TaskModel>()
+             .ForMember(dest => dest.TaskFiles, opt => opt.Ignore());
+
+            CreateMap<TaskFile, TaskFileDisplay>()
                .ReverseMap();
 
         }

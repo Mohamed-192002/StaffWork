@@ -19,6 +19,8 @@ namespace StaffWork.Infrastructure
             services.AddScoped<IServicesBase<WorkDaily>, WorkDailyService>();
             services.AddScoped<IServicesBase<User>, UserService>();
             services.AddScoped<IServicesBase<Notification>, NotificationService>();
+            services.AddScoped<IServicesBase<TaskModel>, TaskModelService>();
+            services.AddScoped<IServicesBase<TaskFile>, TaskFileService>();
 
             return services;
         }
