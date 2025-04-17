@@ -181,38 +181,6 @@ namespace StaffWork.Infrastructure.Migrations
                     b.ToTable("Departments");
                 });
 
-            modelBuilder.Entity("StaffWork.Core.Models.Employee", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Appeal")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Court")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateModified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Employees");
-                });
-
             modelBuilder.Entity("StaffWork.Core.Models.Notification", b =>
                 {
                     b.Property<int>("Id")
@@ -239,12 +207,7 @@ namespace StaffWork.Infrastructure.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("VacationId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("VacationId");
 
                     b.ToTable("Notifications");
                 });
@@ -339,100 +302,6 @@ namespace StaffWork.Infrastructure.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("StaffWork.Core.Models.Vacation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("CustomNotifiBeforeDays")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CustomNotifiDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CustomNotifiDuration")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateModified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsAutoNotifi")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsReturned")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("JobId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ReturnedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("VacationDays")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VacationDuration")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VacationTypeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.HasIndex("VacationTypeId");
-
-                    b.ToTable("Vacations");
-                });
-
-            modelBuilder.Entity("StaffWork.Core.Models.VacationType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateModified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("VacationTypes");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.WorkDaily", b =>
@@ -563,17 +432,6 @@ namespace StaffWork.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("StaffWork.Core.Models.Notification", b =>
-                {
-                    b.HasOne("StaffWork.Core.Models.Vacation", "Vacation")
-                        .WithMany("Notifications")
-                        .HasForeignKey("VacationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Vacation");
-                });
-
             modelBuilder.Entity("StaffWork.Core.Models.User", b =>
                 {
                     b.HasOne("StaffWork.Core.Models.Department", "Department")
@@ -581,25 +439,6 @@ namespace StaffWork.Infrastructure.Migrations
                         .HasForeignKey("DepartmentId");
 
                     b.Navigation("Department");
-                });
-
-            modelBuilder.Entity("StaffWork.Core.Models.Vacation", b =>
-                {
-                    b.HasOne("StaffWork.Core.Models.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("StaffWork.Core.Models.VacationType", "VacationType")
-                        .WithMany()
-                        .HasForeignKey("VacationTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Employee");
-
-                    b.Navigation("VacationType");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.WorkDaily", b =>
@@ -629,11 +468,6 @@ namespace StaffWork.Infrastructure.Migrations
             modelBuilder.Entity("StaffWork.Core.Models.User", b =>
                 {
                     b.Navigation("WorkDailies");
-                });
-
-            modelBuilder.Entity("StaffWork.Core.Models.Vacation", b =>
-                {
-                    b.Navigation("Notifications");
                 });
 #pragma warning restore 612, 618
         }

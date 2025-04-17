@@ -15,12 +15,9 @@ namespace StaffWork.Infrastructure
 
             services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
             services.AddScoped<IServicesBase<Department>, DepartmentService>();
-            services.AddScoped<IServicesBase<VacationType>, VacationTypeService>();
             services.AddScoped<IServicesBase<WorkType>, WorkTypeService>();
             services.AddScoped<IServicesBase<WorkDaily>, WorkDailyService>();
             services.AddScoped<IServicesBase<User>, UserService>();
-            services.AddScoped<IServicesBase<Employee>, EmployeeService>();
-            services.AddScoped<IServicesBase<Vacation>, VacationsService>();
             services.AddScoped<IServicesBase<Notification>, NotificationService>();
 
             return services;

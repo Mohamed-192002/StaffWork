@@ -28,31 +28,14 @@ namespace StaffWork.Infrastructure
             CreateMap<Department, SelectListItem>()
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
-            CreateMap<Employee, EmployeeViewModel>().ReverseMap();
-            CreateMap<Employee, SelectListItem>()
-               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.FullName));
-
-            CreateMap<VacationType, VacationTypeViewModel>().ReverseMap();
-            CreateMap<VacationType, SelectListItem>()
-               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
-
+          
             CreateMap<User, UserViewModel>()
                .ForMember(dest => dest.Department, opt => opt.MapFrom(src => src.Department!.Name))
            .ReverseMap();
             CreateMap<User, UserFormViewModel>().ReverseMap();
             CreateMap<User, UpdateUserFormViewModel>().ReverseMap();
 
-            CreateMap<Vacation, VacationViewModel>()
-              .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee!.FullName))
-              .ForMember(dest => dest.Court, opt => opt.MapFrom(src => src.Employee!.Court))
-              .ForMember(dest => dest.Appeal, opt => opt.MapFrom(src => src.Employee!.Appeal))
-              .ForMember(dest => dest.VacationType, opt => opt.MapFrom(src => src.VacationType!.Name))
-          .ReverseMap();
-            CreateMap<Vacation, VacationFormViewModel>()
-                .ReverseMap();
-
+           
             CreateMap<Notification, NotificationViewModel>()
                .ReverseMap();
 

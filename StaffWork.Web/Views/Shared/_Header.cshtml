@@ -26,21 +26,6 @@
                     <li class="nav-item" active-when="WorkType">
                         <a class="nav-link" asp-controller="WorkType" asp-action="Index">الاعمال</a>
                     </li>
-                    <li class="nav-item" active-when="VacationType">
-                        <a class="nav-link" asp-controller="VacationType" asp-action="Index">نوع الاجازات</a>
-                    </li>
-                    <li class="nav-item" active-when="Employee">
-                        <a class="nav-link" asp-controller="Employee" asp-action="Index">الموظفين</a>
-                    </li>
-                    <li class="nav-item" active-controller="Vacation" active-action="Index,Create,Edit">
-                        <a class="nav-link" asp-controller="Vacation" asp-action="Index">متابعه الاجازات</a>
-                    </li>
-                    <li class="nav-item" active-controller="Vacation" active-action="ReturnedVacation">
-                        <a class="nav-link" asp-controller="Vacation" asp-action="ReturnedVacation">الاجازات</a>
-                    </li>
-                    <li class="nav-item" active-controller="Vacation" active-action="NotStartVacation">
-                        <a class="nav-link" asp-controller="Vacation" asp-action="NotStartVacation">اجازات لم تباشر</a>
-                    </li>
                 }
                 @if (User.IsInRole(AppRoles.SuperAdmin))
                 {
