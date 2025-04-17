@@ -29,7 +29,12 @@ namespace StaffWork.Core.Data
             foreach (var fk in cascadeFKs)
                 fk.DeleteBehavior = DeleteBehavior.Restrict;
 
-            
+
+            builder.Entity<TaskModel>()
+                .HasMany(d => d.AssignedUsers)
+                .WithOne(u => u.TaskModel)
+                .HasForeignKey(u => u.TaskModelId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             base.OnModelCreating(builder);
         }

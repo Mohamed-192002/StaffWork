@@ -106,8 +106,8 @@
             "render": function (data, type, row) {
                 return `
                             <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning js-Complete-status"
-                               data-title="انجاز" data-url="/${tbody.data('controller')}/Complete/${row.id}" data-update="true" data-message="هل متأكد من انجاز الحاله؟">
-                               انجاز
+                               data-title="انجز" data-url="/${tbody.data('controller')}/Complete/${row.id}" data-update="true" data-message="هل متأكد من انجز الحاله؟">
+                               انجز
                             </a>
                            `;
             }

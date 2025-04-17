@@ -105,77 +105,92 @@ namespace StaffWork.Web.Controllers
         }
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        public async Task<IActionResult> EditAsync(TaskModelViewModel viewModel)
+        public async Task<IActionResult> EditAsync(TaskModelFormViewModel viewModel)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
-            var TaskModel = await BussinesService.GetAsync(d => d.Id == viewModel.Id);
+            var TaskModel = await BussinesService.GetAsync(d => d.Id == viewModel.Id, ["AssignedUsers", "Reminders", "AssignedUsers.User"]);
             if (TaskModel == null)
                 return NotFound();
             _mapper.Map(viewModel, TaskModel);
+
+            // Clear existing assigned users
+            TaskModel.AssignedUsers.Clear();
+            foreach (var userId in viewModel.SelectedUsers)
+            {
+                var user = await UserService.GetAsync(x => x.Id == userId);
+                if (user != null)
+                {
+                    TaskModel.AssignedUsers.Add(new TaskUser
+                    {
+                        UserId = user.Id,
+                        TaskModel = TaskModel
+                    });
+                }
+            }
+
+
             #region Files List
-            //// Handle file uploads
-            //if (model.BookFiles.Any())
-            //{
-            //    foreach (var file in model.BookFiles)
-            //    {
-            //        if (file.Length > 0)
-            //        {
+            // Handle file uploads
+            if (viewModel.TaskFiles.Any())
+            {
+                foreach (var file in viewModel.TaskFiles)
+                {
+                    if (file.Length > 0)
+                    {
 
-            //            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            //            var filePath = "/images/files/Book";
-            //            if (!Directory.Exists($"{_webHostEnvironment.WebRootPath}{filePath}"))
-            //                Directory.CreateDirectory($"{_webHostEnvironment.WebRootPath}{filePath}");
+                        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                        var filePath = "/files/Tasks";
+                        if (!Directory.Exists($"{_webHostEnvironment.WebRootPath}{filePath}"))
+                            Directory.CreateDirectory($"{_webHostEnvironment.WebRootPath}{filePath}");
 
-            //            var path = Path.Combine($"{_webHostEnvironment.WebRootPath}{filePath}", fileName);
+                        var path = Path.Combine($"{_webHostEnvironment.WebRootPath}{filePath}", fileName);
 
-            //            using var stream = System.IO.File.Create(path);
-            //            await file.CopyToAsync(stream);
-            //            stream.Dispose();
+                        using var stream = System.IO.File.Create(path);
+                        await file.CopyToAsync(stream);
 
-            //            var bookImage = new BookFile
-            //            {
-            //                FileUrl = $"{filePath}/{fileName}",
-            //                FileName = file.FileName,
-            //                Book = book
-            //            };
+                        var taskFile = new TaskFile
+                        {
+                            FileUrl = $"{filePath}/{fileName}",
+                            FileName = file.FileName,
+                            TaskModel = TaskModel
+                        };
+                        TaskModel.TaskFiles.Add(taskFile);
+                    }
+                }
+            }
 
-            //            book.BookImages.Add(bookImage);
-            //        }
-            //    }
-            //}
+            // Handle image deletions
+            var deletedImageUrls = viewModel.DeletedFileUrls?.Split(',') ?? Array.Empty<string>();
+            foreach (var imageUrl in deletedImageUrls)
+            {
+                if (!string.IsNullOrEmpty(imageUrl))
+                {
+                    var file = await TaskFileService.GetAsync(r => r.FileUrl == imageUrl);
+                    if (file != null)
+                    {
+                       await TaskFileService.DeleteAsync(file.Id);
+                    }
 
-            //// Handle image deletions
-            //var deletedImageUrls = model.DeletedFileUrls?.Split(',') ?? Array.Empty<string>();
-            //foreach (var imageUrl in deletedImageUrls)
-            //{
-            //    if (!string.IsNullOrEmpty(imageUrl))
-            //    {
-            //        var file = _context.BookFiles.FirstOrDefault(r => r.FileUrl == imageUrl);
-            //        if (file != null)
-            //        {
-            //            _context.BookFiles.Remove(file);
-            //            _context.SaveChanges();  // Save changes to the database
-            //        }
-
-            //        var oldFilePath = Path.Combine(_webHostEnvironment.WebRootPath, imageUrl.TrimStart('/'));
-            //        if (System.IO.File.Exists(oldFilePath))
-            //        {
-            //            System.IO.File.Delete(oldFilePath);
-            //        }
-            //    }
-            //}
+                    var oldFilePath = Path.Combine(_webHostEnvironment.WebRootPath, imageUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(oldFilePath))
+                    {
+                        System.IO.File.Delete(oldFilePath);
+                    }
+                }
+            }
             #endregion
             await BussinesService.UpdateAsync(TaskModel.Id, TaskModel);
             return RedirectToAction("Index", _mapper.Map<TaskModelViewModel>(TaskModel));
         }
         public async Task<IActionResult> Delete(int id)
         {
-            var TaskModel = await BussinesService.GetAsync(d => d.Id == id);
+            var TaskModel = await BussinesService.GetAsync(d => d.Id == id, ["AssignedUsers", "TaskFiles", "Reminders", "AssignedUsers.User"]);
             if (TaskModel == null)
                 return NotFound();
             try
             {
+                TaskModel.AssignedUsers.Clear();
                 await BussinesService.DeleteAsync(id);
             }
             catch (Exception)
