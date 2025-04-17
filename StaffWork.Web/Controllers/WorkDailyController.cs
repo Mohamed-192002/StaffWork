@@ -121,7 +121,7 @@ namespace StaffWork.Web.Controllers
             }
             return Ok();
         }
-        [HttpGet]                                                                                                                                                                                           
+        [HttpGet]
         [AjaxOnly]
         public async Task<IActionResult> EditAsync(int id)
         {
@@ -226,7 +226,7 @@ namespace StaffWork.Web.Controllers
                 var daysDifference = timeDifference.TotalDays;
                 if (daysDifference < 0) daysDifference = -daysDifference;
                 var isAdmin = !User.IsInRole(AppRoles.SuperAdmin);
-              //  item.IsDisabled = ((item.Status == Status.Pending.ToString()) && daysDifference > 7) && isAdmin;
+                //  item.IsDisabled = ((item.Status == Status.Pending.ToString()) && daysDifference > 7) && isAdmin;
             }
             var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data = mappedData };
 
@@ -257,6 +257,66 @@ namespace StaffWork.Web.Controllers
 
             return Ok();
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Complete(int id)
+        {
+            var work = await BussinesService.GetAsync(d => d.Id == id);
+
+            if (work is null)
+                return NotFound();
+
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (work.IsCompleted)
+            {
+                return BadRequest(new { Message = "This item is already completed." });
+            }
+
+            if (!(User.IsInRole(AppRoles.SuperAdmin) || currentUserId == work.UserId))
+            {
+                return Forbid("you're not authorized");
+            }
+
+            work.IsCompleted = true;
+            work.CompletionDate = DateTime.UtcNow;
+            TimeDifferenceFormatted(work);
+            await BussinesService.UpdateAsync(work.Id, work);
+
+            return Ok();
+        }
+
+        private static void TimeDifferenceFormatted(WorkDaily work)
+        {
+            var start = work.DateCreated;
+            var end = work.CompletionDate.Value;
+
+            var duration = end - start;
+
+            // عدد السنين والشهور
+            int years = end.Year - start.Year;
+            int months = end.Month - start.Month;
+            if (months < 0)
+            {
+                years--;
+                months += 12;
+            }
+
+            // عدد الأيام والساعات
+            int days = (end - start.AddYears(years).AddMonths(months)).Days;
+            int hours = (int)(end - start.AddYears(years).AddMonths(months).AddDays(days)).TotalHours;
+
+            // تركيب النص العربي
+            var parts = new List<string>();
+            if (years > 0) parts.Add($"{years} {(years == 1 ? "سنة" : years <= 2 ? "سنتين" : "سنوات")}");
+            if (months > 0) parts.Add($"{months} {(months == 1 ? "شهر" : months <= 2 ? "شهرين" : "شهور")}");
+            if (days > 0) parts.Add($"{days} {(days == 1 ? "يوم" : days <= 2 ? "يومين" : "أيام")}");
+            if (hours > 0) parts.Add($"{hours} {(hours == 1 ? "ساعة" : hours <= 2 ? "ساعتين" : "ساعات")}");
+
+            // دمج النص
+            work.TimeDifferenceFormatted = parts.Count > 0 ? string.Join(" و", parts) : "أقل من ساعة";
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RejectedStatusAsync(int id)

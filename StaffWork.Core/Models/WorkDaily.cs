@@ -18,5 +18,10 @@ namespace StaffWork.Core.Models
         public virtual User? User { get; set; }
 
         public virtual Status Status { get; set; }
+        public virtual bool IsCompleted { get; set; } = false;
+        public virtual DateTime? CompletionDate { get; set; }
+        public string? TimeDifferenceFormatted { get; set; }
+
     }
 }
+

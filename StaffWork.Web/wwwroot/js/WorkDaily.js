@@ -65,8 +65,54 @@
                 return '<span class="js-status fs-5 badge badge-light-' + badgeClass + '">' + statusText + '</span>';
             }
         },
-    ];
+        {
+            "data": "isCompleted", "name": "IsCompleted", "className": "text-center"
+            ,
+            "render": function (data, type, row) {
+                // Mapping status to Arabic values
+                let statusText = "";
+                let badgeClass = "";
 
+                if (data === true) {
+                    statusText = "نعم";
+                    badgeClass = "success";
+                } else if (data === false) {
+                    statusText = "لا";
+                    badgeClass = "danger";
+                }
+
+                // Return the rendered HTML with the badge and status text
+                return '<span class="js-complete fs-5 badge badge-light-' + badgeClass + '">' + statusText + '</span>';
+            }
+        },
+        {
+            "name": "CompletionDate",
+            "className": "text-center",
+            "render": function (data, type, row) {
+                if (row.completionDate) {
+                    return moment.utc(row.completionDate).local().format('ll'); // تحويل من UTC إلى Local
+                } else {
+                    return ''; // لو مفيش تاريخ
+                }
+            }
+        },
+        { "data": "timeDifferenceFormatted", "name": "TimeDifferenceFormatted", "className": "text-center" },
+    ];
+    //if (isSuperAdminOrAdmin === false) {
+    columns.push(
+        {
+            "className": 'text-start',
+            "orderable": false,
+            "render": function (data, type, row) {
+                return `
+                            <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning js-Complete-status"
+                               data-title="انجاز" data-url="/${tbody.data('controller')}/Complete/${row.id}" data-update="true" data-message="هل متأكد من انجاز الحاله؟">
+                               انجاز
+                            </a>
+                           `;
+            }
+        });
+    //}
     if (isSuperAdminOrAdmin === true) {
         columns.push(
             {

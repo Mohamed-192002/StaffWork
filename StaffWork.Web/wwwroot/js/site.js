@@ -231,6 +231,43 @@ $(document).ready(function () {
     });
 
     //Handle Accepted Status
+    $('body').delegate('.js-Complete-status', 'click', function () {
+        var btn = $(this);
+
+        bootbox.confirm({
+            message: "هل متأكد من انجاز الحاله؟",
+            buttons: {
+                confirm: {
+                    label: 'نعم',
+                    className: 'btn-danger'
+                },
+                cancel: {
+                    label: 'لا',
+                    className: 'btn-secondary'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $.post({
+                        url: btn.data('url'),
+                        data: {
+                            '__RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (lastUpdatedOn) {
+                            location.reload();
+
+                            //  showSuccessMessage();
+                        },
+                        error: function () {
+                            showErrorMessage();
+                        }
+                    });
+                }
+            }
+        });
+    });
+
+    //Handle Accepted Status
     $('body').delegate('.js-Accepted-status', 'click', function () {
         var btn = $(this);
 

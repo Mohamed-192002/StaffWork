@@ -11,6 +11,10 @@
         public virtual string Status { get; set; }
         public virtual DateTime DateCreated { get; set; }
 
-      //  public virtual bool IsDisabled { get; set; }
+        //  public virtual bool IsDisabled { get; set; }
+        public virtual bool IsCompleted { get; set; }
+        public virtual DateTime? CompletionDate { get; set; }
+        public string? TimeDifferenceFormatted { get; set; }
+
     }
 }
