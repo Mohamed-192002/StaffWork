@@ -104,7 +104,7 @@
                 "orderable": false,
                 "render": function (data, type, row) {
                     return `
-                            <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning js-Received-status"
+                            <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary js-Complete-status"
                                data-title="استلام" data-url="/${tbody.data('controller')}/Received/${row.id}" data-update="true" data-message="هل متأكد من استلام الحاله؟">
                                استلام
                             </a>

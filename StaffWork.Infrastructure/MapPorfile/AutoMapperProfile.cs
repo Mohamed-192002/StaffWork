@@ -54,6 +54,11 @@ namespace StaffWork.Infrastructure
             CreateMap<TaskFile, TaskFileDisplay>()
                .ReverseMap();
 
+            CreateMap<TaskReminder, TaskReminderViewModel>()
+               .ForMember(dest => dest.TaskModelTitle, opt => opt.MapFrom(src => src.TaskModel.Title))
+               .ForMember(dest => dest.CreatedByUserName, opt => opt.MapFrom(src => src.CreatedByUser.FullName))
+               .ReverseMap();
+
         }
     }
 }

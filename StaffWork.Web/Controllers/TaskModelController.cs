@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -41,11 +42,13 @@ namespace StaffWork.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = AppRoles.Admin + "," + AppRoles.SuperAdmin)]
         public IActionResult Create()
         {
             return View("Form", PopulateViewModel());
         }
         [HttpPost]
+        [Authorize(Roles = AppRoles.Admin + "," + AppRoles.SuperAdmin)]
         public async Task<IActionResult> Create(TaskModelFormViewModel viewModel)
         {
             if (!ModelState.IsValid)
@@ -93,6 +96,7 @@ namespace StaffWork.Web.Controllers
             return RedirectToAction("Index", _mapper.Map<TaskModelViewModel>(TaskModel));
         }
         [HttpGet]
+        [Authorize(Roles = AppRoles.Admin + "," + AppRoles.SuperAdmin)]
         public async Task<IActionResult> EditAsync(int id)
         {
             var TaskModel = await BussinesService.GetAsync(d => d.Id == id, ["AssignedUsers", "AssignedUsers.User", "TaskFiles"]);
@@ -105,6 +109,7 @@ namespace StaffWork.Web.Controllers
         }
         [HttpPost]
         [AutoValidateAntiforgeryToken]
+        [Authorize(Roles = AppRoles.Admin + "," + AppRoles.SuperAdmin)]
         public async Task<IActionResult> EditAsync(TaskModelFormViewModel viewModel)
         {
             if (!ModelState.IsValid)
@@ -169,7 +174,7 @@ namespace StaffWork.Web.Controllers
                     var file = await TaskFileService.GetAsync(r => r.FileUrl == imageUrl);
                     if (file != null)
                     {
-                       await TaskFileService.DeleteAsync(file.Id);
+                        await TaskFileService.DeleteAsync(file.Id);
                     }
 
                     var oldFilePath = Path.Combine(_webHostEnvironment.WebRootPath, imageUrl.TrimStart('/'));
@@ -183,6 +188,7 @@ namespace StaffWork.Web.Controllers
             await BussinesService.UpdateAsync(TaskModel.Id, TaskModel);
             return RedirectToAction("Index", _mapper.Map<TaskModelViewModel>(TaskModel));
         }
+        [Authorize(Roles = AppRoles.Admin + "," + AppRoles.SuperAdmin)]
         public async Task<IActionResult> Delete(int id)
         {
             var TaskModel = await BussinesService.GetAsync(d => d.Id == id, ["AssignedUsers", "TaskFiles", "Reminders", "AssignedUsers.User"]);
@@ -198,6 +204,61 @@ namespace StaffWork.Web.Controllers
                 throw;
             }
             return Ok();
+        }
+        public async Task<IActionResult> Complete(int id)
+        {
+            var currentUserId = GetAuthenticatedUser();
+            var TaskModel = await BussinesService.GetAsync(d => d.Id == id, ["AssignedUsers", "TaskFiles", "Reminders", "AssignedUsers.User"]);
+            if (TaskModel == null)
+                return NotFound();
+            try
+            {
+                if (TaskModel.IsCompleted)
+                {
+                    return BadRequest(new { Message = "This item is already completed." });
+                }
+
+                if (!(User.IsInRole(AppRoles.SuperAdmin) || !(User.IsInRole(AppRoles.Admin)) || !TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId)))
+                {
+                    return Forbid("you're not authorized");
+                }
+                TaskModel.IsCompleted = true;
+                TaskModel.DateCompleted = DateTime.UtcNow;
+                await BussinesService.UpdateAsync(TaskModel.Id, TaskModel);
+                return Ok();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public async Task<IActionResult> Received(int id)
+        {
+            var currentUserId = GetAuthenticatedUser();
+            var TaskModel = await BussinesService.GetAsync(d => d.Id == id, ["AssignedUsers", "TaskFiles", "Reminders", "AssignedUsers.User"]);
+            if (TaskModel == null)
+                return NotFound();
+            try
+            {
+                if (TaskModel.IsReceived)
+                {
+                    return BadRequest(new { Message = "This item is already Received." });
+                }
+
+                if (!(User.IsInRole(AppRoles.SuperAdmin) || !(User.IsInRole(AppRoles.Admin)) || !TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId)))
+                {
+                    return Forbid("you're not authorized");
+                }
+                TaskModel.IsReceived = true;
+                TaskModel.DateReceived = DateTime.UtcNow;
+                TaskModel.ReceivedByUserId = currentUserId;
+                await BussinesService.UpdateAsync(TaskModel.Id, TaskModel);
+                return Ok();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         private TaskModelFormViewModel PopulateViewModel(TaskModelFormViewModel? model = null)
         {
