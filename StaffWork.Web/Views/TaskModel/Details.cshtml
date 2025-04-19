@@ -1,8 +1,10 @@
-﻿@model TaskModelViewModel
+﻿@using StaffWork.Core.Consts
+@model TaskModelViewModel
 
 @{
 	ViewData["Title"] = "مهمه";
 	int i = 1;
+	var isSuperAdminOrAdmin = User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin);
 
 }
 
@@ -11,15 +13,15 @@
 	<div class="card-header card-header-stretch">
 		<div class="card-title d-flex col-12 justify-content-between">
 			@* TODO TaskModel Details *@
-			<div>
-				<div class="d-flex">
-					<div class="border border-gray-300 border-dashed rounded min-w-125px px-4 me-6 ">
-						<div class="d-flex text-center">
+			<div class="row col-12">
+				<div class="d-flex col-10">
+					<div class="col-3 border border-gray-300 border-dashed rounded min-w-125px px-4 me-6 ">
+						<div class="text-center">
 							<div class=" fw-bold">اسم المهمه : @Model.Title</div>
 						</div>
 					</div>
-					<div class="border border-gray-300 border-dashed rounded min-w-125px px-4 me-6 ">
-						<div class="d-flex text-center">
+					<div class="col-3 border border-gray-300 border-dashed rounded min-w-125px px-4 me-6 ">
+						<div class=" text-center">
 							<div class="fw-bold">
 								حالة استلام المهمة:
 								<span class="fs-6 badge badge-light-@(Model.IsReceived ? "success" : "danger")">@((Model.IsReceived) ? "تم الاستلام" : "لم يتم الاستلام")</span>
@@ -27,14 +29,16 @@
 
 						</div>
 					</div>
-					<div class="border border-gray-300 border-dashed rounded min-w-125px px-4 me-6 ">
-						<div class="d-flex text-center">
+					<div class="col-3 border border-gray-300 border-dashed rounded min-w-125px px-4 me-6 ">
+						<div class=" text-center">
 							<div class="fw-bold">
 								حالة إنجاز المهمة:
 								<span class="fs-6 badge badge-light-@(Model.IsCompleted ? "success" : "danger")">@((Model.IsCompleted) ? "انجز" : "لم ينجز")</span>
 							</div>
 						</div>
 					</div>
+				</div>
+				<div class="col-2">
 					<a class="btn btn-sm btn-primary me-7" href="/TaskReminder/Create?taskModelId=@Model.Id">اضافه تذكير</a>
 				</div>
 			</div>
@@ -42,7 +46,7 @@
 	</div>
 	<!--end::Card head-->
 	<!--begin::Card body-->
-	<div class="card mt-3 " id="kt_profile_details_view">
+	<div class="card mt-7 " id="kt_profile_details_view">
 		<!--begin::Card body-->
 		<div class=" card-header-stretch">
 			<!--begin::Notice-->
@@ -60,7 +64,7 @@
 								<a href="@item.FileUrl" class="btn btn-primary mb-2" target="_blank">تحميل الملف @i</a>
 							</div>
 							i++;
-						} 
+						}
 					}
 				</div>
 				<!--end::Content-->
@@ -119,7 +123,7 @@
 									<!--begin::Description-->
 									<div class="d-flex align-items-center mt-1 fs-6">
 										<!--begin::Info-->
-										<div class="text-warning me-2 fs-7">تاريخ التذكير @reminder.ReminderDate.ToString("MM/dd/yyyy")</div>
+										<div class="text-warning me-2 fs-7">تاريخ التذكير @reminder.ReminderDate</div>
 										<!--end::Info-->
 									</div>
 									<!--end::Description-->
@@ -141,10 +145,12 @@
 										</div>
 										<!--begin::Action-->
 										@* <a asp-controller="TaskReminder" asp-action="Complete" asp-route-id="reminder.Id" class="btn btn-sm btn-light btn-active-light-primary">انجاز</a> *@
-										<a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning js-Complete-status"
-										   data-title="انجاز" data-url="/TaskReminder/Complete/${@reminder.Id}" data-update="true" data-message="هل متأكد من انجاز الحاله؟">
-											انجاز
-										</a>
+										@if(!isSuperAdminOrAdmin){
+											<a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning js-Complete-status"
+											   data-title="انجاز" data-url="/TaskReminder/Complete?Id=@reminder.Id" data-update="true" data-message="هل متأكد من انجاز الحاله؟">
+												انجاز
+											</a>
+										}
 										<!--end::Action-->
 									</div>
 									<!--end::Record-->
