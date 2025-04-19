@@ -1,0 +1,101 @@
+﻿@model TaskReminderFormViewModel
+
+@{
+	ViewData["Title"] = "المهام";
+}
+
+<div class="card shadow-sm">
+	<div class="card-header">
+		<h3 class="card-title"> مهمه</h3>
+	</div>
+	<div class="card-body">
+		<form method="post" asp-controller="TaskReminder" enctype="multipart/form-data" id="Form">
+			@if (Model.Id > 0)
+			{
+				<input type="hidden" asp-for="Id" />
+			}
+			<input type="hidden" asp-for="TaskModelId" />
+
+			<div class="row col-12">
+				<div class="row col-6 mb-6">
+					<!--begin::Label-->
+					<label class="col-lg-4 col-form-label required fw-semibold fs-6" asp-for="Title"></label>
+					<!--end::Label-->
+					<div class="col-lg-8">
+						<!--begin::Row-->
+						<div class="row">
+							<!--begin::Col-->
+							<div class="col-lg-8 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
+								<input type="text" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0" placeholder="اسم الذكير" asp-for="Title">
+								<span asp-validation-for="Title" class="fv-plugins-message-container invalid-feedback"></span>
+							</div>
+							<!--end::Col-->
+						</div>
+						<!--end::Row-->
+					</div>
+					<!--end::Col-->
+				</div>
+				<div class="row col-6 mb-6">
+					<!--begin::Label-->
+					<label class="mb-5 col-lg-4 col-form-label required fw-semibold fs-6">تاريخ التذكير</label>
+					<!--end::Label-->
+					<!--begin::Col-->
+					<div class="col-lg-8">
+						<!--begin::Row-->
+						<div class="row">
+							<!--begin::Col-->
+							<div class="col-lg-8 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
+								<input type="date" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0" placeholder="تاريخ الذكير" asp-for="ReminderDate">
+								<span asp-validation-for="ReminderDate" class="fv-plugins-message-container invalid-feedback"></span>
+							</div>
+							<!--end::Col-->
+						</div>
+						<!--end::Row-->
+					</div>
+					<!--end::Col-->
+				</div>
+			</div>
+			<div class="row">
+				<!--begin::Label-->
+				<label class="mb-5 col-lg-4 col-form-label fw-semibold fs-6" asp-for="Notes"></label>
+				<!--end::Label-->
+				<!--begin::Col-->
+				<div class="col-lg-8">
+					<!--begin::Row-->
+					<div class="row">
+						<!--begin::Col-->
+						<div class="col-lg-12 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
+							<textarea class="form-control form-control-solid" type="text" placeholder="اكتب ملاحظاتك" asp-for="Notes"></textarea>
+							<span asp-validation-for="Notes" class="fv-plugins-message-container invalid-feedback"></span>
+							<!--end::Col-->
+						</div>
+					</div>
+					<!--end::Row-->
+				</div>
+				<!--end::Col-->
+			</div>
+		</form>
+
+	</div>
+	<div class="card-footer">
+		<button type="submit" class="btn btn-primary" form="Form">
+			<span class="indicator-label">
+				حفظ
+			</span>
+			<span class="indicator-progress">
+				رجاء الانتظار... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+			</span>
+		</button>
+		<a class="btn btn-light text-primary ms-3" asp-action="Index">Cancel</a>
+	</div>
+</div>
+
+
+@section Scripts
+{
+	<partial name="_ValidationScriptsPartial" />
+
+	<script>
+	
+	</script>
+}

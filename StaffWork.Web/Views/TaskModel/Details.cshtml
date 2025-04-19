@@ -1,0 +1,119 @@
+﻿@model TaskModelViewModel
+
+@{
+	ViewData["Title"] = "مهمه";
+}
+<style>
+	#sortable-timeline .timeline-item {
+		cursor: grab;
+	}
+
+		#sortable-timeline .timeline-item:active {
+			cursor: grabbing;
+			opacity: 0.8;
+		}
+</style>
+<div class="card">
+	<!--begin::Card head-->
+	<div class="card-header card-header-stretch">
+		<div class="card-title d-flex col-12 justify-content-between">
+			@* TODO TaskModel Details *@
+			<div>
+				<div class="d-flex">
+					<div class="border border-gray-300 border-dashed rounded min-w-125px px-4 me-6 ">
+						<div class="d-flex text-center">
+							<div class=" fw-bold">اسم المهمه : @Model.Title</div>
+						</div>
+					</div>
+					<div class="border border-gray-300 border-dashed rounded min-w-125px px-4 me-6 ">
+						<div class="d-flex text-center">
+							<div class=" fw-bold">حاله استلام المهمه : @Model.Title</div>
+						</div>
+					</div>
+					<div class="border border-gray-300 border-dashed rounded min-w-125px px-4 me-6 ">
+						<div class="d-flex text-center">
+							<div class=" fw-bold">حاله انجاز المهمه : @Model.Title</div>
+						</div>
+					</div>
+					<a class="btn btn-sm btn-primary me-7" href="/TaskReminder/Create?taskModelId=@Model.Id">اضافه تذكير</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--end::Card head-->
+	<!--begin::Card body-->
+	<div class="card-body">
+		<!--begin::Tab Content-->
+		<div class="tab-content">
+			<!--begin::Tab panel-->
+			<div id="kt_activity_today" class="card-body p-0 tab-pane fade show active" role="tabpanel" aria-labelledby="kt_activity_today_tab">
+				<!--begin::Timeline-->
+				<div id="sortable-timeline" class="timeline timeline-border-dashed">
+					@foreach (var reminder in Model.Reminders)
+					{
+						<!--begin::Timeline item-->
+						<div class="timeline-item" data-id="@reminder.Id">
+							<!--begin::Timeline line-->
+							<div class="timeline-line"></div>
+							<!--end::Timeline line-->
+							<!--begin::Timeline icon-->
+							<div class="timeline-icon">
+								<i class="bi bi-arrow-bar-left fs-2 text-primary">
+									<span class="path1"></span><span class="path2"></span><span class="path3"></span>
+								</i>
+							</div>
+							<!--end::Timeline icon-->
+							<!--begin::Timeline content-->
+							<div class="timeline-content mb-10 mt-n1">
+								<!--begin::Timeline heading-->
+								<div class="pe-3 mb-5">
+									<!--begin::Description-->
+									<div class="d-flex align-items-center mt-1 fs-6">
+										<!--begin::Info-->
+										<div class="text-warning me-2 fs-7">تاريخ التذكير @reminder.ReminderDate.ToString("MM/dd/yyyy")</div>
+										<!--end::Info-->
+									</div>
+									<!--end::Description-->
+								</div>
+								<!--end::Timeline heading-->
+								<!--begin::Timeline details-->
+								<div class="overflow-auto pb-5">
+									<!--begin::Record-->
+									<div class="d-flex align-items-center border border-dashed border-gray-300 rounded min-w-750px px-7 py-3 mb-5">
+										<!--begin::Title-->
+										<a href="#" class="fs-5 text-gray-900 text-hover-primary fw-semibold w-375px min-w-200px">@reminder.Title</a>
+										<div class="fs-5 text-gray-900  fw-semibold w-375px min-w-200px">مضيف التنبيه : @reminder.CreatedByUserName</div>
+										<!--end::Title-->
+										<div class="min-w-125px pe-2">
+											<span class="fs-6 badge badge-light-@(@reminder.IsReminderCompleted ? "success" : "danger")">@((reminder.IsReminderCompleted) ? "انجز" : "لم ينجز")</span>
+										</div>
+										<div class="min-w-125px pe-2">
+											<div class="fs-5 text-gray-900  fw-semibold w-375px min-w-200px">تاريخ الانجاز : @reminder.ReminderCompletedDate</div>
+										</div>
+										<!--begin::Action-->
+										<a href="#" class="btn btn-sm btn-light btn-active-light-primary">انجاز</a>
+										<!--end::Action-->
+									</div>
+									<!--end::Record-->
+								</div>
+								<!--end::Timeline details-->
+							</div>
+							<!--end::Timeline content-->
+
+						</div>
+						<!--end::Timeline item-->
+					}
+
+
+				</div>
+				<!--end::Timeline-->
+			</div>
+			<!--end::Tab panel-->
+		</div>
+		<!--end::Tab Content-->
+	</div>
+	<!--end::Card body-->
+</div>
+@section Scripts {
+
+}

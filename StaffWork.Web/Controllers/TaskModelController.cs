@@ -1,20 +1,13 @@
 ﻿using System.Security.Claims;
-using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using NuGet.ProjectModel;
 using StaffWork.Api.Controllers;
 using StaffWork.Core.Consts;
 using StaffWork.Core.Interfaces;
 using StaffWork.Core.Models;
 using StaffWork.Core.Paramaters;
-using StaffWork.Infrastructure.Filters;
-using StaffWork.Infrastructure.Implementations;
 
 namespace StaffWork.Web.Controllers
 {
@@ -259,6 +252,16 @@ namespace StaffWork.Web.Controllers
             {
                 throw;
             }
+        }
+        [HttpGet]
+        public IActionResult Details(int id)
+        {
+            var currentUserId = GetAuthenticatedUser();
+            var TaskModel = BussinesService.GetAsync(d => d.Id == id, ["AssignedUsers", "TaskFiles", "Reminders", "Reminders.CreatedByUser", "AssignedUsers.User"]).Result;
+            if (TaskModel == null)
+                return NotFound();
+            var viewmodel = _mapper.Map<TaskModelViewModel>(TaskModel); 
+            return View(viewmodel);
         }
         private TaskModelFormViewModel PopulateViewModel(TaskModelFormViewModel? model = null)
         {

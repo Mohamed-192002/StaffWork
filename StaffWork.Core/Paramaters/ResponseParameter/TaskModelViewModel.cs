@@ -14,5 +14,8 @@ namespace StaffWork.Core.Paramaters
         public bool IsCompleted { get; set; }
         public DateTime? DateCompleted { get; set; }
         public List<string> Users { get; set; }
+
+        public ICollection<TaskReminderViewModel> Reminders { get; set; } = [];
+        public IList<TaskFileDisplay> ExistingFiles { get; set; } = [];
     }
 }

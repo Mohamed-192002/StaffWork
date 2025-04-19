@@ -33,9 +33,14 @@ namespace StaffWork.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult Create(int taskModelId)
         {
-            return View("Form", PopulateViewModel());
+            var viewModel = new TaskReminderFormViewModel
+            {
+                TaskModelId = taskModelId,
+                ReminderDate = DateTime.UtcNow
+            };
+            return View("Form", viewModel);
         }
         [HttpPost]
         public async Task<IActionResult> Create(TaskReminderFormViewModel viewModel)
@@ -43,7 +48,7 @@ namespace StaffWork.Web.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             var TaskReminder = _mapper.Map<TaskReminder>(viewModel);
-
+            TaskReminder.CreatedByUserId = GetAuthenticatedUser();
             await BussinesService.InsertAsync(TaskReminder);
             return RedirectToAction("Index", _mapper.Map<TaskReminderViewModel>(TaskReminder));
         }
@@ -159,7 +164,7 @@ namespace StaffWork.Web.Controllers
             else
                 TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService
                                    .GetAllAsync(w => w.TaskModel.AssignedUsers.Any(x => x.UserId == user.Id)
-                                   , ["AssignedUsers", "Reminders", "AssignedUsers.User"]);
+                                   , ["TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
 
             if (!string.IsNullOrEmpty(searchValue))
             {

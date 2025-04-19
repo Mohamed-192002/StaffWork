@@ -16,6 +16,8 @@ public class TaskReminder : BaseEntity
 
     public DateTime ReminderDate { get; set; }
 
+    public string? Notes { get; set; } = string.Empty; 
+
     public bool IsReminderCompleted { get; set; } // حالة التذكير
     public DateTime? ReminderCompletedDate { get; set; } // تاريخ إكمال التذكير
 

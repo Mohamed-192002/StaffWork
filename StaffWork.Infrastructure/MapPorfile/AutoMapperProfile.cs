@@ -46,10 +46,12 @@ namespace StaffWork.Infrastructure
             CreateMap<TaskModel, TaskModelViewModel>()
                .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.AssignedUsers!.Select(x => x.User.FullName)))
                .ReverseMap();
+
             CreateMap<TaskModel, TaskModelFormViewModel>()
                .ForMember(dest => dest.TaskFiles, opt => opt.Ignore());
             CreateMap<TaskModelFormViewModel, TaskModel>()
-             .ForMember(dest => dest.TaskFiles, opt => opt.Ignore());
+             .ForMember(dest => dest.TaskFiles, opt => opt.Ignore())
+             ;
 
             CreateMap<TaskFile, TaskFileDisplay>()
                .ReverseMap();
@@ -59,6 +61,11 @@ namespace StaffWork.Infrastructure
                .ForMember(dest => dest.CreatedByUserName, opt => opt.MapFrom(src => src.CreatedByUser.FullName))
                .ReverseMap();
 
+            CreateMap<TaskReminder, TaskReminderViewModel>()
+               .ForMember(dest => dest.CreatedByUserName, opt => opt.MapFrom(src => src.CreatedByUser.FullName))
+             .ReverseMap();
+            CreateMap<TaskReminder, TaskReminderFormViewModel>()
+           .ReverseMap();
         }
     }
 }
