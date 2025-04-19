@@ -91,10 +91,10 @@ namespace StaffWork.Web.Controllers
             }
             return Ok();
         }
-        public async Task<IActionResult> Complete(int id)
+        public async Task<IActionResult> Complete(int Id)
         {
             var currentUserId = GetAuthenticatedUser();
-            var TaskReminder = await BussinesService.GetAsync(d => d.Id == id, ["TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
+            var TaskReminder = await BussinesService.GetAsync(d => d.Id == Id, ["TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
             if (TaskReminder == null)
                 return NotFound();
             try
@@ -104,7 +104,7 @@ namespace StaffWork.Web.Controllers
                     return BadRequest(new { Message = "This item is already completed." });
                 }
 
-                if (!(User.IsInRole(AppRoles.SuperAdmin) || !TaskReminder.TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId)))
+                if (!TaskReminder.TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId))
                 {
                     return Forbid("you're not authorized");
                 }

@@ -94,7 +94,7 @@
 										<h3 class="fw-bold" title="@item.FileName" data-toggle="tooltip" data-placement="top">
 											@((item.FileName?.Length > 60 ? item.FileName.Substring(0, 60) + "..." : item.FileName))
 										</h3>
-										<a href="@item.FileUrl" class="btn btn-primary mb-2" target="_blank">تحميل الملفة @i</a>
+										<a href="@item.FileUrl" class="btn btn-primary mb-2" target="_blank">تحميل الملف @i</a>
 										<button type="button" class="btn btn-sm btn-danger" onclick="deleteImage('@item.FileUrl', '@i')">حذف</button>
 									</div>
 									i++;

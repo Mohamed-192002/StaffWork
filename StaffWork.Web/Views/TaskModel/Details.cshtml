@@ -2,18 +2,11 @@
 
 @{
 	ViewData["Title"] = "مهمه";
-}
-<style>
-	#sortable-timeline .timeline-item {
-		cursor: grab;
-	}
+	int i = 1;
 
-		#sortable-timeline .timeline-item:active {
-			cursor: grabbing;
-			opacity: 0.8;
-		}
-</style>
-<div class="card">
+}
+
+<div class="card shadow-sm">
 	<!--begin::Card head-->
 	<div class="card-header card-header-stretch">
 		<div class="card-title d-flex col-12 justify-content-between">
@@ -27,12 +20,19 @@
 					</div>
 					<div class="border border-gray-300 border-dashed rounded min-w-125px px-4 me-6 ">
 						<div class="d-flex text-center">
-							<div class=" fw-bold">حاله استلام المهمه : @Model.Title</div>
+							<div class="fw-bold">
+								حالة استلام المهمة:
+								<span class="fs-6 badge badge-light-@(Model.IsReceived ? "success" : "danger")">@((Model.IsReceived) ? "تم الاستلام" : "لم يتم الاستلام")</span>
+							</div>
+
 						</div>
 					</div>
 					<div class="border border-gray-300 border-dashed rounded min-w-125px px-4 me-6 ">
 						<div class="d-flex text-center">
-							<div class=" fw-bold">حاله انجاز المهمه : @Model.Title</div>
+							<div class="fw-bold">
+								حالة إنجاز المهمة:
+								<span class="fs-6 badge badge-light-@(Model.IsCompleted ? "success" : "danger")">@((Model.IsCompleted) ? "انجز" : "لم ينجز")</span>
+							</div>
 						</div>
 					</div>
 					<a class="btn btn-sm btn-primary me-7" href="/TaskReminder/Create?taskModelId=@Model.Id">اضافه تذكير</a>
@@ -41,6 +41,55 @@
 		</div>
 	</div>
 	<!--end::Card head-->
+	<!--begin::Card body-->
+	<div class="card mt-3 " id="kt_profile_details_view">
+		<!--begin::Card body-->
+		<div class=" card-header-stretch">
+			<!--begin::Notice-->
+			<div class="d-flex justify-content-center">
+				<!--begin::Content-->
+				<div class="row col-12">
+					@foreach (var item in Model.ExistingFiles)
+					{
+						@if (item is not null)
+						{
+							<div class="image-item col-3" id="image-item-@i">
+								@* <h3 class="fw-bold" title="@item.FileName" data-toggle="tooltip" data-placement="top">
+									@((item.FileName?.Length > 30 ? item.FileName.Substring(0, 30) + "..." : item.FileName))
+								</h3> *@
+								<a href="@item.FileUrl" class="btn btn-primary mb-2" target="_blank">تحميل الملف @i</a>
+							</div>
+							i++;
+						} 
+					}
+				</div>
+				<!--end::Content-->
+				<!--end::Wrapper-->
+			</div>
+			<!--end::Notice-->
+		</div>
+		<!--end::Card body-->
+	</div>
+	<!--end::Card body-->
+	<hr />
+	@* <!--begin::Card body-->
+	<div class="card-body p-9">
+		<!--begin::Notice-->
+		<div class="notice d-flex bg-light-warning rounded border-warning border border-dashed  p-6">
+			<i class="bi bi-info-square fs-2x text-warning me-4" style="opacity: 0.5;"></i>
+			<!--begin::Wrapper-->
+			<div class="d-flex flex-stack flex-grow-1 ">
+				<!--begin::Content-->
+				<div class=" fw-semibold">
+					<h4 class="text-gray-900 fw-bold">@(string.IsNullOrEmpty(Model.Notes) ? "لا يوجد ملاحظات" : Model.Notes)</h4>
+				</div>
+				<!--end::Content-->
+			</div>
+			<!--end::Wrapper-->
+		</div>
+		<!--end::Notice-->
+	</div>
+	<!--end::Card body--> *@
 	<!--begin::Card body-->
 	<div class="card-body">
 		<!--begin::Tab Content-->
@@ -91,7 +140,11 @@
 											<div class="fs-5 text-gray-900  fw-semibold w-375px min-w-200px">تاريخ الانجاز : @reminder.ReminderCompletedDate</div>
 										</div>
 										<!--begin::Action-->
-										<a href="#" class="btn btn-sm btn-light btn-active-light-primary">انجاز</a>
+										@* <a asp-controller="TaskReminder" asp-action="Complete" asp-route-id="reminder.Id" class="btn btn-sm btn-light btn-active-light-primary">انجاز</a> *@
+										<a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning js-Complete-status"
+										   data-title="انجاز" data-url="/TaskReminder/Complete/${@reminder.Id}" data-update="true" data-message="هل متأكد من انجاز الحاله؟">
+											انجاز
+										</a>
 										<!--end::Action-->
 									</div>
 									<!--end::Record-->
@@ -113,6 +166,7 @@
 		<!--end::Tab Content-->
 	</div>
 	<!--end::Card body-->
+
 </div>
 @section Scripts {
 

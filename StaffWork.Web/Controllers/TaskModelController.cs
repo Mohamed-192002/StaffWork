@@ -260,7 +260,11 @@ namespace StaffWork.Web.Controllers
             var TaskModel = BussinesService.GetAsync(d => d.Id == id, ["AssignedUsers", "TaskFiles", "Reminders", "Reminders.CreatedByUser", "AssignedUsers.User"]).Result;
             if (TaskModel == null)
                 return NotFound();
-            var viewmodel = _mapper.Map<TaskModelViewModel>(TaskModel); 
+            var viewmodel = _mapper.Map<TaskModelViewModel>(TaskModel);
+            viewmodel.Reminders = viewmodel.Reminders
+                    .OrderByDescending(x => x.ReminderDate)
+                    .ToList(); 
+            viewmodel.ExistingFiles = _mapper.Map<List<TaskFileDisplay>>(TaskModel.TaskFiles);
             return View(viewmodel);
         }
         private TaskModelFormViewModel PopulateViewModel(TaskModelFormViewModel? model = null)
