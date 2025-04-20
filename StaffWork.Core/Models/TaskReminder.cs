@@ -22,5 +22,7 @@ public class TaskReminder : BaseEntity
     public DateTime? ReminderCompletedDate { get; set; } // تاريخ إكمال التذكير
 
     public ICollection<Notification> Notifications { get; set; } = [];
+
+    public string? JobId { get; set; }
 }
 

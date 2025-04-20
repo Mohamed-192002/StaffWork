@@ -8,6 +8,7 @@ using StaffWork.Core.Consts;
 using StaffWork.Core.Interfaces;
 using StaffWork.Core.Models;
 using StaffWork.Core.Paramaters;
+using Hangfire;
 
 namespace StaffWork.Web.Controllers
 {
@@ -50,12 +51,28 @@ namespace StaffWork.Web.Controllers
             var TaskReminder = _mapper.Map<TaskReminder>(viewModel);
             TaskReminder.CreatedByUserId = GetAuthenticatedUser();
             await BussinesService.InsertAsync(TaskReminder);
+            #region Send Notification
+            var reminder = await BussinesService.GetAsync(x => x.Id == TaskReminder.Id);
+            var scheduleTime = reminder.ReminderDate.AddDays(-1) - DateTime.Now;
+            if (scheduleTime.TotalSeconds > 0) // Ensure scheduling in the future
+            {
+                reminder.JobId = BackgroundJob.Schedule<NotifiJob>(
+                    x => x.ScheduleNotifiJob(reminder),
+                    scheduleTime
+                );
+            }
+            else
+            {
+                // If the EndDate is in less than a day, schedule immediately
+                reminder.JobId = BackgroundJob.Enqueue<NotifiJob>(x => x.ScheduleNotifiJob(reminder));
+            }
+            #endregion
             return RedirectToAction("Index", _mapper.Map<TaskReminderViewModel>(TaskReminder));
         }
         [HttpGet]
         public async Task<IActionResult> EditAsync(int id)
         {
-            var TaskReminder = await BussinesService.GetAsync(d => d.Id == id, ["TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
+            var TaskReminder = await BussinesService.GetAsync(d => d.Id == id, ["TaskModel", "TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
             if (TaskReminder == null)
                 return NotFound();
             var viewModel = _mapper.Map<TaskReminderFormViewModel>(TaskReminder);
@@ -67,22 +84,47 @@ namespace StaffWork.Web.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest();
-            var TaskReminder = await BussinesService.GetAsync(d => d.Id == viewModel.Id, ["TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
+            var TaskReminder = await BussinesService.GetAsync(d => d.Id == viewModel.Id, ["TaskModel", "TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
             if (TaskReminder == null)
                 return NotFound();
             _mapper.Map(viewModel, TaskReminder);
 
             await BussinesService.UpdateAsync(TaskReminder.Id, TaskReminder);
+
+            #region Send Notification
+            var reminder = await BussinesService.GetAsync(x => x.Id == TaskReminder.Id);
+            if (reminder.JobId != null)
+            {
+                BackgroundJob.Delete(reminder.JobId);
+            }
+            var scheduleTime = reminder.ReminderDate.AddDays(-1) - DateTime.Now;
+            if (scheduleTime.TotalSeconds > 0) // Ensure scheduling in the future
+            {
+                reminder.JobId = BackgroundJob.Schedule<NotifiJob>(
+                    x => x.ScheduleNotifiJob(reminder),
+                    scheduleTime
+                );
+            }
+            else
+            {
+                // If the EndDate is in less than a day, schedule immediately
+                reminder.JobId = BackgroundJob.Enqueue<NotifiJob>(x => x.ScheduleNotifiJob(reminder));
+            }
+            #endregion
             return RedirectToAction("Index", _mapper.Map<TaskReminderViewModel>(TaskReminder));
         }
         [Authorize(Roles = AppRoles.Admin + "," + AppRoles.SuperAdmin)]
         public async Task<IActionResult> Delete(int id)
         {
-            var TaskReminder = await BussinesService.GetAsync(d => d.Id == id, ["TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
+            var TaskReminder = await BussinesService.GetAsync(d => d.Id == id, ["TaskModel", "TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
             if (TaskReminder == null)
                 return NotFound();
             try
             {
+                if (TaskReminder.JobId != null)
+                {
+                    BackgroundJob.Delete(TaskReminder.JobId);
+                }
                 await BussinesService.DeleteAsync(id);
             }
             catch (Exception)
@@ -94,7 +136,7 @@ namespace StaffWork.Web.Controllers
         public async Task<IActionResult> Complete(int Id)
         {
             var currentUserId = GetAuthenticatedUser();
-            var TaskReminder = await BussinesService.GetAsync(d => d.Id == Id, ["TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
+            var TaskReminder = await BussinesService.GetAsync(d => d.Id == Id, ["TaskModel", "TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
             if (TaskReminder == null)
                 return NotFound();
             try
@@ -156,20 +198,23 @@ namespace StaffWork.Web.Controllers
             IQueryable<TaskReminder> TaskReminderQuery;
 
             if (User.IsInRole(AppRoles.SuperAdmin))
-                TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService.GetAllAsync(null!, ["TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
+                TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService.GetAllAsync(null!, ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
             else if (User.IsInRole(AppRoles.Admin))
                 TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService
                     .GetAllAsync(w => w.TaskModel.AssignedUsers.Any(x => x.User.DepartmentId == user.DepartmentId)
-                    , ["AssignedUsers", "Reminders", "AssignedUsers.User"]);
+                    , ["CreatedByUser", "AssignedUsers", "Reminders", "AssignedUsers.User"]);
             else
                 TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService
                                    .GetAllAsync(w => w.TaskModel.AssignedUsers.Any(x => x.UserId == user.Id)
-                                   , ["TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
+                                   , ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
 
             if (!string.IsNullOrEmpty(searchValue))
             {
                 TaskReminderQuery = TaskReminderQuery.Where(b => b.TaskModel.AssignedUsers.Any(x => x.User.FullName.Contains(searchValue!))
                 || (string.IsNullOrEmpty(b.Title) || b.Title.Contains(searchValue!))
+                || (string.IsNullOrEmpty(b.Notes) || b.Notes.Contains(searchValue!))
+                || (string.IsNullOrEmpty(b.TaskModel.Title) || b.TaskModel.Title.Contains(searchValue!))
+                || (string.IsNullOrEmpty(b.CreatedByUser.FullName) || b.CreatedByUser.FullName.Contains(searchValue!))
                 );
             }
 
@@ -179,7 +224,37 @@ namespace StaffWork.Web.Controllers
                 TaskReminder = TaskReminder.Where(x => x.DateCreated >= fromDate.Value).ToList();
             if (toDate.HasValue)
                 TaskReminder = TaskReminder.Where(x => x.DateCreated <= toDate.Value).ToList();
-
+            // Apply sorting in-memory based on known property names
+            if (!string.IsNullOrEmpty(sortColumn) && !string.IsNullOrEmpty(sortColumnDirection))
+            {
+                switch (sortColumn)
+                {
+                    case "Title":
+                        TaskReminder = sortColumnDirection == "asc" ? TaskReminder.OrderBy(b => b.Title).ToList() : TaskReminder.OrderByDescending(b => b.Title).ToList();
+                        break;
+                    case "Notes":
+                        TaskReminder = sortColumnDirection == "asc" ? TaskReminder.OrderBy(b => b.Notes).ToList() : TaskReminder.OrderByDescending(b => b.Notes).ToList();
+                        break;
+                    case "TaskModelTitle":
+                        TaskReminder = sortColumnDirection == "asc" ? TaskReminder.OrderBy(b => b.TaskModel.Title).ToList() : TaskReminder.OrderByDescending(b => b.TaskModel.Title).ToList();
+                        break;
+                    case "CreatedByUserName":
+                        TaskReminder = sortColumnDirection == "asc" ? TaskReminder.OrderBy(b => b.CreatedByUser.FullName).ToList() : TaskReminder.OrderByDescending(b => b.CreatedByUser.FullName).ToList();
+                        break;
+                    case "ReminderDate":
+                        TaskReminder = sortColumnDirection == "asc" ? TaskReminder.OrderBy(b => b.ReminderDate).ToList() : TaskReminder.OrderByDescending(b => b.ReminderDate).ToList();
+                        break;
+                    case "IsReminderCompleted":
+                        TaskReminder = sortColumnDirection == "asc" ? TaskReminder.OrderBy(b => b.IsReminderCompleted).ToList() : TaskReminder.OrderByDescending(b => b.IsReminderCompleted).ToList();
+                        break;
+                    case "ReminderCompletedDate":
+                        TaskReminder = sortColumnDirection == "asc" ? TaskReminder.OrderBy(b => b.ReminderCompletedDate).ToList() : TaskReminder.OrderByDescending(b => b.ReminderCompletedDate).ToList();
+                        break;
+                    default:
+                        TaskReminder = TaskReminder.OrderBy(b => b.Id).ToList(); // Default sorting
+                        break;
+                }
+            }
             var recordsTotal = TaskReminder.Count;
             TaskReminder = TaskReminder.ToList();
             var data = TaskReminder.Skip(skip).Take(pageSize).ToList();

@@ -263,7 +263,7 @@ namespace StaffWork.Web.Controllers
             var viewmodel = _mapper.Map<TaskModelViewModel>(TaskModel);
             viewmodel.Reminders = viewmodel.Reminders
                     .OrderByDescending(x => x.ReminderDate)
-                    .ToList(); 
+                    .ToList();
             viewmodel.ExistingFiles = _mapper.Map<List<TaskFileDisplay>>(TaskModel.TaskFiles);
             return View(viewmodel);
         }
@@ -317,7 +317,9 @@ namespace StaffWork.Web.Controllers
 
             if (!string.IsNullOrEmpty(searchValue))
             {
-                TaskModelQuery = TaskModelQuery.Where(b => b.AssignedUsers.Any(x => x.User.FullName.Contains(searchValue!))
+                TaskModelQuery = TaskModelQuery.Where(b =>
+                b.AssignedUsers.Any(x => x.User.FullName.Contains(searchValue!))
+               || (string.IsNullOrEmpty(b.Title) || b.Title.Contains(searchValue!))
                 || (string.IsNullOrEmpty(b.Notes) || b.Notes.Contains(searchValue!))
                 );
             }
@@ -328,6 +330,35 @@ namespace StaffWork.Web.Controllers
                 TaskModel = TaskModel.Where(x => x.DateCreated >= fromDate.Value).ToList();
             if (toDate.HasValue)
                 TaskModel = TaskModel.Where(x => x.DateCreated <= toDate.Value).ToList();
+
+            // Apply sorting in-memory based on known property names
+            if (!string.IsNullOrEmpty(sortColumn) && !string.IsNullOrEmpty(sortColumnDirection))
+            {
+                switch (sortColumn)
+                {
+                    case "Title":
+                        TaskModel = sortColumnDirection == "asc" ? TaskModel.OrderBy(b => b.Title).ToList() : TaskModel.OrderByDescending(b => b.Title).ToList();
+                        break;
+                    case "Notes":
+                        TaskModel = sortColumnDirection == "asc" ? TaskModel.OrderBy(b => b.Notes).ToList() : TaskModel.OrderByDescending(b => b.Notes).ToList();
+                        break;
+                    case "IsReceived":
+                        TaskModel = sortColumnDirection == "asc" ? TaskModel.OrderBy(b => b.IsReceived).ToList() : TaskModel.OrderByDescending(b => b.IsReceived).ToList();
+                        break;
+                    case "DateReceived":
+                        TaskModel = sortColumnDirection == "asc" ? TaskModel.OrderBy(b => b.DateReceived).ToList() : TaskModel.OrderByDescending(b => b.DateReceived).ToList();
+                        break;
+                    case "IsCompleted":
+                        TaskModel = sortColumnDirection == "asc" ? TaskModel.OrderBy(b => b.IsCompleted).ToList() : TaskModel.OrderByDescending(b => b.IsCompleted).ToList();
+                        break;
+                    case "DateCompleted":
+                        TaskModel = sortColumnDirection == "asc" ? TaskModel.OrderBy(b => b.DateCompleted).ToList() : TaskModel.OrderByDescending(b => b.DateCompleted).ToList();
+                        break;
+                    default:
+                        TaskModel = TaskModel.OrderBy(b => b.Id).ToList(); // Default sorting
+                        break;
+                }
+            }
 
             var recordsTotal = TaskModel.Count;
             TaskModel = TaskModel.ToList();
