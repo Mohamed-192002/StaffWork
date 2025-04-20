@@ -22,6 +22,33 @@
             }
         },
         {
+            "name": "ReminderDate",
+            "className": "text-center",
+            "render": function (data, type, row) {
+                if (!row.reminderDate) {
+                    return "";
+                }
+                var reminderDate = moment(row.reminderDate);
+                var today = moment();
+                var diffDays = reminderDate.diff(today, 'days');
+                if (diffDays > 3) {
+                    return `<span class="badge badge-dark fw-bold">متبقي  ${Math.abs(diffDays)} يوم</span>`;
+                }
+                switch (diffDays) {
+                    case 0:
+                        return '<span class="badge badge-danger fw-bold">اليوم</span>';
+                    case 1:
+                        return '<span class="badge badge-danger fw-bold">متبقي يوم</span>';
+                    case 2:
+                        return '<span class="badge badge-warning fw-bold">متبقي يومان</span>';
+                    case 3:
+                        return '<span class="badge badge-success fw-bold">متبقي 3 أيام</span>';
+                    default:
+                        return `<span class="badge badge-danger fw-bold">متبقى  ${Math.abs(diffDays)} يوم</span>`;
+                }
+            }
+        },
+        {
             "data": "isReminderCompleted", "name": "IsReminderCompleted", "className": "text-center"
             ,
             "render": function (data, type, row) {
@@ -150,5 +177,34 @@
             searchable: false
         }],
         columns: columns,
+        "rowCallback": function (row, data) {
+            if (!data.reminderDate) return;
+
+            var reminderDate = moment(data.reminderDate);
+            var today = moment();
+            var diffDays = reminderDate.diff(today, 'days');
+
+            var customNotifiDate = moment(data.customNotifiDate);
+
+            if (diffDays > 3) {
+                return $(row).addClass("bg-Default");
+            }
+            switch (diffDays) {
+                case 0:
+                    return $(row).addClass("bg-danger");
+                case 1:
+                    return $(row).addClass("bg-danger");
+                case 2:
+                    return $(row).addClass("bg-warning-coustom");
+                case 3:
+                    return $(row).addClass("bg-success");
+                default:
+                    return $(row).addClass("bg-danger");
+            }
+
+
+
+        }
+
     });
 });
