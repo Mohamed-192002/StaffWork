@@ -137,11 +137,11 @@
                 "orderable": false,
                 "render": function (data, type, row) {
                     return `
-                <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger js-confirm"
+                <a href="javascript:;" class="btn btn-sm btn-light-danger js-confirm"
                    data-title="حذف" data-url="/${tbody.data('controller')}/Delete/${row.id}" data-update="true"
                             data-message="هل متأكد من حذف هذا العنصر؟">
-                    حذف 
-                </a> `;
+                    حذف
+                </a>`;
                 }
             });
     }
