@@ -9,6 +9,7 @@ using StaffWork.Core.Interfaces;
 using StaffWork.Core.Models;
 using StaffWork.Core.Paramaters;
 using Hangfire;
+using OfficeOpenXml;
 
 namespace StaffWork.Web.Controllers
 {
@@ -266,6 +267,118 @@ namespace StaffWork.Web.Controllers
 
             return Ok(jsonData);
         }
+
+        public async Task<IActionResult> ExportToExcelAsync(DateTime? fromDate, DateTime? toDate, string searchValue, string sortColumn, string sortColumnDirection)
+        {
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+            var user = await UserService.GetAsync(x => x.Id == userId, ["Department"]);
+
+            IQueryable<TaskReminder> TaskReminderQuery;
+
+            if (User.IsInRole(AppRoles.SuperAdmin))
+                TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService.GetAllAsync(null!, ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
+            else if (User.IsInRole(AppRoles.Admin))
+                TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService
+                    .GetAllAsync(w => w.TaskModel.AssignedUsers.Any(x => x.User.DepartmentId == user.DepartmentId)
+                    , ["CreatedByUser", "AssignedUsers", "Reminders", "AssignedUsers.User"]);
+            else
+                TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService
+                                   .GetAllAsync(w => w.TaskModel.AssignedUsers.Any(x => x.UserId == user.Id)
+                                   , ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
+
+            if (!string.IsNullOrEmpty(searchValue))
+            {
+                TaskReminderQuery = TaskReminderQuery.Where(b => b.TaskModel.AssignedUsers.Any(x => x.User.FullName.Contains(searchValue!))
+                || (string.IsNullOrEmpty(b.Title) || b.Title.Contains(searchValue!))
+                || (string.IsNullOrEmpty(b.Notes) || b.Notes.Contains(searchValue!))
+                || (string.IsNullOrEmpty(b.TaskModel.Title) || b.TaskModel.Title.Contains(searchValue!))
+                || (string.IsNullOrEmpty(b.CreatedByUser.FullName) || b.CreatedByUser.FullName.Contains(searchValue!))
+                );
+            }
+
+            var TaskReminder = TaskReminderQuery.ToList();
+
+            if (fromDate.HasValue)
+                TaskReminder = TaskReminder.Where(x => x.DateCreated >= fromDate.Value).ToList();
+            if (toDate.HasValue)
+                TaskReminder = TaskReminder.Where(x => x.DateCreated <= toDate.Value).ToList();
+            // Apply sorting in-memory based on known property names
+            if (!string.IsNullOrEmpty(sortColumn) && !string.IsNullOrEmpty(sortColumnDirection))
+            {
+                switch (sortColumn)
+                {
+                    case "Title":
+                        TaskReminder = sortColumnDirection == "asc" ? TaskReminder.OrderBy(b => b.Title).ToList() : TaskReminder.OrderByDescending(b => b.Title).ToList();
+                        break;
+                    case "Notes":
+                        TaskReminder = sortColumnDirection == "asc" ? TaskReminder.OrderBy(b => b.Notes).ToList() : TaskReminder.OrderByDescending(b => b.Notes).ToList();
+                        break;
+                    case "TaskModelTitle":
+                        TaskReminder = sortColumnDirection == "asc" ? TaskReminder.OrderBy(b => b.TaskModel.Title).ToList() : TaskReminder.OrderByDescending(b => b.TaskModel.Title).ToList();
+                        break;
+                    case "CreatedByUserName":
+                        TaskReminder = sortColumnDirection == "asc" ? TaskReminder.OrderBy(b => b.CreatedByUser.FullName).ToList() : TaskReminder.OrderByDescending(b => b.CreatedByUser.FullName).ToList();
+                        break;
+                    case "ReminderDate":
+                        TaskReminder = sortColumnDirection == "asc" ? TaskReminder.OrderBy(b => b.ReminderDate).ToList() : TaskReminder.OrderByDescending(b => b.ReminderDate).ToList();
+                        break;
+                    case "IsReminderCompleted":
+                        TaskReminder = sortColumnDirection == "asc" ? TaskReminder.OrderBy(b => b.IsReminderCompleted).ToList() : TaskReminder.OrderByDescending(b => b.IsReminderCompleted).ToList();
+                        break;
+                    case "ReminderCompletedDate":
+                        TaskReminder = sortColumnDirection == "asc" ? TaskReminder.OrderBy(b => b.ReminderCompletedDate).ToList() : TaskReminder.OrderByDescending(b => b.ReminderCompletedDate).ToList();
+                        break;
+                    default:
+                        TaskReminder = TaskReminder.OrderBy(b => b.Id).ToList(); // Default sorting
+                        break;
+                }
+            }
+
+            var recordsTotal = TaskReminder.Count;
+            TaskReminder = TaskReminder.ToList();
+            var data = _mapper.Map<List<TaskReminderViewModel>>(TaskReminder);
+
+            // Create Excel file
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("التذكيرات"); // Arabic for "Date"
+
+                // Manually set the Arabic headers
+                worksheet.Cells[1, 1].Value = "التذكير";
+                worksheet.Cells[1, 2].Value = "المهمه";
+                worksheet.Cells[1, 3].Value = "من اضاف التذكير";
+                worksheet.Cells[1, 4].Value = "تاريخ التذكير";
+                worksheet.Cells[1, 5].Value = "حاله الانجاز";
+                worksheet.Cells[1, 6].Value = "تاريخ الانجاز";
+                worksheet.Cells[1, 7].Value = "ملاحظه";
+
+                // Load data starting from row 2 (after the headers)
+                for (int i = 0; i < data.Count; i++)
+                {
+                    worksheet.Cells[i + 2, 1].Value = data[i].Title;
+                    worksheet.Cells[i + 2, 2].Value = data[i].TaskModelTitle;
+                    worksheet.Cells[i + 2, 3].Value = data[i].CreatedByUserName;
+                    worksheet.Cells[i + 2, 4].Value = data[i].ReminderDate;
+                    worksheet.Cells[i + 2, 4].Style.Numberformat.Format = "dd/MM/yyyy";
+                    worksheet.Cells[i + 2, 5].Value = data[i].IsReminderCompleted ? "نعم" : "لا";
+                    worksheet.Cells[i + 2, 6].Value = data[i].ReminderCompletedDate;
+                    worksheet.Cells[i + 2, 6].Style.Numberformat.Format = "dd/MM/yyyy";
+                    worksheet.Cells[i + 2, 7].Value = data[i].Notes;
+                }
+
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+
+                string excelName = $"بيانات التذكيرات-{DateTime.Now:dd/MM/yyyy}.xlsx"; // Filename in Arabic
+
+                stream.Position = 0;
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
+            }
+        }
+
     }
 
 }

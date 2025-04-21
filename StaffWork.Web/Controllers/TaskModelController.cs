@@ -3,6 +3,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using OfficeOpenXml;
 using StaffWork.Api.Controllers;
 using StaffWork.Core.Consts;
 using StaffWork.Core.Interfaces;
@@ -371,6 +372,115 @@ namespace StaffWork.Web.Controllers
 
             return Ok(jsonData);
         }
+
+        public async Task<IActionResult> ExportToExcelAsync(DateTime? fromDate, DateTime? toDate, string searchValue, string sortColumn, string sortColumnDirection)
+        {
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+            var user = await UserService.GetAsync(x => x.Id == userId, ["Department"]);
+
+            IQueryable<TaskModel> TaskModelQuery;
+
+            if (User.IsInRole(AppRoles.SuperAdmin))
+                TaskModelQuery = (IQueryable<TaskModel>)await BussinesService.GetAllAsync(null!, ["AssignedUsers", "Reminders", "AssignedUsers.User"]);
+            else if (User.IsInRole(AppRoles.Admin))
+                TaskModelQuery = (IQueryable<TaskModel>)await BussinesService
+                    .GetAllAsync(w => w.AssignedUsers.Any(x => x.User.DepartmentId == user.DepartmentId)
+                    , ["AssignedUsers", "Reminders", "AssignedUsers.User"]);
+            else
+                TaskModelQuery = (IQueryable<TaskModel>)await BussinesService
+                                   .GetAllAsync(w => w.AssignedUsers.Any(x => x.UserId == user.Id)
+                                   , ["AssignedUsers", "Reminders", "AssignedUsers.User"]);
+
+            if (!string.IsNullOrEmpty(searchValue))
+            {
+                TaskModelQuery = TaskModelQuery.Where(b =>
+                b.AssignedUsers.Any(x => x.User.FullName.Contains(searchValue!))
+               || (string.IsNullOrEmpty(b.Title) || b.Title.Contains(searchValue!))
+                || (string.IsNullOrEmpty(b.Notes) || b.Notes.Contains(searchValue!))
+                );
+            }
+
+            var TaskModel = TaskModelQuery.ToList();
+
+            if (fromDate.HasValue)
+                TaskModel = TaskModel.Where(x => x.DateCreated >= fromDate.Value).ToList();
+            if (toDate.HasValue)
+                TaskModel = TaskModel.Where(x => x.DateCreated <= toDate.Value).ToList();
+
+            // Apply sorting in-memory based on known property names
+            if (!string.IsNullOrEmpty(sortColumn) && !string.IsNullOrEmpty(sortColumnDirection))
+            {
+                switch (sortColumn)
+                {
+                    case "Title":
+                        TaskModel = sortColumnDirection == "asc" ? TaskModel.OrderBy(b => b.Title).ToList() : TaskModel.OrderByDescending(b => b.Title).ToList();
+                        break;
+                    case "Notes":
+                        TaskModel = sortColumnDirection == "asc" ? TaskModel.OrderBy(b => b.Notes).ToList() : TaskModel.OrderByDescending(b => b.Notes).ToList();
+                        break;
+                    case "IsReceived":
+                        TaskModel = sortColumnDirection == "asc" ? TaskModel.OrderBy(b => b.IsReceived).ToList() : TaskModel.OrderByDescending(b => b.IsReceived).ToList();
+                        break;
+                    case "DateReceived":
+                        TaskModel = sortColumnDirection == "asc" ? TaskModel.OrderBy(b => b.DateReceived).ToList() : TaskModel.OrderByDescending(b => b.DateReceived).ToList();
+                        break;
+                    case "IsCompleted":
+                        TaskModel = sortColumnDirection == "asc" ? TaskModel.OrderBy(b => b.IsCompleted).ToList() : TaskModel.OrderByDescending(b => b.IsCompleted).ToList();
+                        break;
+                    case "DateCompleted":
+                        TaskModel = sortColumnDirection == "asc" ? TaskModel.OrderBy(b => b.DateCompleted).ToList() : TaskModel.OrderByDescending(b => b.DateCompleted).ToList();
+                        break;
+                    default:
+                        TaskModel = TaskModel.OrderBy(b => b.Id).ToList(); // Default sorting
+                        break;
+                }
+            }
+
+            var recordsTotal = TaskModel.Count;
+            TaskModel = TaskModel.ToList();
+            var data = _mapper.Map<List<TaskModelViewModel>>(TaskModel);
+
+            // Create Excel file
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("المهام"); // Arabic for "Date"
+
+                // Manually set the Arabic headers
+                worksheet.Cells[1, 1].Value = "اسم المهمه";
+                worksheet.Cells[1, 2].Value = "الموظفين";
+                worksheet.Cells[1, 3].Value = "حاله الاستلام";
+                worksheet.Cells[1, 4].Value = "تاريخ الاستلام";
+                worksheet.Cells[1, 5].Value = "حاله الانجاز";
+                worksheet.Cells[1, 6].Value = "تاريخ الانجاز";
+                worksheet.Cells[1, 7].Value = "ملاحظه";
+
+                // Load data starting from row 2 (after the headers)
+                for (int i = 0; i < data.Count; i++)
+                {
+                    worksheet.Cells[i + 2, 1].Value = data[i].Title;
+                    worksheet.Cells[i + 2, 2].Value = string.Join(", ", data[i].Users);
+                    worksheet.Cells[i + 2, 3].Value = data[i].IsReceived ? "نعم" : "لا";
+                    worksheet.Cells[i + 2, 4].Value = data[i].DateReceived;
+                    worksheet.Cells[i + 2, 4].Style.Numberformat.Format = "dd/MM/yyyy";
+                    worksheet.Cells[i + 2, 5].Value = data[i].IsCompleted ? "نعم" : "لا";
+                    worksheet.Cells[i + 2, 6].Value = data[i].DateCompleted;
+                    worksheet.Cells[i + 2, 6].Style.Numberformat.Format = "dd/MM/yyyy";
+                    worksheet.Cells[i + 2, 7].Value = data[i].Notes;
+                }
+
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+
+                string excelName = $"بيانات المهام-{DateTime.Now:dd/MM/yyyy}.xlsx"; // Filename in Arabic
+
+                stream.Position = 0;
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
+            }
+        }
+
     }
 
 }

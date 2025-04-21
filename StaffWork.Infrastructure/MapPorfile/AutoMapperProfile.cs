@@ -57,6 +57,7 @@ namespace StaffWork.Infrastructure
                .ReverseMap();
 
             CreateMap<TaskReminder, TaskReminderViewModel>()
+               .ForMember(dest => dest.TaskModelId, opt => opt.MapFrom(src => src.TaskModel.Id))
                .ForMember(dest => dest.TaskModelTitle, opt => opt.MapFrom(src => src.TaskModel.Title))
                .ForMember(dest => dest.CreatedByUserName, opt => opt.MapFrom(src => src.CreatedByUser.FullName))
                .ReverseMap();
