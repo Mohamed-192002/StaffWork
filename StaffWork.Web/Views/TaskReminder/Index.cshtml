@@ -68,12 +68,12 @@
 						<th>حاله الانجاز</th>
 						<th>تاريخ الانجاز</th>
 						<th>ملاحظه</th>
-						@if (!isSuperAdminOrAdmin)
-						{
+						@* @if (!isSuperAdminOrAdmin) *@
+						@* { *@
 							<th>انجاز</th>
 							<th>تعديل</th>
 							<th>حذف</th>
-						}
+						@* } *@
 					</tr>
 				</thead>
 				<tbody data-url="/TaskReminder/GetTaskReminders" data-controller="TaskReminder">

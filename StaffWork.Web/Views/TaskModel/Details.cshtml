@@ -7,7 +7,16 @@
 	var isSuperAdminOrAdmin = User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin);
 
 }
-
+<style>
+	.reminder-card {
+		transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+		transform: scale(1); /* Default scale */
+	}
+	.reminder-card:hover {
+		transform: scale(1.05); /* Slight zoom-in effect */
+		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+	}
+</style>
 <div class="card shadow-sm">
 	<!--begin::Card head-->
 	<div class="card-header card-header-stretch">
@@ -104,70 +113,71 @@
 				<div id="sortable-timeline" class="timeline timeline-border-dashed">
 					@foreach (var reminder in Model.Reminders)
 					{
-						<!--begin::Timeline item-->
-						<div class="timeline-item" data-id="@reminder.Id">
-							<!--begin::Timeline line-->
-							<div class="timeline-line"></div>
-							<!--end::Timeline line-->
-							<!--begin::Timeline icon-->
-							<div class="timeline-icon">
-								<i class="bi bi-arrow-bar-left fs-2 text-primary">
-									<span class="path1"></span><span class="path2"></span><span class="path3"></span>
-								</i>
-							</div>
-							<!--end::Timeline icon-->
-							<!--begin::Timeline content-->
-							<div class="timeline-content mb-10 mt-n1">
-								<!--begin::Timeline heading-->
-								<div class="pe-3 mb-5">
-									<!--begin::Description-->
-									<div class="d-flex align-items-center mt-1 fs-6">
-										<!--begin::Info-->
-										<div class="text-warning me-2 fs-7">تاريخ التذكير @reminder.ReminderDate</div>
-										<!--end::Info-->
+						<!--begin::Reminder Card-->
+						<div class="card reminder-card mb-5 shadow-lg rounded-3" data-id="@reminder.Id">
+							<div class="card-body">
+								<!--begin::Timeline item-->
+								<div class="timeline-item">
+									<div class="timeline-line"></div>
+									<div class="timeline-icon">
+										<i class="bi bi-arrow-bar-left fs-2 text-primary">
+											<span class="path1"></span><span class="path2"></span><span class="path3"></span>
+										</i>
 									</div>
-									<!--end::Description-->
-								</div>
-								<!--end::Timeline heading-->
-								<!--begin::Timeline details-->
-								<div class="overflow-auto pb-5">
-									<!--begin::Record-->
-									<div class="d-flex align-items-center border border-dashed border-gray-300 rounded min-w-750px px-7 py-3 mb-5">
-										<!--begin::Title-->
-										<a href="#" class="fs-5 text-gray-900 text-hover-primary fw-semibold w-375px min-w-200px">@reminder.Title</a>
-										<div class="fs-5 text-gray-900  fw-semibold w-375px min-w-200px">مضيف التنبيه : @reminder.CreatedByUserName</div>
-										<!--end::Title-->
-										<div class="min-w-125px pe-2">
-											<span class="fs-6 badge badge-light-@(@reminder.IsReminderCompleted ? "success" : "danger")">@((reminder.IsReminderCompleted) ? "انجز" : "لم ينجز")</span>
+									<div class="timeline-content mb-10 mt-n1">
+										<div class="pe-3 mb-5">
+											<div class="d-flex align-items-center mt-1 fs-6">
+												<div class="text-warning me-2 fs-7">تاريخ التذكير @reminder.ReminderDate</div>
+											</div>
 										</div>
-										<div class="min-w-125px pe-2">
-											<div class="fs-5 text-gray-900  fw-semibold w-375px min-w-200px">تاريخ الانجاز : @reminder.ReminderCompletedDate</div>
+										<div class="overflow-auto pb-5">
+											<div class="d-flex align-items-center border border-dashed border-gray-300 rounded min-w-750px px-7 py-3 mb-5">
+												<a href="#" class="fs-5 text-gray-900 text-hover-primary fw-semibold w-375px min-w-200px">@reminder.Title</a>
+												<div class="fs-5 text-gray-900  fw-semibold w-375px min-w-200px">مضيف التنبيه : @reminder.CreatedByUserName</div>
+												<div class="min-w-125px pe-2">
+													<span class="fs-6 badge badge-light-@(@reminder.IsReminderCompleted ? "success" : "danger")">
+														@((reminder.IsReminderCompleted) ? "انجز" : "لم ينجز")
+													</span>
+												</div>
+												<div class="min-w-125px pe-2">
+													<div class="fs-5 text-gray-900  fw-semibold w-375px min-w-200px">تاريخ الانجاز : @reminder.ReminderCompletedDate</div>
+												</div>
+												@if (!reminder.IsReminderCompleted)
+												{
+													<a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning js-Complete-status"
+													   data-title="انجاز" data-url="/TaskReminder/Complete?Id=@reminder.Id" data-update="true" data-message="هل متأكد من انجاز الحاله؟">
+														انجاز
+													</a>
+												}
+											</div>
+											<div class="row col-12">
+												@{
+													 i = 1;
+													foreach (var item in reminder.ExistingFiles)
+													{
+														if (item is not null)
+														{
+															<div class="image-item col-3" id="image-item-@i">
+																<a href="@item.FileUrl" class="btn btn-primary mb-2" target="_blank">تحميل الملف @i</a>
+															</div>
+															i++;
+														}
+													}
+												}
+											</div>
 										</div>
-										<!--begin::Action-->
-										@* <a asp-controller="TaskReminder" asp-action="Complete" asp-route-id="reminder.Id" class="btn btn-sm btn-light btn-active-light-primary">انجاز</a> *@
-										@if(!isSuperAdminOrAdmin){
-											<a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning js-Complete-status"
-											   data-title="انجاز" data-url="/TaskReminder/Complete?Id=@reminder.Id" data-update="true" data-message="هل متأكد من انجاز الحاله؟">
-												انجاز
-											</a>
-										}
-										<!--end::Action-->
 									</div>
-									<!--end::Record-->
 								</div>
-								<!--end::Timeline details-->
+								<!--end::Timeline item-->
 							</div>
-							<!--end::Timeline content-->
-
 						</div>
-						<!--end::Timeline item-->
+						<!--end::Reminder Card-->
 					}
-
-
 				</div>
 				<!--end::Timeline-->
 			</div>
 			<!--end::Tab panel-->
+
 		</div>
 		<!--end::Tab Content-->
 	</div>

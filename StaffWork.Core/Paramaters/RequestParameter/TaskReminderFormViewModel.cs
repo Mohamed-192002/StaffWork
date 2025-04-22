@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace StaffWork.Core.Paramaters
 {
@@ -14,5 +15,10 @@ namespace StaffWork.Core.Paramaters
         [Display(Name = "ملاحظات")]
         public string? Notes { get; set; } = string.Empty;
         public int TaskModelId { get; set; }
+
+        [Display(Name = "ملفات المهمه")]
+        public IList<IFormFile>? TaskReminderFormFiles { get; set; } = [];
+        public IList<TaskFileDisplay> ExistingFiles { get; set; } = [];
+        public string? DeletedFileUrls { get; set; }
     }
 }

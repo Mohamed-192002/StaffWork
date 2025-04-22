@@ -2,6 +2,7 @@
 
 @{
 	ViewData["Title"] = "المهام";
+	int i = 1;
 }
 
 <div class="card shadow-sm">
@@ -74,6 +75,54 @@
 				</div>
 				<!--end::Col-->
 			</div>
+			@if (Model.Id > 0)
+			{
+				<div class="row">
+					<!--begin::Label-->
+					<label class="col-lg-4 col-form-label fw-semibold fs-6">ملف التذكير</label>
+					<!--end::Label-->
+					<!--begin::Col-->
+					<div id="head" class="col-lg-8">
+						@if (Model.ExistingFiles != null && Model.ExistingFiles.Any())
+						{
+							<div class="mb-3 col-lg-12">
+								<!-- Display each existing image with a download link and name -->
+								@foreach (var item in Model.ExistingFiles)
+								{
+									<div class="image-item" id="image-item-@i">
+										<h3 class="fw-bold" title="@item.FileName" data-toggle="tooltip" data-placement="top">
+											@((item.FileName?.Length > 60 ? item.FileName.Substring(0, 60) + "..." : item.FileName))
+										</h3>
+										<a href="@item.FileUrl" class="btn btn-primary mb-2" target="_blank">تحميل الملف @i</a>
+										<button type="button" class="btn btn-sm btn-danger" onclick="deleteImage('@item.FileUrl', '@i')">حذف</button>
+									</div>
+									i++;
+								}
+							</div>
+						}
+					</div>
+					<!--end::Col-->
+				</div>
+			}
+			else
+			{
+				<!--begin::Row-->
+				<div class="row">
+					<!--begin::Label-->
+					<label class="col-lg-4 col-form-label fw-semibold fs-6" asp-for="TaskReminderFormFiles"></label>
+					<!--end::Label-->
+					<!--begin::Col-->
+					<div id="head" class="mb-5 col-lg-8 fv-row fv-plugins-icon-container fv-plugins-bootstrap5-row-invalid">
+					</div>
+					<!--end::Col-->
+				</div>
+				<!--end::Row-->
+			}
+			<!-- Button to add more file inputs -->
+			<button type="button" class="btn btn-info mb-2" onclick="addFileInput()">اضافه ملف</button>
+			<!-- Hidden input to track deleted image URLs -->
+			<input type="hidden" name="DeletedFileUrls" id="DeletedFileUrls" value="" />
+
 		</form>
 
 	</div>
@@ -96,6 +145,55 @@
 	<partial name="_ValidationScriptsPartial" />
 
 	<script>
-	
+		// Function to dynamically add new file input to the 'head' container
+			function addFileInput() {
+				// Get the 'head' container
+				var container = document.getElementById('head');
+
+				// Create a new div to hold the input and label
+				var inputBlock = document.createElement('div');
+				inputBlock.classList.add('mb-3');
+
+				// Create label for new file input
+				var label = document.createElement('label');
+				label.classList.add('form-label');
+				label.innerText = 'اختر ملف جديد:';
+
+				// Create the new file input element
+				var input = document.createElement('input');
+				input.type = 'file';
+				input.name = 'TaskReminderFormFiles';
+				input.classList.add('form-control');
+				input.multiple = true;
+
+				// Create a span for validation messages (if any)
+				var validationSpan = document.createElement('span');
+				validationSpan.classList.add('text-danger');
+
+				// Append the label, input, and validation span to the input block
+				inputBlock.appendChild(label);
+				inputBlock.appendChild(input);
+				inputBlock.appendChild(validationSpan);
+
+				// Append the new input block to the 'head' container
+				container.appendChild(inputBlock);
+			}
+
+			// Function to delete an image and remove it from the UI
+			function deleteImage(imageUrl, imageIndex) {
+				if (confirm('Are you sure you want to delete this image?')) {
+					// Track deleted images in hidden field
+					const deletedImagesInput = document.getElementById('DeletedFileUrls');
+					let deletedFileUrls = deletedImagesInput.value ? deletedImagesInput.value.split(',') : [];
+					deletedFileUrls.push(imageUrl);
+					deletedImagesInput.value = deletedFileUrls.join(',');
+
+					// Remove the image's UI element
+					var imageItem = document.getElementById('image-item-' + imageIndex);
+					if (imageItem) {
+						imageItem.remove();
+					}
+				}
+			}
 	</script>
 }

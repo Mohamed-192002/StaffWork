@@ -10,6 +10,7 @@ using StaffWork.Core.Models;
 using StaffWork.Core.Paramaters;
 using Hangfire;
 using OfficeOpenXml;
+using Microsoft.AspNetCore.Hosting;
 
 namespace StaffWork.Web.Controllers
 {
@@ -17,11 +18,14 @@ namespace StaffWork.Web.Controllers
     {
         public readonly IServicesBase<User> UserService;
         public readonly IServicesBase<TaskFile> TaskFileService;
-
-        public TaskReminderController(IServicesBase<TaskReminder> servicesBase, IMapper mapper, IServicesBase<User> userService, IServicesBase<TaskFile> taskFileService) : base(servicesBase, mapper)
+        public readonly IServicesBase<TaskReminderFile> TaskReminderFileService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public TaskReminderController(IServicesBase<TaskReminder> servicesBase, IMapper mapper, IServicesBase<User> userService, IServicesBase<TaskFile> taskFileService, IServicesBase<TaskReminderFile> taskReminderFileService, IWebHostEnvironment webHostEnvironment) : base(servicesBase, mapper)
         {
             UserService = userService;
             TaskFileService = taskFileService;
+            TaskReminderFileService = taskReminderFileService;
+            _webHostEnvironment = webHostEnvironment;
         }
         private string GetAuthenticatedUser()
         {
@@ -51,21 +55,49 @@ namespace StaffWork.Web.Controllers
                 return BadRequest(ModelState);
             var TaskReminder = _mapper.Map<TaskReminder>(viewModel);
             TaskReminder.CreatedByUserId = GetAuthenticatedUser();
+            // Handle Book images
+            if (viewModel.TaskReminderFormFiles != null && viewModel.TaskReminderFormFiles.Count > 0)
+            {
+                foreach (var image in viewModel.TaskReminderFormFiles)
+                {
+                    if (image.Length > 0)
+                    {
+                        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
+                        var filePath = "/files/TasksReminder";
+                        if (!Directory.Exists($"{_webHostEnvironment.WebRootPath}{filePath}"))
+                            Directory.CreateDirectory($"{_webHostEnvironment.WebRootPath}{filePath}");
+
+                        var path = Path.Combine($"{_webHostEnvironment.WebRootPath}{filePath}", fileName);
+
+                        using var stream = System.IO.File.Create(path);
+                         image.CopyTo(stream);
+
+                        var taskReminderFile = new TaskReminderFile
+                        {
+                            FileUrl = $"{filePath}/{fileName}",
+                            FileName = image.FileName,
+                            TaskReminder = TaskReminder
+                        };
+                        TaskReminder.TaskReminderFiles.Add(taskReminderFile);
+                    }
+                }
+            }
             await BussinesService.InsertAsync(TaskReminder);
             #region Send Notification
             var reminder = await BussinesService.GetAsync(x => x.Id == TaskReminder.Id);
+            var reminderDto = _mapper.Map<TaskReminderViewModel>(reminder);
             var scheduleTime = reminder.ReminderDate.AddDays(-1) - DateTime.Now;
             if (scheduleTime.TotalSeconds > 0) // Ensure scheduling in the future
             {
                 reminder.JobId = BackgroundJob.Schedule<NotifiJob>(
-                    x => x.ScheduleNotifiJob(reminder),
+                    x => x.ScheduleNotifiJob(reminderDto),
                     scheduleTime
                 );
             }
             else
             {
                 // If the EndDate is in less than a day, schedule immediately
-                reminder.JobId = BackgroundJob.Enqueue<NotifiJob>(x => x.ScheduleNotifiJob(reminder));
+                reminder.JobId = BackgroundJob.Enqueue<NotifiJob>(x => x.ScheduleNotifiJob(reminderDto));
             }
             #endregion
             return RedirectToAction("Index", _mapper.Map<TaskReminderViewModel>(TaskReminder));
@@ -73,10 +105,11 @@ namespace StaffWork.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> EditAsync(int id)
         {
-            var TaskReminder = await BussinesService.GetAsync(d => d.Id == id, ["TaskModel", "TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
+            var TaskReminder = await BussinesService.GetAsync(d => d.Id == id, ["TaskReminderFiles", "TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
             if (TaskReminder == null)
                 return NotFound();
             var viewModel = _mapper.Map<TaskReminderFormViewModel>(TaskReminder);
+            viewModel.ExistingFiles = _mapper.Map<List<TaskFileDisplay>>(TaskReminder.TaskReminderFiles);
             return View("Form", PopulateViewModel(viewModel));
         }
         [HttpPost]
@@ -85,31 +118,84 @@ namespace StaffWork.Web.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest();
-            var TaskReminder = await BussinesService.GetAsync(d => d.Id == viewModel.Id, ["TaskModel", "TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
+            var TaskReminder = await BussinesService.GetAsync(d => d.Id == viewModel.Id);
             if (TaskReminder == null)
                 return NotFound();
             _mapper.Map(viewModel, TaskReminder);
+            #region Files List
+            // Handle file uploads
+            if (viewModel.TaskReminderFormFiles.Any())
+            {
+                foreach (var file in viewModel.TaskReminderFormFiles)
+                {
+                    if (file.Length > 0)
+                    {
 
+                        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                        var filePath = "/files/TasksReminder";
+                        if (!Directory.Exists($"{_webHostEnvironment.WebRootPath}{filePath}"))
+                            Directory.CreateDirectory($"{_webHostEnvironment.WebRootPath}{filePath}");
+
+                        var path = Path.Combine($"{_webHostEnvironment.WebRootPath}{filePath}", fileName);
+
+                        using var stream = System.IO.File.Create(path);
+                        await file.CopyToAsync(stream);
+
+                        var taskReminderFile = new TaskReminderFile
+                        {
+                            FileUrl = $"{filePath}/{fileName}",
+                            FileName = file.FileName,
+                            TaskReminder = TaskReminder
+                        };
+                        TaskReminder.TaskReminderFiles.Add(taskReminderFile);
+                    }
+                }
+            }
+
+            // Handle image deletions
+            var deletedImageUrls = viewModel.DeletedFileUrls?.Split(',') ?? Array.Empty<string>();
+            foreach (var imageUrl in deletedImageUrls)
+            {
+                if (!string.IsNullOrEmpty(imageUrl))
+                {
+                    var file = await TaskFileService.GetAsync(r => r.FileUrl == imageUrl);
+                    if (file != null)
+                    {
+                        await TaskFileService.DeleteAsync(file.Id);
+                    }
+
+                    var oldFilePath = Path.Combine(_webHostEnvironment.WebRootPath, imageUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(oldFilePath))
+                    {
+                        System.IO.File.Delete(oldFilePath);
+                    }
+                }
+            }
+            #endregion
             await BussinesService.UpdateAsync(TaskReminder.Id, TaskReminder);
 
             #region Send Notification
             var reminder = await BussinesService.GetAsync(x => x.Id == TaskReminder.Id);
+            var reminderDto = _mapper.Map<TaskReminderViewModel>(reminder);
             if (reminder.JobId != null)
             {
                 BackgroundJob.Delete(reminder.JobId);
             }
-            var scheduleTime = reminder.ReminderDate.AddDays(-1) - DateTime.Now;
-            if (scheduleTime.TotalSeconds > 0) // Ensure scheduling in the future
+            if (!reminder.IsReminderCompleted)
             {
-                reminder.JobId = BackgroundJob.Schedule<NotifiJob>(
-                    x => x.ScheduleNotifiJob(reminder),
-                    scheduleTime
-                );
-            }
-            else
-            {
-                // If the EndDate is in less than a day, schedule immediately
-                reminder.JobId = BackgroundJob.Enqueue<NotifiJob>(x => x.ScheduleNotifiJob(reminder));
+                var scheduleTime = reminder.ReminderDate.AddDays(-1) - DateTime.Now;
+                if (scheduleTime.TotalSeconds > 0) // Ensure scheduling in the future
+                {
+                    reminder.JobId = BackgroundJob.Schedule<NotifiJob>(
+                        x => x.ScheduleNotifiJob(reminderDto),
+                        scheduleTime
+                    );
+                }
+                else
+                {
+                    // If the EndDate is in less than a day, schedule immediately
+                    reminder.JobId = BackgroundJob.Enqueue<NotifiJob>(x => x.ScheduleNotifiJob(reminderDto));
+                }
             }
             #endregion
             return RedirectToAction("Index", _mapper.Map<TaskReminderViewModel>(TaskReminder));
@@ -153,6 +239,10 @@ namespace StaffWork.Web.Controllers
                 }
                 TaskReminder.IsReminderCompleted = true;
                 TaskReminder.ReminderCompletedDate = DateTime.UtcNow;
+                if (TaskReminder.JobId != null)
+                {
+                    BackgroundJob.Delete(TaskReminder.JobId);
+                }
                 await BussinesService.UpdateAsync(TaskReminder.Id, TaskReminder);
                 return Ok();
             }
@@ -203,7 +293,7 @@ namespace StaffWork.Web.Controllers
             else if (User.IsInRole(AppRoles.Admin))
                 TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService
                     .GetAllAsync(w => w.TaskModel.AssignedUsers.Any(x => x.User.DepartmentId == user.DepartmentId)
-                    , ["CreatedByUser", "AssignedUsers", "Reminders", "AssignedUsers.User"]);
+                    , ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
             else
                 TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService
                                    .GetAllAsync(w => w.TaskModel.AssignedUsers.Any(x => x.UserId == user.Id)

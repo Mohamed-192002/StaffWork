@@ -16,13 +16,15 @@ namespace StaffWork.Web.Controllers
     {
         public readonly IServicesBase<User> UserService;
         public readonly IServicesBase<TaskFile> TaskFileService;
+        public readonly IServicesBase<TaskReminderFile> TaskReminderFileService;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public TaskModelController(IServicesBase<TaskModel> servicesBase, IMapper mapper, IServicesBase<User> userService, IWebHostEnvironment webHostEnvironment, IServicesBase<TaskFile> taskFileService) : base(servicesBase, mapper)
+        public TaskModelController(IServicesBase<TaskModel> servicesBase, IMapper mapper, IServicesBase<User> userService, IWebHostEnvironment webHostEnvironment, IServicesBase<TaskFile> taskFileService, IServicesBase<TaskReminderFile> taskReminderFileService) : base(servicesBase, mapper)
         {
             UserService = userService;
             _webHostEnvironment = webHostEnvironment;
             TaskFileService = taskFileService;
+            TaskReminderFileService = taskReminderFileService;
         }
         private string GetAuthenticatedUser()
         {
@@ -83,6 +85,7 @@ namespace StaffWork.Web.Controllers
                             FileName = image.FileName,
                             TaskModel = TaskModel
                         };
+                        TaskModel.TaskFiles.Add(taskFile);
                     }
                 }
             }
@@ -266,6 +269,11 @@ namespace StaffWork.Web.Controllers
                     .OrderByDescending(x => x.ReminderDate)
                     .ToList();
             viewmodel.ExistingFiles = _mapper.Map<List<TaskFileDisplay>>(TaskModel.TaskFiles);
+            foreach (var reminder in viewmodel.Reminders)
+            {
+                var files = TaskReminderFileService.GetAllAsync(x => x.TaskReminderId == reminder.Id).Result.ToList();
+                reminder.ExistingFiles = _mapper.Map<List<TaskFileDisplay>>(files);
+            }
             return View(viewmodel);
         }
         private TaskModelFormViewModel PopulateViewModel(TaskModelFormViewModel? model = null)

@@ -34,6 +34,9 @@
                 if (diffDays > 3) {
                     return `<span class="badge badge-dark fw-bold">متبقي  ${Math.abs(diffDays)} يوم</span>`;
                 }
+                if (diffDays < 0) {
+                    return `<span class="badge badge-danger fw-bold">متأخر بـ ${Math.abs(diffDays)} يوم</span>`;
+                }
                 switch (diffDays) {
                     case 0:
                         return '<span class="badge badge-danger fw-bold">اليوم</span>';
@@ -105,12 +108,15 @@
             }
         },
     ];
-    if (isSuperAdminOrAdmin === false) {
+    //if (isSuperAdminOrAdmin === false) {
         columns.push(
             {
                 "className": 'text-start',
                 "orderable": false,
                 "render": function (data, type, row) {
+                    if (row.isReminderCompleted) {
+                        return ''; // Don't show the button if already completed
+                    }
                     return `
                             <a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning js-Complete-status"
                                data-title="انجاز" data-url="/${tbody.data('controller')}/Complete/${row.id}" data-update="true" data-message="هل متأكد من انجاز الحاله؟">
@@ -144,7 +150,7 @@
                 </a>`;
                 }
             });
-    }
+    //}
 
 
 

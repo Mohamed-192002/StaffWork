@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using StaffWork.Core.Interfaces;
 using StaffWork.Core.Models;
+using StaffWork.Core.Paramaters;
 using StaffWork.Web.Service;
 
 public class NotifiJob
@@ -15,12 +16,12 @@ public class NotifiJob
         _NotificationService = notificationService;
         _TaskModelService = taskModelService;
     }
-    public void ScheduleNotifiJob(TaskReminder taskReminder)
+    public void ScheduleNotifiJob(TaskReminderViewModel taskReminder)
     {
         BackgroundJob.Enqueue(() => CheckTaskReminderDates(taskReminder));
 
     }
-    public async Task CheckTaskReminderDates(TaskReminder taskReminder)
+    public async Task CheckTaskReminderDates(TaskReminderViewModel taskReminder)
     {
         var taskModel = await _TaskModelService.GetAsync(x => x.Id == taskReminder.TaskModelId);
 
@@ -28,7 +29,7 @@ public class NotifiJob
         // Send notification logic
         var notification = new Notification
         {
-            Title = "اشعار انتهاء اجازه",
+            Title = "اشعار بشأن مهمه",
             Content = message,
             DateCreated = DateTime.Now,
             IsRead = false,
