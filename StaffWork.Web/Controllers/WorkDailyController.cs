@@ -407,6 +407,9 @@ namespace StaffWork.Web.Controllers
                 worksheet.Cells[1, 3].Value = "التاريخ";
                 worksheet.Cells[1, 4].Value = "ملاحظات";
                 worksheet.Cells[1, 5].Value = "العمل";
+                worksheet.Cells[1, 6].Value = "هل انجزت";
+                worksheet.Cells[1, 7].Value = "تاريخ الانجاز";
+                worksheet.Cells[1, 8].Value = "مده العمل";
 
                 // Load data starting from row 2 (after the headers)
                 for (int i = 0; i < data.Count; i++)
@@ -417,6 +420,11 @@ namespace StaffWork.Web.Controllers
                     worksheet.Cells[i + 2, 3].Style.Numberformat.Format = "dd/MM/yyyy";
                     worksheet.Cells[i + 2, 4].Value = data[i].Note;
                     worksheet.Cells[i + 2, 5].Value = data[i].WorkType;
+                    worksheet.Cells[i + 2, 6].Value = data[i].IsCompleted ? "نعم" : "لا";
+                    worksheet.Cells[i + 2, 7].Value = data[i].CompletionDate;
+                    worksheet.Cells[i + 2, 7].Style.Numberformat.Format = "dd/MM/yyyy";
+                    worksheet.Cells[i + 2, 8].Value = data[i].TimeDifferenceFormatted;
+
                 }
 
                 var stream = new MemoryStream();
