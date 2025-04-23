@@ -214,11 +214,11 @@ namespace StaffWork.Web.Controllers
                 {
                     BackgroundJob.Delete(TaskReminder.JobId);
                 }
-                foreach (var item in TaskReminder.Notifications)
+                foreach (var item in TaskReminder.Notifications.ToList())
                 {
                     await NotificationService.DeleteAsync(item.Id);
                 }
-                foreach (var item in TaskReminder.TaskReminderFiles)
+                foreach (var item in TaskReminder.TaskReminderFiles.ToList())
                 {
                     await TaskReminderFileService.DeleteAsync(item.Id);
                 }
