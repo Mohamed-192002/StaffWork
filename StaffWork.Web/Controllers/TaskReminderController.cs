@@ -17,17 +17,19 @@ namespace StaffWork.Web.Controllers
     public class TaskReminderController : ApiBaseController<TaskReminder>
     {
         public readonly IServicesBase<User> UserService;
+        public readonly IServicesBase<TaskModel> TaskModelService;
         public readonly IServicesBase<Notification> NotificationService;
         public readonly IServicesBase<TaskFile> TaskFileService;
         public readonly IServicesBase<TaskReminderFile> TaskReminderFileService;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public TaskReminderController(IServicesBase<TaskReminder> servicesBase, IMapper mapper, IServicesBase<User> userService, IServicesBase<TaskFile> taskFileService, IServicesBase<TaskReminderFile> taskReminderFileService, IWebHostEnvironment webHostEnvironment, IServicesBase<Notification> notificationService) : base(servicesBase, mapper)
+        public TaskReminderController(IServicesBase<TaskReminder> servicesBase, IMapper mapper, IServicesBase<User> userService, IServicesBase<TaskFile> taskFileService, IServicesBase<TaskReminderFile> taskReminderFileService, IWebHostEnvironment webHostEnvironment, IServicesBase<Notification> notificationService, IServicesBase<TaskModel> taskModelService) : base(servicesBase, mapper)
         {
             UserService = userService;
             TaskFileService = taskFileService;
             TaskReminderFileService = taskReminderFileService;
             _webHostEnvironment = webHostEnvironment;
             NotificationService = notificationService;
+            TaskModelService = taskModelService;
         }
         private string GetAuthenticatedUser()
         {
@@ -41,8 +43,20 @@ namespace StaffWork.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create(int taskModelId)
+        public async Task<IActionResult> CreateAsync(int taskModelId)
         {
+            var currentUserId = GetAuthenticatedUser();
+            if (string.IsNullOrEmpty(currentUserId))
+                return Unauthorized();
+            var user = await UserService.GetAsync(x => x.Id == currentUserId, ["Department"]);
+            var isSuperAdminOrAdmin = User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin);
+            var TaskModel = await TaskModelService.GetAsync(d => d.Id == taskModelId, ["AssignedUsers", "TaskFiles", "Reminders", "AssignedUsers.User"]);
+            if (TaskModel == null)
+                return NotFound();
+            if (!TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId) || isSuperAdminOrAdmin)
+            {
+                return RedirectToAction(nameof(Index));
+            }
             var viewModel = new TaskReminderFormViewModel
             {
                 TaskModelId = taskModelId,
@@ -72,7 +86,7 @@ namespace StaffWork.Web.Controllers
                         var path = Path.Combine($"{_webHostEnvironment.WebRootPath}{filePath}", fileName);
 
                         using var stream = System.IO.File.Create(path);
-                         image.CopyTo(stream);
+                        image.CopyTo(stream);
 
                         var taskReminderFile = new TaskReminderFile
                         {
@@ -107,9 +121,18 @@ namespace StaffWork.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> EditAsync(int id)
         {
+            var currentUserId = GetAuthenticatedUser();
+            if (string.IsNullOrEmpty(currentUserId))
+                return Unauthorized();
+            var user = await UserService.GetAsync(x => x.Id == currentUserId, ["Department"]);
+            var isSuperAdminOrAdmin = User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin);
             var TaskReminder = await BussinesService.GetAsync(d => d.Id == id, ["TaskReminderFiles", "TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
             if (TaskReminder == null)
                 return NotFound();
+            if (!TaskReminder.TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId) || isSuperAdminOrAdmin)
+            {
+              return  RedirectToAction(nameof(Index));
+            }
             var viewModel = _mapper.Map<TaskReminderFormViewModel>(TaskReminder);
             viewModel.ExistingFiles = _mapper.Map<List<TaskFileDisplay>>(TaskReminder.TaskReminderFiles);
             return View("Form", PopulateViewModel(viewModel));
@@ -202,14 +225,25 @@ namespace StaffWork.Web.Controllers
             #endregion
             return RedirectToAction("Index", _mapper.Map<TaskReminderViewModel>(TaskReminder));
         }
-       // [Authorize(Roles = AppRoles.Admin + "," + AppRoles.SuperAdmin)]
+        // [Authorize(Roles = AppRoles.Admin + "," + AppRoles.SuperAdmin)]
         public async Task<IActionResult> Delete(int id)
         {
+            var currentUserId = GetAuthenticatedUser();
+            if (string.IsNullOrEmpty(currentUserId))
+                return Unauthorized();
+            var user = await UserService.GetAsync(x => x.Id == currentUserId, ["Department"]);
+            var isSuperAdminOrAdmin = User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin);
+
             var TaskReminder = await BussinesService.GetAsync(d => d.Id == id, ["TaskReminderFiles", "Notifications", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
             if (TaskReminder == null)
                 return NotFound();
             try
             {
+                if (!TaskReminder.TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId) || isSuperAdminOrAdmin)
+                {
+                    return Forbid("you're not authorized");
+                }
+
                 if (TaskReminder.JobId != null)
                 {
                     BackgroundJob.Delete(TaskReminder.JobId);
@@ -233,6 +267,10 @@ namespace StaffWork.Web.Controllers
         public async Task<IActionResult> Complete(int Id)
         {
             var currentUserId = GetAuthenticatedUser();
+            if (string.IsNullOrEmpty(currentUserId))
+                return Unauthorized();
+            var user = await UserService.GetAsync(x => x.Id == currentUserId, ["Department"]);
+            var isSuperAdminOrAdmin = User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin);
             var TaskReminder = await BussinesService.GetAsync(d => d.Id == Id, ["TaskModel", "TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
             if (TaskReminder == null)
                 return NotFound();
@@ -243,7 +281,7 @@ namespace StaffWork.Web.Controllers
                     return BadRequest(new { Message = "This item is already completed." });
                 }
 
-                if (!TaskReminder.TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId))
+                if (!TaskReminder.TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId) || isSuperAdminOrAdmin)
                 {
                     return Forbid("you're not authorized");
                 }
@@ -297,17 +335,18 @@ namespace StaffWork.Web.Controllers
             var sortColumnDirection = Request.Form["order[0][dir]"];
 
             IQueryable<TaskReminder> TaskReminderQuery;
-
-            if (User.IsInRole(AppRoles.SuperAdmin))
                 TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService.GetAllAsync(null!, ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
-            else if (User.IsInRole(AppRoles.Admin))
-                TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService
-                    .GetAllAsync(w => w.TaskModel.AssignedUsers.Any(x => x.User.DepartmentId == user.DepartmentId)
-                    , ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
-            else
-                TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService
-                                   .GetAllAsync(w => w.TaskModel.AssignedUsers.Any(x => x.UserId == user.Id)
-                                   , ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
+
+            //if (User.IsInRole(AppRoles.SuperAdmin))
+            //    TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService.GetAllAsync(null!, ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
+            //else if (User.IsInRole(AppRoles.Admin))
+            //    TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService
+            //        .GetAllAsync(w => w.TaskModel.AssignedUsers.Any(x => x.User.DepartmentId == user.DepartmentId)
+            //        , ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
+            //else
+            //    TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService
+            //                       .GetAllAsync(w => w.TaskModel.AssignedUsers.Any(x => x.UserId == user.Id)
+            //                       , ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
 
             if (!string.IsNullOrEmpty(searchValue))
             {

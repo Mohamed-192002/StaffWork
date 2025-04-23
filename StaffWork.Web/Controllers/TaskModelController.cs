@@ -205,6 +205,11 @@ namespace StaffWork.Web.Controllers
         public async Task<IActionResult> Complete(int id)
         {
             var currentUserId = GetAuthenticatedUser();
+            if (string.IsNullOrEmpty(currentUserId))
+                return Unauthorized();
+            var user = await UserService.GetAsync(x => x.Id == currentUserId, ["Department"]);
+            var isSuperAdminOrAdmin = User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin);
+
             var TaskModel = await BussinesService.GetAsync(d => d.Id == id, ["AssignedUsers", "TaskFiles", "Reminders", "AssignedUsers.User"]);
             if (TaskModel == null)
                 return NotFound();
@@ -214,11 +219,11 @@ namespace StaffWork.Web.Controllers
                 {
                     return BadRequest(new { Message = "This item is already completed." });
                 }
-
-                if (!(User.IsInRole(AppRoles.SuperAdmin) || !(User.IsInRole(AppRoles.Admin)) || !TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId)))
+                if (!TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId) || isSuperAdminOrAdmin)
                 {
                     return Forbid("you're not authorized");
                 }
+               
                 TaskModel.IsCompleted = true;
                 TaskModel.DateCompleted = DateTime.UtcNow;
                 await BussinesService.UpdateAsync(TaskModel.Id, TaskModel);
@@ -232,6 +237,11 @@ namespace StaffWork.Web.Controllers
         public async Task<IActionResult> Received(int id)
         {
             var currentUserId = GetAuthenticatedUser();
+            if (string.IsNullOrEmpty(currentUserId))
+                return Unauthorized();
+            var user = await UserService.GetAsync(x => x.Id == currentUserId, ["Department"]);
+            var isSuperAdminOrAdmin = User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin);
+            
             var TaskModel = await BussinesService.GetAsync(d => d.Id == id, ["AssignedUsers", "TaskFiles", "Reminders", "AssignedUsers.User"]);
             if (TaskModel == null)
                 return NotFound();
@@ -242,7 +252,7 @@ namespace StaffWork.Web.Controllers
                     return BadRequest(new { Message = "This item is already Received." });
                 }
 
-                if (!(User.IsInRole(AppRoles.SuperAdmin) || !(User.IsInRole(AppRoles.Admin)) || !TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId)))
+                if (!TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId) || isSuperAdminOrAdmin)
                 {
                     return Forbid("you're not authorized");
                 }
