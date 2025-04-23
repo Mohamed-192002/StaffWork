@@ -11,6 +11,7 @@ using StaffWork.Core.Paramaters;
 using Hangfire;
 using OfficeOpenXml;
 using Microsoft.AspNetCore.Hosting;
+using StaffWork.Infrastructure.Implementations;
 
 namespace StaffWork.Web.Controllers
 {
@@ -19,13 +20,15 @@ namespace StaffWork.Web.Controllers
         public readonly IServicesBase<User> UserService;
         public readonly IServicesBase<TaskFile> TaskFileService;
         public readonly IServicesBase<TaskReminderFile> TaskReminderFileService;
+        public readonly IServicesBase<Notification> NotificationService;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public TaskReminderController(IServicesBase<TaskReminder> servicesBase, IMapper mapper, IServicesBase<User> userService, IServicesBase<TaskFile> taskFileService, IServicesBase<TaskReminderFile> taskReminderFileService, IWebHostEnvironment webHostEnvironment) : base(servicesBase, mapper)
+        public TaskReminderController(IServicesBase<TaskReminder> servicesBase, IMapper mapper, IServicesBase<User> userService, IServicesBase<TaskFile> taskFileService, IServicesBase<TaskReminderFile> taskReminderFileService, IWebHostEnvironment webHostEnvironment, IServicesBase<Notification> notificationService) : base(servicesBase, mapper)
         {
             UserService = userService;
             TaskFileService = taskFileService;
             TaskReminderFileService = taskReminderFileService;
             _webHostEnvironment = webHostEnvironment;
+            NotificationService = notificationService;
         }
         private string GetAuthenticatedUser()
         {
@@ -203,7 +206,7 @@ namespace StaffWork.Web.Controllers
         [Authorize(Roles = AppRoles.Admin + "," + AppRoles.SuperAdmin)]
         public async Task<IActionResult> Delete(int id)
         {
-            var TaskReminder = await BussinesService.GetAsync(d => d.Id == id, ["TaskModel", "TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
+            var TaskReminder = await BussinesService.GetAsync(d => d.Id == id, ["Notifications", "TaskReminderFiles", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
             if (TaskReminder == null)
                 return NotFound();
             try
@@ -211,6 +214,14 @@ namespace StaffWork.Web.Controllers
                 if (TaskReminder.JobId != null)
                 {
                     BackgroundJob.Delete(TaskReminder.JobId);
+                }
+                foreach (var item in TaskReminder.Notifications.ToList())
+                {
+                    await NotificationService.DeleteAsync(item.Id);
+                }
+                foreach (var item in TaskReminder.TaskReminderFiles.ToList())
+                {
+                    await TaskReminderFileService.DeleteAsync(item.Id);
                 }
                 await BussinesService.DeleteAsync(id);
             }
