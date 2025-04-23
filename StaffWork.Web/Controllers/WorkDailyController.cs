@@ -54,6 +54,9 @@ namespace StaffWork.Web.Controllers
                     new WorkDaily(),
                 };
 
+            var selectedDate = dateViewModel.Date.Date; // فقط التاريخ بدون وقت
+            var currentTime = DateTime.Now.TimeOfDay; // الوقت فقط
+            dateViewModel.Date = selectedDate + currentTime;
             // Populate the custom view model
             var model = new WorkDailyFormViewModel
             {
@@ -279,7 +282,7 @@ namespace StaffWork.Web.Controllers
             }
 
             work.IsCompleted = true;
-            work.CompletionDate = DateTime.UtcNow;
+            work.CompletionDate = DateTime.Now;
             TimeDifferenceFormatted(work);
             await BussinesService.UpdateAsync(work.Id, work);
 
@@ -288,7 +291,7 @@ namespace StaffWork.Web.Controllers
 
         private static void TimeDifferenceFormatted(WorkDaily work)
         {
-            var start = work.DateCreated;
+            var start = work.Date;
             var end = work.CompletionDate.Value;
 
             var duration = end - start;
@@ -302,19 +305,24 @@ namespace StaffWork.Web.Controllers
                 months += 12;
             }
 
-            // عدد الأيام والساعات
-            int days = (end - start.AddYears(years).AddMonths(months)).Days;
-            int hours = (int)(end - start.AddYears(years).AddMonths(months).AddDays(days)).TotalHours;
+            // عدد الأيام والساعات والدقائق
+            var baseDate = start.AddYears(years).AddMonths(months);
+            int days = (end - baseDate).Days;
+
+            var timePart = end - baseDate.AddDays(days);
+            int hours = timePart.Hours;
+            int minutes = timePart.Minutes;
 
             // تركيب النص العربي
             var parts = new List<string>();
-            if (years > 0) parts.Add($"{years} {(years == 1 ? "سنة" : years <= 2 ? "سنتين" : "سنوات")}");
-            if (months > 0) parts.Add($"{months} {(months == 1 ? "شهر" : months <= 2 ? "شهرين" : "شهور")}");
-            if (days > 0) parts.Add($"{days} {(days == 1 ? "يوم" : days <= 2 ? "يومين" : "أيام")}");
-            if (hours > 0) parts.Add($"{hours} {(hours == 1 ? "ساعة" : hours <= 2 ? "ساعتين" : "ساعات")}");
+            if (years > 0) parts.Add($"{years} {(years == 1 ? "سنة" : years == 2 ? "سنتين" : years <= 10 ? "سنوات" : "سنة")}");
+            if (months > 0) parts.Add($"{months} {(months == 1 ? "شهر" : months == 2 ? "شهرين" : months <= 10 ? "شهور" : "شهراً")}");
+            if (days > 0) parts.Add($"{days} {(days == 1 ? "يوم" : days == 2 ? "يومين" : days <= 10 ? "أيام" : "يوماً")}");
+            if (hours > 0) parts.Add($"{hours} {(hours == 1 ? "ساعة" : hours == 2 ? "ساعتين" : hours <= 10 ? "ساعات" : "ساعة")}");
+            if (minutes > 0) parts.Add($"{minutes} {(minutes == 1 ? "دقيقة" : minutes == 2 ? "دقيقتين" : minutes <= 10 ? "دقائق" : "دقيقة")}");
 
             // دمج النص
-            work.TimeDifferenceFormatted = parts.Count > 0 ? string.Join(" و", parts) : "أقل من ساعة";
+            work.TimeDifferenceFormatted = parts.Count > 0 ? string.Join(" و", parts) : "أقل من دقيقة";
         }
 
         [HttpPost]
