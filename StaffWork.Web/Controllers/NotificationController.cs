@@ -1,25 +1,38 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StaffWork.Api.Controllers;
+using StaffWork.Core.Consts;
 using StaffWork.Core.Interfaces;
 using StaffWork.Core.Models;
 using StaffWork.Core.Paramaters;
+using StaffWork.Infrastructure.Implementations;
 
 namespace StaffWork.Web.Controllers
 {
     public class NotificationController : ApiBaseController<Notification>
     {
-        public NotificationController(IServicesBase<Notification> servicesBase, IMapper mapper)
+        public readonly IServicesBase<User> UserService;
+
+        public NotificationController(IServicesBase<Notification> servicesBase, IMapper mapper, IServicesBase<User> userService)
             : base(servicesBase, mapper)
         {
+            UserService = userService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetUnreadNotificationCount()
         {
-            var unreadCount = await BussinesService.GetAllAsync(n => !n.IsRead);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var unreadCount = await BussinesService.GetAllAsync(x => !x.IsRead&&
+            (x.TaskReminderId != null && x.TaskReminder.TaskModel.AssignedUsers.Any(a => a.UserId == userId)) ||
+               (x.VacationId != null && (User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin))),
+                   ["TaskReminder", "TaskReminder.TaskModel", "TaskReminder.TaskModel.AssignedUsers", "TaskReminder.TaskModel.AssignedUsers.User"]);
             return Json(new { count = unreadCount.Count() });
         }
         [HttpPost]
@@ -39,6 +52,11 @@ namespace StaffWork.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(DateTime? fromDate, DateTime? toDate)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+            var user = await UserService.GetAsync(x => x.Id == userId, ["Department"]);
+
             fromDate ??= DateTime.Today; // Default to today if null
             toDate ??= DateTime.Today.AddDays(1).AddSeconds(-1); // Include the full day
 
@@ -47,9 +65,11 @@ namespace StaffWork.Web.Controllers
             //    ["Vacation", "Vacation.Employee", "Vacation.VacationType"]
             //);
             IQueryable<Notification> NotificationQuery;
-            NotificationQuery = (IQueryable<Notification>)await BussinesService.GetAllAsync(null!, ["Vacation", "Vacation.Employee", "Vacation.VacationType"]
-            , orderBy: x => x.DateCreated, orderByDirection: "DESC");
-
+            NotificationQuery = (IQueryable<Notification>)await BussinesService.GetAllAsync(x =>
+               (x.TaskReminderId != null && x.TaskReminder.TaskModel.AssignedUsers.Any(a => a.UserId == userId)) ||
+               (x.VacationId != null && (User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin))),
+                   ["Vacation", "TaskReminder", "TaskReminder.TaskModel", "TaskReminder.TaskModel.AssignedUsers"]
+               , orderBy: x => x.DateCreated, orderByDirection: "DESC");
             var model = NotificationQuery.Take(5000).ToList();
 
             ViewBag.FromDate = fromDate.Value.ToString("yyyy-MM-dd");

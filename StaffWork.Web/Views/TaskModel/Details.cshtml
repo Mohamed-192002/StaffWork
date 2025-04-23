@@ -1,0 +1,189 @@
+﻿@using StaffWork.Core.Consts
+@model TaskModelViewModel
+
+@{
+	ViewData["Title"] = "مهمه";
+	int i = 1;
+	var isSuperAdminOrAdmin = User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin);
+
+}
+<style>
+	.reminder-card {
+		transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+		transform: scale(1); /* Default scale */
+	}
+	.reminder-card:hover {
+		transform: scale(1.05); /* Slight zoom-in effect */
+		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+	}
+</style>
+<div class="card shadow-sm">
+	<!--begin::Card head-->
+	<div class="card-header card-header-stretch">
+		<div class="card-title d-flex col-12 justify-content-between">
+			@* TODO TaskModel Details *@
+			<div class="row col-12">
+				<div class="d-flex col-10">
+					<div class="col-3 border border-gray-300 border-dashed rounded min-w-125px px-4 me-6 ">
+						<div class="text-center">
+							<div class=" fw-bold">اسم المهمه : @Model.Title</div>
+						</div>
+					</div>
+					<div class="col-3 border border-gray-300 border-dashed rounded min-w-125px px-4 me-6 ">
+						<div class=" text-center">
+							<div class="fw-bold">
+								حالة استلام المهمة:
+								<span class="fs-6 badge badge-light-@(Model.IsReceived ? "success" : "danger")">@((Model.IsReceived) ? "تم الاستلام" : "لم يتم الاستلام")</span>
+							</div>
+
+						</div>
+					</div>
+					<div class="col-3 border border-gray-300 border-dashed rounded min-w-125px px-4 me-6 ">
+						<div class=" text-center">
+							<div class="fw-bold">
+								حالة إنجاز المهمة:
+								<span class="fs-6 badge badge-light-@(Model.IsCompleted ? "success" : "danger")">@((Model.IsCompleted) ? "انجز" : "لم ينجز")</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-2">
+					<a class="btn btn-sm btn-primary me-7" href="/TaskReminder/Create?taskModelId=@Model.Id">اضافه تذكير</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--end::Card head-->
+	<!--begin::Card body-->
+	<div class="card mt-7 " id="kt_profile_details_view">
+		<!--begin::Card body-->
+		<div class=" card-header-stretch">
+			<!--begin::Notice-->
+			<div class="d-flex justify-content-center">
+				<!--begin::Content-->
+				<div class="row col-12">
+					@foreach (var item in Model.ExistingFiles)
+					{
+						@if (item is not null)
+						{
+							<div class="image-item col-3" id="image-item-@i">
+								@* <h3 class="fw-bold" title="@item.FileName" data-toggle="tooltip" data-placement="top">
+									@((item.FileName?.Length > 30 ? item.FileName.Substring(0, 30) + "..." : item.FileName))
+								</h3> *@
+								<a href="@item.FileUrl" class="btn btn-primary mb-2" target="_blank">تحميل الملف @i</a>
+							</div>
+							i++;
+						}
+					}
+				</div>
+				<!--end::Content-->
+				<!--end::Wrapper-->
+			</div>
+			<!--end::Notice-->
+		</div>
+		<!--end::Card body-->
+	</div>
+	<!--end::Card body-->
+	<hr />
+	@* <!--begin::Card body-->
+	<div class="card-body p-9">
+		<!--begin::Notice-->
+		<div class="notice d-flex bg-light-warning rounded border-warning border border-dashed  p-6">
+			<i class="bi bi-info-square fs-2x text-warning me-4" style="opacity: 0.5;"></i>
+			<!--begin::Wrapper-->
+			<div class="d-flex flex-stack flex-grow-1 ">
+				<!--begin::Content-->
+				<div class=" fw-semibold">
+					<h4 class="text-gray-900 fw-bold">@(string.IsNullOrEmpty(Model.Notes) ? "لا يوجد ملاحظات" : Model.Notes)</h4>
+				</div>
+				<!--end::Content-->
+			</div>
+			<!--end::Wrapper-->
+		</div>
+		<!--end::Notice-->
+	</div>
+	<!--end::Card body--> *@
+	<!--begin::Card body-->
+	<div class="card-body">
+		<!--begin::Tab Content-->
+		<div class="tab-content">
+			<!--begin::Tab panel-->
+			<div id="kt_activity_today" class="card-body p-0 tab-pane fade show active" role="tabpanel" aria-labelledby="kt_activity_today_tab">
+				<!--begin::Timeline-->
+				<div id="sortable-timeline" class="timeline timeline-border-dashed">
+					@foreach (var reminder in Model.Reminders)
+					{
+						<!--begin::Reminder Card-->
+						<div class="card reminder-card mb-5 shadow-lg rounded-3" data-id="@reminder.Id">
+							<div class="card-body">
+								<!--begin::Timeline item-->
+								<div class="timeline-item">
+									<div class="timeline-line"></div>
+									<div class="timeline-icon">
+										<i class="bi bi-arrow-bar-left fs-2 text-primary">
+											<span class="path1"></span><span class="path2"></span><span class="path3"></span>
+										</i>
+									</div>
+									<div class="timeline-content mb-10 mt-n1">
+										<div class="pe-3 mb-5">
+											<div class="d-flex align-items-center mt-1 fs-6">
+												<div class="text-warning me-2 fs-7">تاريخ التذكير @reminder.ReminderDate</div>
+											</div>
+										</div>
+										<div class="overflow-auto pb-5">
+											<div class="d-flex align-items-center border border-dashed border-gray-300 rounded min-w-750px px-7 py-3 mb-5">
+												<a href="#" class="fs-5 text-gray-900 text-hover-primary fw-semibold w-375px min-w-200px">@reminder.Title</a>
+												<div class="fs-5 text-gray-900  fw-semibold w-375px min-w-200px">مضيف التنبيه : @reminder.CreatedByUserName</div>
+												<div class="min-w-125px pe-2">
+													<span class="fs-6 badge badge-light-@(@reminder.IsReminderCompleted ? "success" : "danger")">
+														@((reminder.IsReminderCompleted) ? "انجز" : "لم ينجز")
+													</span>
+												</div>
+												<div class="min-w-125px pe-2">
+													<div class="fs-5 text-gray-900  fw-semibold w-375px min-w-200px">تاريخ الانجاز : @reminder.ReminderCompletedDate</div>
+												</div>
+												@if (!reminder.IsReminderCompleted)
+												{
+													<a href="javascript:;" class="btn btn-sm btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning js-Complete-status"
+													   data-title="انجاز" data-url="/TaskReminder/Complete?Id=@reminder.Id" data-update="true" data-message="هل متأكد من انجاز الحاله؟">
+														انجاز
+													</a>
+												}
+											</div>
+											<div class="row col-12">
+												@{
+													 i = 1;
+													foreach (var item in reminder.ExistingFiles)
+													{
+														if (item is not null)
+														{
+															<div class="image-item col-3" id="image-item-@i">
+																<a href="@item.FileUrl" class="btn btn-primary mb-2" target="_blank">تحميل الملف @i</a>
+															</div>
+															i++;
+														}
+													}
+												}
+											</div>
+										</div>
+									</div>
+								</div>
+								<!--end::Timeline item-->
+							</div>
+						</div>
+						<!--end::Reminder Card-->
+					}
+				</div>
+				<!--end::Timeline-->
+			</div>
+			<!--end::Tab panel-->
+
+		</div>
+		<!--end::Tab Content-->
+	</div>
+	<!--end::Card body-->
+
+</div>
+@section Scripts {
+
+}

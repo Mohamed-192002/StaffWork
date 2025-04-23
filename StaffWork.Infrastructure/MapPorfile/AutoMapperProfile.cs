@@ -43,6 +43,9 @@ namespace StaffWork.Infrastructure
            .ReverseMap();
             CreateMap<User, UserFormViewModel>().ReverseMap();
             CreateMap<User, UpdateUserFormViewModel>().ReverseMap();
+            CreateMap<User, SelectListItem>()
+          .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
+          .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.FullName));
 
             CreateMap<Vacation, VacationViewModel>()
               .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee!.FullName))
@@ -56,6 +59,33 @@ namespace StaffWork.Infrastructure
             CreateMap<Notification, NotificationViewModel>()
                .ReverseMap();
 
+            CreateMap<TaskModel, TaskModelViewModel>()
+             .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.AssignedUsers!.Select(x => x.User.FullName)))
+             .ReverseMap();
+
+            CreateMap<TaskModel, TaskModelFormViewModel>()
+               .ForMember(dest => dest.TaskFiles, opt => opt.Ignore());
+            CreateMap<TaskModelFormViewModel, TaskModel>()
+             .ForMember(dest => dest.TaskFiles, opt => opt.Ignore())
+             ;
+
+            CreateMap<TaskFile, TaskFileDisplay>()
+               .ReverseMap();
+            CreateMap<TaskReminderFile, TaskFileDisplay>()
+              .ReverseMap();
+            CreateMap<TaskReminder, TaskReminderViewModel>()
+               .ForMember(dest => dest.TaskModelId, opt => opt.MapFrom(src => src.TaskModel.Id))
+               .ForMember(dest => dest.TaskModelTitle, opt => opt.MapFrom(src => src.TaskModel.Title))
+               .ForMember(dest => dest.CreatedByUserName, opt => opt.MapFrom(src => src.CreatedByUser.FullName))
+               .ReverseMap();
+
+            CreateMap<TaskReminder, TaskReminderViewModel>()
+               .ForMember(dest => dest.CreatedByUserName, opt => opt.MapFrom(src => src.CreatedByUser.FullName))
+             .ReverseMap();
+            CreateMap<TaskReminder, TaskReminderFormViewModel>()
+           .ReverseMap();
+            CreateMap<TaskReminderFormViewModel, TaskReminder>()
+           .ReverseMap();
         }
     }
 }

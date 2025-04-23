@@ -7,6 +7,8 @@
         public string? Content { get; set; }
         public bool IsRead { get; set; }
         public virtual DateTime DateCreated { get; set; }
-        public VacationViewModel Vacation { get; set; }
+        public VacationViewModel? Vacation { get; set; }
+        public TaskReminderViewModel? TaskReminder { get; set; }
+
     }
 }

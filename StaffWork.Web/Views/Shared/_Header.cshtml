@@ -51,10 +51,16 @@
                 <li class="nav-item" active-when="WorkDaily">
                     <a class="nav-link" asp-controller="WorkDaily" asp-action="IndexDate">الاعمال اليوميه</a>
                 </li>
+                <li class="nav-item" active-when="TaskModel">
+                    <a class="nav-link" asp-controller="TaskModel" asp-action="Index">المهام</a>
+                </li>
+                <li class="nav-item" active-when="TaskReminder">
+                    <a class="nav-link" asp-controller="TaskReminder" asp-action="Index">التذكيرات</a>
+                </li>
             </ul>
         </div>
-        @if (User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin))
-        {
+        @* @if (User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin)) *@
+        @* { *@
             <div class="d-flex align-items-center ms-1">
                 <!--begin::Menu wrapper-->
                 <a asp-controller="Notification" asp-action="Index" class="btn btn-icon" id="kt_drawer_chat_toggle">
@@ -65,7 +71,7 @@
                 </a>
                 <!--end::Menu wrapper-->
             </div>
-        }
+        @* } *@
         <!--begin::Topbar-->
         <div class="d-flex align-items-center flex-shrink-0">
             <!--begin::Theme mode-->

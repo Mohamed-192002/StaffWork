@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StaffWork.Core.Data;
 
@@ -11,9 +12,11 @@ using StaffWork.Core.Data;
 namespace StaffWork.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250423122246_add_task")]
+    partial class add_task
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -286,7 +289,7 @@ namespace StaffWork.Infrastructure.Migrations
 
                     b.HasIndex("TaskModelId");
 
-                    b.ToTable("TaskFiles");
+                    b.ToTable("TaskFile");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.TaskModel", b =>
@@ -329,7 +332,7 @@ namespace StaffWork.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TaskModels");
+                    b.ToTable("TaskModel");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.TaskReminder", b =>
@@ -380,7 +383,7 @@ namespace StaffWork.Infrastructure.Migrations
 
                     b.HasIndex("TaskModelId");
 
-                    b.ToTable("TaskReminders");
+                    b.ToTable("TaskReminder");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.TaskReminderFile", b =>
@@ -448,7 +451,7 @@ namespace StaffWork.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TaskUsers");
+                    b.ToTable("TaskUser");
                 });
 
             modelBuilder.Entity("StaffWork.Core.Models.User", b =>
@@ -831,7 +834,7 @@ namespace StaffWork.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("StaffWork.Core.Models.User", "User")
-                        .WithMany("AssignedUsers")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -911,8 +914,6 @@ namespace StaffWork.Infrastructure.Migrations
 
             modelBuilder.Entity("StaffWork.Core.Models.User", b =>
                 {
-                    b.Navigation("AssignedUsers");
-
                     b.Navigation("WorkDailies");
                 });
 

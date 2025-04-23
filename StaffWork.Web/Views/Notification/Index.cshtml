@@ -5,32 +5,32 @@
 }
 <style>
     .notification-card {
-        border-left: 5px solid #ffcc00; /* Default yellow border */
-        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        border-radius: 10px; /* Rectangular shape with smooth edges */
-        width: 80%; /* Adjust width for a better layout */
-        transform: scale(1); /* Default scale */
+    border-left: 5px solid #ffcc00; /* Default yellow border */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    border-radius: 10px; /* Rectangular shape with smooth edges */
+    width: 80%; /* Adjust width for a better layout */
+    transform: scale(1); /* Default scale */
     }
 
     .border-left-success {
-        border-left-color: #28a745 !important; /* Green for read notifications */
+    border-left-color: #28a745 !important; /* Green for read notifications */
     }
 
     .border-left-warning {
-        border-left-color: #ffcc00 !important; /* Yellow for unread notifications */
+    border-left-color: #ffcc00 !important; /* Yellow for unread notifications */
     }
 
     .notification-card:hover {
-        transform: scale(1.05); /* Slight zoom-in effect */
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05); /* Slight zoom-in effect */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
 
     .notification-card:active {
-        transform: scale(0.98); /* Slight zoom-out effect when clicked */
+    transform: scale(0.98); /* Slight zoom-out effect when clicked */
     }
 
     .notification-item {
-        cursor: pointer; /* Change cursor to pointer */
+    cursor: pointer; /* Change cursor to pointer */
     }
 
 </style>
@@ -60,32 +60,64 @@
 
     @foreach (var notification in Model)
     {
-        <div class="notification-item d-flex justify-content-center"
-             data-id="@notification.Id" data-read="@notification.IsRead" data-vacationId="@notification.Vacation.Id">
-            <div class="notification-card bg-light shadow-lg rounded-3 p-4 w-75 position-relative mb-4
+        @if(notification.Vacation != null)
+        {
+            <div class="notification-item notification-Vacation-item d-flex justify-content-center"
+            data-id="@notification.Id" data-read="@notification.IsRead" data-vacationId="@notification.Vacation.Id">
+                <div class="notification-card bg-light shadow-lg rounded-3 p-4 w-75 position-relative mb-4
                     @(notification.IsRead ? "border-left-success" : "border-left-warning")">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold text-dark mb-1">@notification.Title</h5>
-                    <span class="badge @(notification.IsRead ? "bg-success" : "bg-warning text-dark")">
-                        @(notification.IsRead ? "مقروء" : "غير مقروء")
-                    </span>
-                </div>
-                <hr />
-                <div class="vacation-details mt-3">
-                    <div class="d-flex row">
-                        @* <h4> الموظف :  @notification.Vacation?.EmployeeName</h4> *@
-                        <h4>@notification.Content</h4>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold text-dark mb-1">@notification.Title</h5>
+                        <span class="badge @(notification.IsRead ? "bg-success" : "bg-warning text-dark")">
+                            @(notification.IsRead ? "مقروء" : "غير مقروء")
+                        </span>
                     </div>
-                    @if (notification.Vacation?.IsReturned == true)
-                    {
-                        <p>📆 تاريخ العودة :  @notification.Vacation?.ReturnedDate?.ToString("yyyy-MM-dd")</p>
-                    }
-                </div>
-                <div class="text-start mt-1">
-                    <small class="text-muted">⏳ تم الإرسال في: @notification.DateCreated</small>
+                    <hr />
+                    <div class="vacation-details mt-3">
+                        <div class="d-flex row">
+                            @* <h4> الموظف :  @notification.Vacation?.EmployeeName</h4> *@
+                            <h4>@notification.Content</h4>
+                        </div>
+                        @if (notification.Vacation?.IsReturned == true)
+                        {
+                            <p>📆 تاريخ العودة :  @notification.Vacation?.ReturnedDate?.ToString("yyyy-MM-dd")</p>
+                        }
+                    </div>
+                    <div class="text-start mt-1">
+                        <small class="text-muted">⏳ تم الإرسال في: @notification.DateCreated</small>
+                    </div>
                 </div>
             </div>
-        </div>
+        }
+        @if (notification.TaskReminder != null)
+        {
+            <div class="notification-item notification-TaskReminder-item d-flex justify-content-center"
+                 data-id="@notification.Id" data-read="@notification.IsRead" data-taskModelId="@notification.TaskReminder.TaskModelId">
+                <div class="notification-card bg-light shadow-lg rounded-3 p-4 w-75 position-relative mb-4
+                    @(notification.IsRead ? "border-left-success" : "border-left-warning")">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold text-dark mb-1">@notification.Title</h5>
+                        <span class="badge @(notification.IsRead ? "bg-success" : "bg-warning text-dark")">
+                            @(notification.IsRead ? "مقروء" : "غير مقروء")
+                        </span>
+                    </div>
+                    <hr />
+                    <div class="vacation-details mt-3">
+                        <div class="d-flex row">
+                            @* <h4> الموظف :  @notification.Vacation?.EmployeeName</h4> *@
+                            <h4>@notification.Content</h4>
+                        </div>
+                        @*  @if (notification.TaskReminder?.IsReturned == true)
+                    {
+                        <p>📆 تاريخ العودة :  @notification.Vacation?.ReturnedDate?.ToString("yyyy-MM-dd")</p>
+                    } *@
+                    </div>
+                    <div class="text-start mt-1">
+                        <small class="text-muted">⏳ تم الإرسال في: @notification.DateCreated</small>
+                    </div>
+                </div>
+            </div>
+        }
     }
 </div>
 

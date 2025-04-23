@@ -117,7 +117,7 @@ $(document).ready(function () {
     updateNotificationCount();
 
     // Handle notification click
-    $(document).on("click", ".notification-item", function () {
+    $(document).on("click", ".notification-Vacation-item", function () {
         var notificationId = $(this).data("id");
         var vacation_Id = $(this).data("vacationid");
         var isRead = $(this).data("read");
@@ -137,7 +137,26 @@ $(document).ready(function () {
             }
         });
     });
+    $(document).on("click", ".notification-TaskReminder-item", function () {
+        var notificationId = $(this).data("id");
+        var taskModel_Id = $(this).data("taskmodelid");
+        var isRead = $(this).data("read");
 
+        // Update notification status as read before redirecting
+        $.ajax({
+            url: '/Notification/MarkAsRead', // Adjust according to your controller route
+            type: 'POST',
+            data: { id: notificationId },
+            success: function () {
+                // Redirect to the Details page
+                window.location.href = '/TaskModel/Details/' + taskModel_Id;
+            },
+            error: function () {
+                console.error("Failed to mark notification as read.");
+                window.location.href = '/TaskModel/Details/' + taskModel_Id;
+            }
+        });
+    });
 
     //SweetAlert
     var message = $('#Message').text();
