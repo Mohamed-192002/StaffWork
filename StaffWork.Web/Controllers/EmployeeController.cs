@@ -105,7 +105,7 @@ namespace StaffWork.Web.Controllers
             if (!string.IsNullOrEmpty(searchValue))
             {
                 EmployeeQuery = EmployeeQuery.Where(b => b.FullName.Contains(searchValue!)
-                || (b.Court == null || b.Court.Contains(searchValue!))
+               // || (b.Court == null || b.Court.Contains(searchValue!))
                 || (b.Appeal == null || b.Appeal.Contains(searchValue!)));
             }
 
