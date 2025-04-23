@@ -60,7 +60,7 @@
 
     @foreach (var notification in Model)
     {
-        <div class="notification-item d-flex justify-content-center"
+        <div class="notification-item notification-TaskReminder-item d-flex justify-content-center"
              data-id="@notification.Id" data-read="@notification.IsRead" data-taskModelId="@notification.TaskReminder.TaskModelId">
             <div class="notification-card bg-light shadow-lg rounded-3 p-4 w-75 position-relative mb-4
                     @(notification.IsRead ? "border-left-success" : "border-left-warning")">
@@ -105,26 +105,6 @@
                     alert("الرجاء تحديد التواريخ قبل البحث!");
                     return;
                 }
-            });
-            $(".notification-item").on("click", function () {
-                var notificationId = $(this).data("id");
-                var taskModel_Id = $(this).data("taskmodelid");
-                var isRead = $(this).data("read");
-
-                // Update notification status as read before redirecting
-                $.ajax({
-                    url: '/Notification/MarkAsRead', // Adjust according to your controller route
-                    type: 'POST',
-                    data: { id: notificationId },
-                    success: function () {
-                        // Redirect to the Details page
-                        window.location.href = '/TaskModel/Details/' + taskModel_Id;
-                    },
-                    error: function () {
-                        console.error("Failed to mark notification as read.");
-                        window.location.href = '/TaskModel/Details/' + taskModel_Id;
-                    }
-                });
             });
         });
         function clearFilters() {
