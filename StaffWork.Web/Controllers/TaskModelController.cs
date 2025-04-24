@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using AutoMapper;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -9,6 +10,7 @@ using StaffWork.Core.Consts;
 using StaffWork.Core.Interfaces;
 using StaffWork.Core.Models;
 using StaffWork.Core.Paramaters;
+using StaffWork.Infrastructure.Implementations;
 
 namespace StaffWork.Web.Controllers
 {
@@ -17,14 +19,17 @@ namespace StaffWork.Web.Controllers
         public readonly IServicesBase<User> UserService;
         public readonly IServicesBase<TaskFile> TaskFileService;
         public readonly IServicesBase<TaskReminderFile> TaskReminderFileService;
+        public readonly IServicesBase<TaskReminder> TaskReminderService;
+
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public TaskModelController(IServicesBase<TaskModel> servicesBase, IMapper mapper, IServicesBase<User> userService, IWebHostEnvironment webHostEnvironment, IServicesBase<TaskFile> taskFileService, IServicesBase<TaskReminderFile> taskReminderFileService) : base(servicesBase, mapper)
+        public TaskModelController(IServicesBase<TaskModel> servicesBase, IMapper mapper, IServicesBase<User> userService, IWebHostEnvironment webHostEnvironment, IServicesBase<TaskFile> taskFileService, IServicesBase<TaskReminderFile> taskReminderFileService, IServicesBase<TaskReminder> taskReminderService) : base(servicesBase, mapper)
         {
             UserService = userService;
             _webHostEnvironment = webHostEnvironment;
             TaskFileService = taskFileService;
             TaskReminderFileService = taskReminderFileService;
+            TaskReminderService = taskReminderService;
         }
         private string GetAuthenticatedUser()
         {
@@ -188,12 +193,29 @@ namespace StaffWork.Web.Controllers
         [Authorize(Roles = AppRoles.Admin + "," + AppRoles.SuperAdmin)]
         public async Task<IActionResult> Delete(int id)
         {
-            var TaskModel = await BussinesService.GetAsync(d => d.Id == id, ["AssignedUsers", "TaskFiles", "Reminders", "AssignedUsers.User"]);
+            var TaskModel = await BussinesService.GetAsync(d => d.Id == id, ["AssignedUsers", "TaskFiles", "Reminders", "Reminders.Notifications", "Reminders.TaskReminderFiles", "AssignedUsers.User"]);
             if (TaskModel == null)
                 return NotFound();
             try
             {
-                TaskModel.AssignedUsers.Clear();
+                foreach (var item in TaskModel.TaskFiles.ToList())
+                {
+                    await TaskFileService.DeleteAsync(item.Id);
+                }
+                foreach (var TaskReminder in TaskModel.Reminders.ToList())
+                {
+                    if (TaskReminder.JobId != null)
+                    {
+                        BackgroundJob.Delete(TaskReminder.JobId);
+                    }
+                    TaskReminder.Notifications.Clear();
+                    foreach (var item in TaskReminder.TaskReminderFiles.ToList())
+                    {
+                        await TaskReminderFileService.DeleteAsync(item.Id);
+                    }
+                    await TaskReminderService.DeleteAsync(TaskReminder.Id);
+                }
+               // TaskModel.AssignedUsers.Clear();
                 await BussinesService.DeleteAsync(id);
             }
             catch (Exception)

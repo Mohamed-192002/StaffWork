@@ -37,6 +37,13 @@ namespace StaffWork.Core.Data
                   .HasForeignKey(n => n.VacationId)
                   .OnDelete(DeleteBehavior.Cascade);
 
+            builder.Entity<TaskUser>()
+                .HasOne(tu => tu.TaskModel)
+                .WithMany(t => t.AssignedUsers)
+                .HasForeignKey(tu => tu.TaskModelId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
             base.OnModelCreating(builder);
         }
     }

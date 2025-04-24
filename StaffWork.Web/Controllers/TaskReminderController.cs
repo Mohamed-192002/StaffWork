@@ -53,7 +53,7 @@ namespace StaffWork.Web.Controllers
             var TaskModel = await TaskModelService.GetAsync(d => d.Id == taskModelId, ["AssignedUsers", "TaskFiles", "Reminders", "AssignedUsers.User"]);
             if (TaskModel == null)
                 return NotFound();
-            if (!TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId) || isSuperAdminOrAdmin)
+            if (!TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId) && !isSuperAdminOrAdmin)
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -129,7 +129,7 @@ namespace StaffWork.Web.Controllers
             var TaskReminder = await BussinesService.GetAsync(d => d.Id == id, ["TaskReminderFiles", "TaskModel.AssignedUsers", "TaskModel.TaskFiles", "TaskModel.AssignedUsers.User"]);
             if (TaskReminder == null)
                 return NotFound();
-            if (!TaskReminder.TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId) || isSuperAdminOrAdmin)
+            if (!TaskReminder.TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId) && !isSuperAdminOrAdmin)
             {
               return  RedirectToAction(nameof(Index));
             }
@@ -239,7 +239,7 @@ namespace StaffWork.Web.Controllers
                 return NotFound();
             try
             {
-                if (!TaskReminder.TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId) || isSuperAdminOrAdmin)
+                if (!TaskReminder.TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId) && !isSuperAdminOrAdmin)
                 {
                     return Forbid("you're not authorized");
                 }
@@ -281,7 +281,7 @@ namespace StaffWork.Web.Controllers
                     return BadRequest(new { Message = "This item is already completed." });
                 }
 
-                if (!TaskReminder.TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId) || isSuperAdminOrAdmin)
+                if (!TaskReminder.TaskModel.AssignedUsers.Any(x => x.UserId == currentUserId) && !isSuperAdminOrAdmin)
                 {
                     return Forbid("you're not authorized");
                 }

@@ -119,9 +119,9 @@ namespace StaffWork.Web.Controllers
                     case "FullName":
                         Employee = sortColumnDirection == "asc" ? Employee.OrderBy(b => b.FullName).ToList() : Employee.OrderByDescending(b => b.FullName).ToList();
                         break;
-                    case "Court":
-                        Employee = sortColumnDirection == "asc" ? Employee.OrderBy(b => b.Court).ToList() : Employee.OrderByDescending(b => b.Court).ToList();
-                        break;
+                    //case "Court":
+                    //    Employee = sortColumnDirection == "asc" ? Employee.OrderBy(b => b.Court).ToList() : Employee.OrderByDescending(b => b.Court).ToList();
+                    //    break;
                     case "Appeal":
                         Employee = sortColumnDirection == "asc" ? Employee.OrderBy(b => b.Appeal).ToList() : Employee.OrderByDescending(b => b.Appeal).ToList();
                         break;
@@ -163,9 +163,9 @@ namespace StaffWork.Web.Controllers
                     case "FullName":
                         Employee = sortColumnDirection == "asc" ? Employee.OrderBy(b => b.FullName).ToList() : Employee.OrderByDescending(b => b.FullName).ToList();
                         break;
-                    case "Court":
-                        Employee = sortColumnDirection == "asc" ? Employee.OrderBy(b => b.Court).ToList() : Employee.OrderByDescending(b => b.Court).ToList();
-                        break;
+                    //case "Court":
+                    //    Employee = sortColumnDirection == "asc" ? Employee.OrderBy(b => b.Court).ToList() : Employee.OrderByDescending(b => b.Court).ToList();
+                    //    break;
                     case "Appeal":
                         Employee = sortColumnDirection == "asc" ? Employee.OrderBy(b => b.Appeal).ToList() : Employee.OrderByDescending(b => b.Appeal).ToList();
                         break;
@@ -185,15 +185,15 @@ namespace StaffWork.Web.Controllers
 
                 // Manually set the Arabic headers
                 worksheet.Cells[1, 1].Value = "اسم الموظف";
-                worksheet.Cells[1, 2].Value = "المحكمه";
-                worksheet.Cells[1, 3].Value = "الاستئناف";
+              //  worksheet.Cells[1, 2].Value = "المحكمه";
+                worksheet.Cells[1, 2].Value = "الاستئناف";
 
                 // Load data starting from row 2 (after the headers)
                 for (int i = 0; i < data.Count; i++)
                 {
                     worksheet.Cells[i + 2, 1].Value = data[i].FullName;
-                    worksheet.Cells[i + 2, 2].Value = data[i].Court;
-                    worksheet.Cells[i + 2, 3].Value = data[i].Appeal;
+                 //   worksheet.Cells[i + 2, 2].Value = data[i].Court;
+                    worksheet.Cells[i + 2, 2].Value = data[i].Appeal;
 
                 }
 
