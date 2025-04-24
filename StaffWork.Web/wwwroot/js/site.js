@@ -303,47 +303,47 @@ $(document).ready(function () {
         });
     });
 
-    //Handle Accepted Status
-    $('body').delegate('.js-Accepted-status', 'click', function () {
-        var btn = $(this);
+    ////Handle Accepted Status
+    //$('body').delegate('.js-Accepted-status', 'click', function () {
+    //    var btn = $(this);
 
-        bootbox.confirm({
-            message: "هل متأكد من قبول المهمه؟",
-            buttons: {
-                confirm: {
-                    label: 'نعم',
-                    className: 'btn-danger'
-                },
-                cancel: {
-                    label: 'لا',
-                    className: 'btn-secondary'
-                }
-            },
-            callback: function (result) {
-                if (result) {
-                    $.post({
-                        url: btn.data('url'),
-                        data: {
-                            '__RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                        },
-                        success: function (lastUpdatedOn) {
-                            var row = btn.parents('tr');
-                            var status = row.find('.js-status');
-                            var newStatus = 'مقبول';
-                            status.text(newStatus).removeClass('badge-light-danger badge-light-warning').addClass('badge-light-success');
-                            row.find('.js-updated-on').html(lastUpdatedOn);
-                            row.addClass('animate__animated animate__flash');
+    //    bootbox.confirm({
+    //        message: "هل متأكد من قبول المهمه؟",
+    //        buttons: {
+    //            confirm: {
+    //                label: 'نعم',
+    //                className: 'btn-danger'
+    //            },
+    //            cancel: {
+    //                label: 'لا',
+    //                className: 'btn-secondary'
+    //            }
+    //        },
+    //        callback: function (result) {
+    //            if (result) {
+    //                $.post({
+    //                    url: btn.data('url'),
+    //                    data: {
+    //                        '__RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+    //                    },
+    //                    success: function (lastUpdatedOn) {
+    //                        var row = btn.parents('tr');
+    //                        var status = row.find('.js-status');
+    //                        var newStatus = 'مقبول';
+    //                        status.text(newStatus).removeClass('badge-light-danger badge-light-warning').addClass('badge-light-success');
+    //                        row.find('.js-updated-on').html(lastUpdatedOn);
+    //                        row.addClass('animate__animated animate__flash');
 
-                          //  showSuccessMessage();
-                        },
-                        error: function () {
-                            showErrorMessage();
-                        }
-                    });
-                }
-            }
-        });
-    });
+    //                      //  showSuccessMessage();
+    //                    },
+    //                    error: function () {
+    //                        showErrorMessage();
+    //                    }
+    //                });
+    //            }
+    //        }
+    //    });
+    //});
 
     //Handle Rejected Status
     $('body').delegate('.js-Rejected-status', 'click', function () {
