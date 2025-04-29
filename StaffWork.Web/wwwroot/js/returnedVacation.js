@@ -8,7 +8,7 @@
     let columns = [
         { "data": "id", "name": "Id", "className": "d-none" },
         { "data": "employeeName", "name": "EmployeeName", "className": "text-center" },
-        { "data": "court", "name": "Court", "className": "text-center" },
+        //{ "data": "court", "name": "Court", "className": "text-center" },
         { "data": "appeal", "name": "Appeal", "className": "text-center" },
         { "data": "vacationType", "name": "VacationType", "className": "text-center" },
         {
