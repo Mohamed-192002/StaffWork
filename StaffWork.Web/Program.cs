@@ -1,10 +1,11 @@
+using Hangfire;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using StaffWork.Core;
 using StaffWork.Core.Data;
 using StaffWork.Core.Models;
 using StaffWork.Infrastructure;
 using StaffWork.Web.Service;
-using Hangfire;
 using UoN.ExpressiveAnnotations.NetCore.DependencyInjection;
 
 namespace StaffWork.Web
@@ -35,6 +36,15 @@ namespace StaffWork.Web
             });
 
             builder.Services.AddHangfireServer();
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = long.MaxValue;
+            });
+            builder.WebHost.ConfigureKestrel(serverOptions =>
+            {
+                serverOptions.Limits.MaxRequestBodySize = long.MaxValue;
+            });
+
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddExpressiveAnnotations();

@@ -176,7 +176,7 @@
         'drawCallback': function () {
             KTMenu.createInstances();
         },
-        order: [[1, 'asc']],
+        order: [[5, 'asc']],
         columnDefs: [{
             targets: [0],
             visible: false,
