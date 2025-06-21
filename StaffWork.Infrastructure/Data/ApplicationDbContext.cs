@@ -15,6 +15,8 @@ namespace StaffWork.Core.Data
         public DbSet<TaskUser> TaskUsers { get; set; }
         public DbSet<TaskReminder> TaskReminders { get; set; }
         public DbSet<TaskFile> TaskFiles { get; set; }
+        public DbSet<PersonalReminder> PersonalReminders { get; set; }
+        public DbSet<PersonalReminderFile> PersonalReminderFiles { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

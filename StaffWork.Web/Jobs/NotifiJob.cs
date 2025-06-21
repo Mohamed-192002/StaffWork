@@ -26,7 +26,6 @@ public class NotifiJob
         var taskModel = await _TaskModelService.GetAsync(x => x.Id == taskReminder.TaskModelId);
 
         string message = $"🔔 تنبيه: تذكير بشأن المهمه {taskModel.Title}";
-        // Send notification logic
         var notification = new Notification
         {
             Title = "اشعار بشأن مهمه",
@@ -36,8 +35,24 @@ public class NotifiJob
             TaskReminderId = taskReminder.Id
         };
         await _NotificationService.InsertAsync(notification);
-
-        //  await _hubContext.Clients.All.SendAsync("ReceiveNotification", "تم إرسال تنبيهات الإجازات القادمة");
+        await _hubContext.Clients.All.SendAsync("ReceiveNotification", notification);
+    }
+    public void ScheduleNotifiPersonalJob(PersonalReminderViewModel Reminder)
+    {
+        BackgroundJob.Enqueue(() => CheckPersonalReminderDates(Reminder));
+    }
+    public async Task CheckPersonalReminderDates(PersonalReminderViewModel Reminder)
+    {
+        string message = $"🔔 تنبيه: تذكير بشأن تذكير شخصى";
+        var notification = new Notification
+        {
+            Title = "اشعار بشأن تذكير شخصى",
+            Content = message,
+            DateCreated = DateTime.Now,
+            IsRead = false,
+            PersonalReminderId = Reminder.Id
+        };
+        await _NotificationService.InsertAsync(notification);
         await _hubContext.Clients.All.SendAsync("ReceiveNotification", notification);
     }
 }

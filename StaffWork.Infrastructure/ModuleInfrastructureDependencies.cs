@@ -23,7 +23,8 @@ namespace StaffWork.Infrastructure
             services.AddScoped<IServicesBase<TaskFile>, TaskFileService>();
             services.AddScoped<IServicesBase<TaskReminder>, TaskReminderService>();
             services.AddScoped<IServicesBase<TaskReminderFile>, TaskReminderFileService>();
-
+            services.AddScoped<IServicesBase<PersonalReminder>, PersonalReminderService>();
+            services.AddScoped<IServicesBase<PersonalReminderFile>, PersonalReminderFileService>();
             return services;
         }
     }

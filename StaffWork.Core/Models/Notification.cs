@@ -11,5 +11,9 @@ namespace StaffWork.Core.Models
         public int? TaskReminderId { get; set; }
         [ForeignKey(nameof(TaskReminderId))]
         public TaskReminder? TaskReminder { get; set; }
+
+        public int? PersonalReminderId { get; set; }
+        [ForeignKey(nameof(PersonalReminderId))]
+        public PersonalReminder? PersonalReminder { get; set; }
     }
 }

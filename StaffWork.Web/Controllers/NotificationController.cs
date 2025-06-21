@@ -28,8 +28,11 @@ namespace StaffWork.Web.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
-            var unreadCount = await BussinesService.GetAllAsync(n => !n.IsRead&&(n.TaskReminderId != null && n.TaskReminder.TaskModel.AssignedUsers.Any(a => a.UserId == userId)),
-                    ["TaskReminder", "TaskReminder.TaskModel", "TaskReminder.TaskModel.AssignedUsers"]);
+            var unreadCount = await BussinesService
+                .GetAllAsync(n =>
+                !n.IsRead &&
+                ((n.TaskReminderId != null && n.TaskReminder.TaskModel.AssignedUsers.Any(a => a.UserId == userId)) || (n.PersonalReminderId != null && n.PersonalReminder.CreatedByUserId == userId)),
+                    ["PersonalReminder", "TaskReminder", "TaskReminder.TaskModel", "TaskReminder.TaskModel.AssignedUsers"]);
             return Json(new { count = unreadCount.Count() });
         }
         [HttpPost]
@@ -57,7 +60,7 @@ namespace StaffWork.Web.Controllers
             fromDate ??= DateTime.Today; // Default to today if null
             toDate ??= DateTime.Today.AddDays(1).AddSeconds(-1); // Include the full day
 
-           
+
             IQueryable<Notification> NotificationQuery;
             //if (User.IsInRole(AppRoles.SuperAdmin))
             //{
@@ -75,10 +78,10 @@ namespace StaffWork.Web.Controllers
             //}
             //else
             //{
-                NotificationQuery = (IQueryable<Notification>)await BussinesService.GetAllAsync(x =>
-                (x.TaskReminderId != null && x.TaskReminder.TaskModel.AssignedUsers.Any(a => a.UserId == userId)),
-                    ["TaskReminder", "TaskReminder.TaskModel", "TaskReminder.TaskModel.AssignedUsers", "TaskReminder.TaskModel.AssignedUsers.User"]
-                , orderBy: x => x.DateCreated, orderByDirection: "DESC");
+            NotificationQuery = (IQueryable<Notification>)await BussinesService.GetAllAsync(x =>
+            ((x.TaskReminderId != null && x.TaskReminder.TaskModel.AssignedUsers.Any(a => a.UserId == userId)) || (x.PersonalReminderId != null && x.PersonalReminder.CreatedByUserId == userId)),
+                ["PersonalReminder", "TaskReminder", "TaskReminder.TaskModel", "TaskReminder.TaskModel.AssignedUsers", "TaskReminder.TaskModel.AssignedUsers.User"]
+            , orderBy: x => x.DateCreated, orderByDirection: "DESC");
             //}
 
             var model = NotificationQuery.Take(5000).ToList();

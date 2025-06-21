@@ -70,6 +70,20 @@ namespace StaffWork.Infrastructure
            .ReverseMap();
             CreateMap<TaskReminderFormViewModel, TaskReminder>()
            .ReverseMap();
+
+            CreateMap<PersonalReminderFile, TaskFileDisplay>()
+             .ReverseMap();
+            CreateMap<PersonalReminder, PersonalReminderViewModel>()
+               .ForMember(dest => dest.CreatedByUserName, opt => opt.MapFrom(src => src.CreatedByUser.FullName))
+               .ReverseMap();
+
+            CreateMap<PersonalReminder, PersonalReminderViewModel>()
+               .ForMember(dest => dest.CreatedByUserName, opt => opt.MapFrom(src => src.CreatedByUser.FullName))
+             .ReverseMap();
+            CreateMap<PersonalReminder, PersonalReminderFormViewModel>()
+           .ReverseMap();
+            CreateMap<PersonalReminderFormViewModel, PersonalReminder>()
+           .ReverseMap();
         }
     }
 }

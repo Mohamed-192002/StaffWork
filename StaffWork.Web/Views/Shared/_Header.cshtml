@@ -46,7 +46,9 @@
 				<li class="nav-item" active-when="TaskReminder">
 					<a class="nav-link" asp-controller="TaskReminder" asp-action="Index">التذكيرات</a>
 				</li>
-
+				<li class="nav-item" active-when="PersonalReminder">
+					<a class="nav-link" asp-controller="PersonalReminder" asp-action="Index">التذكيرات الشخصيه</a>
+				</li>
 			</ul>
 		</div>
 		@* @if (User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.Admin)) *@
