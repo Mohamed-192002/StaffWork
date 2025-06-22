@@ -285,7 +285,7 @@ namespace StaffWork.Web.Controllers
 
             IQueryable<PersonalReminder> PersonalReminderQuery;
             PersonalReminderQuery = (IQueryable<PersonalReminder>)await BussinesService
-                                 .GetAllAsync(w => w.CreatedByUserId == user.Id
+                                 .GetAllAsync(w => !w.IsReminderCompleted && w.CreatedByUserId == user.Id
                                  , ["CreatedByUser"]);
 
 
@@ -354,7 +354,7 @@ namespace StaffWork.Web.Controllers
 
             IQueryable<PersonalReminder> PersonalReminderQuery;
             PersonalReminderQuery = (IQueryable<PersonalReminder>)await BussinesService
-                                 .GetAllAsync(w => w.CreatedByUserId == user.Id
+                                 .GetAllAsync(w => !w.IsReminderCompleted && w.CreatedByUserId == user.Id
                                  , ["CreatedByUser"]);
 
 

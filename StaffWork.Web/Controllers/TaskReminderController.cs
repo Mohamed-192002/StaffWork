@@ -73,7 +73,7 @@ namespace StaffWork.Web.Controllers
                         var path = Path.Combine($"{_webHostEnvironment.WebRootPath}{filePath}", fileName);
 
                         using var stream = System.IO.File.Create(path);
-                         image.CopyTo(stream);
+                        image.CopyTo(stream);
 
                         var taskReminderFile = new TaskReminderFile
                         {
@@ -300,14 +300,14 @@ namespace StaffWork.Web.Controllers
             IQueryable<TaskReminder> TaskReminderQuery;
 
             if (User.IsInRole(AppRoles.SuperAdmin))
-                TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService.GetAllAsync(null!, ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
+                TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService.GetAllAsync(x => !x.IsReminderCompleted, ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
             else if (User.IsInRole(AppRoles.Admin))
                 TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService
-                    .GetAllAsync(w => w.TaskModel.AssignedUsers.Any(x => x.User.DepartmentId == user.DepartmentId)
+                    .GetAllAsync(w => !w.IsReminderCompleted && w.TaskModel.AssignedUsers.Any(x => x.User.DepartmentId == user.DepartmentId)
                     , ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
             else
                 TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService
-                                   .GetAllAsync(w => w.TaskModel.AssignedUsers.Any(x => x.UserId == user.Id)
+                                   .GetAllAsync(w => !w.IsReminderCompleted && w.TaskModel.AssignedUsers.Any(x => x.UserId == user.Id)
                                    , ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
 
             if (!string.IsNullOrEmpty(searchValue))
@@ -378,16 +378,15 @@ namespace StaffWork.Web.Controllers
             var user = await UserService.GetAsync(x => x.Id == userId, ["Department"]);
 
             IQueryable<TaskReminder> TaskReminderQuery;
-
             if (User.IsInRole(AppRoles.SuperAdmin))
-                TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService.GetAllAsync(null!, ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
+                TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService.GetAllAsync(x => !x.IsReminderCompleted, ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
             else if (User.IsInRole(AppRoles.Admin))
                 TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService
-                    .GetAllAsync(w => w.TaskModel.AssignedUsers.Any(x => x.User.DepartmentId == user.DepartmentId)
-                    , ["CreatedByUser", "AssignedUsers", "Reminders", "AssignedUsers.User"]);
+                    .GetAllAsync(w => !w.IsReminderCompleted && w.TaskModel.AssignedUsers.Any(x => x.User.DepartmentId == user.DepartmentId)
+                    , ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
             else
                 TaskReminderQuery = (IQueryable<TaskReminder>)await BussinesService
-                                   .GetAllAsync(w => w.TaskModel.AssignedUsers.Any(x => x.UserId == user.Id)
+                                   .GetAllAsync(w => !w.IsReminderCompleted && w.TaskModel.AssignedUsers.Any(x => x.UserId == user.Id)
                                    , ["CreatedByUser", "TaskModel", "TaskModel.AssignedUsers", "TaskModel.AssignedUsers.User"]);
 
             if (!string.IsNullOrEmpty(searchValue))
