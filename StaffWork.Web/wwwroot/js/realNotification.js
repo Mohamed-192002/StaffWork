@@ -9,7 +9,7 @@ function updateNotification(notification) {
         <div class="notification-item d-flex justify-content-center"
              data-id="${notification.id}" 
              data-read="${notification.isRead}" 
-             data-vacationId="${notification.vacationId || ''}">
+             data-taskModelId="${notification?.TaskReminder?.TaskModelId}">
             <div class="notification-card bg-light shadow-lg rounded-3 p-4 w-75 position-relative mb-4
                     ${notification.isRead ? "border-start-success" : "border-start-warning"}">
                 <div class="d-flex justify-content-between align-items-center">
@@ -23,7 +23,6 @@ function updateNotification(notification) {
                     <div class="d-flex row">
                         <h4>${notification.content || "غير متوفر"}</h4>
                     </div>
-                    ${notification.vacation?.isReturned ? `<p>📆 تاريخ العودة : ${notification.vacation?.returnedDate}</p>` : ""}
                 </div>
                 <div class="text-start mt-1">
                     <small class="text-muted">⏳ تم الإرسال في: ${notification.dateCreated}</small>
@@ -31,8 +30,6 @@ function updateNotification(notification) {
             </div>
         </div>
     `;
-
-    console.log(notificationHtml);
 
     // Append to the notification list
     $("#notificationList").prepend(notificationHtml);
@@ -48,10 +45,6 @@ function invoke(notification) {
         return console.error(error);
     });
 }
-
-//var connection = new signalR.HubConnectionBuilder()
-//    .withUrl("/notificationHub")
-//    .build();
 
 connection.on("RegisterOnlineUser", function (MyConnectionID) {
     //  var Userid = $('#UserId').val();

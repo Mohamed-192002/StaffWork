@@ -61,7 +61,8 @@
     @foreach (var notification in Model)
     {
         <div class="notification-item notification-TaskReminder-item d-flex justify-content-center"
-             data-id="@notification.Id" data-read="@notification.IsRead" data-taskModelId="@notification.TaskReminder.TaskModelId">
+             data-id="@notification.Id" data-read="@notification.IsRead" 
+             data-taskModelId="@notification?.TaskReminder?.TaskModelId">
             <div class="notification-card bg-light shadow-lg rounded-3 p-4 w-75 position-relative mb-4
                     @(notification.IsRead ? "border-left-success" : "border-left-warning")">
                 <div class="d-flex justify-content-between align-items-center">
@@ -73,13 +74,8 @@
                 <hr />
                 <div class="vacation-details mt-3">
                     <div class="d-flex row">
-                        @* <h4> الموظف :  @notification.Vacation?.EmployeeName</h4> *@
                         <h4>@notification.Content</h4>
                     </div>
-                   @*  @if (notification.TaskReminder?.IsReturned == true)
-                    {
-                        <p>📆 تاريخ العودة :  @notification.Vacation?.ReturnedDate?.ToString("yyyy-MM-dd")</p>
-                    } *@
                 </div>
                 <div class="text-start mt-1">
                     <small class="text-muted">⏳ تم الإرسال في: @notification.DateCreated</small>

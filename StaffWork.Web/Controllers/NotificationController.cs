@@ -62,27 +62,31 @@ namespace StaffWork.Web.Controllers
 
 
             IQueryable<Notification> NotificationQuery;
-            //if (User.IsInRole(AppRoles.SuperAdmin))
-            //{
-            //    NotificationQuery = (IQueryable<Notification>)await BussinesService.GetAllAsync(null!
-            //    , ["TaskReminder", "TaskReminder.TaskModel", "TaskReminder.TaskModel.AssignedUsers", "TaskReminder.TaskModel.AssignedUsers.User"]
-            //    , orderBy: x => x.DateCreated, orderByDirection: "DESC");
+            NotificationQuery = (IQueryable<Notification>)await BussinesService.GetAllAsync(
+                          x =>
+                              (
+                                   x.TaskReminderId != null &&
+                                   x.TaskReminder != null &&
+                                   x.TaskReminder.TaskModel != null &&
+                                   x.TaskReminder.TaskModel.AssignedUsers.Any(a => a.UserId == userId)
+                               )
+                              ||
+                              (
+                                   x.PersonalReminderId != null &&
+                                   x.PersonalReminder != null &&
+                                   x.PersonalReminder.CreatedByUserId == userId
+                               ),
+                      includes: [
 
-            //}
-            //else if (User.IsInRole(AppRoles.Admin))
-            //{
-            //    NotificationQuery = (IQueryable<Notification>)await BussinesService.GetAllAsync(x =>
-            //    (x.TaskReminderId != null && x.TaskReminder.TaskModel.AssignedUsers.Any(a => a.User.Department == user.Department)),
-            //       ["TaskReminder", "TaskReminder.TaskModel", "TaskReminder.TaskModel.AssignedUsers", "TaskReminder.TaskModel.AssignedUsers.User"]
-            //   , orderBy: x => x.DateCreated, orderByDirection: "DESC");
-            //}
-            //else
-            //{
-            NotificationQuery = (IQueryable<Notification>)await BussinesService.GetAllAsync(x =>
-            ((x.TaskReminderId != null && x.TaskReminder.TaskModel.AssignedUsers.Any(a => a.UserId == userId)) || (x.PersonalReminderId != null && x.PersonalReminder.CreatedByUserId == userId)),
-                ["PersonalReminder", "TaskReminder", "TaskReminder.TaskModel", "TaskReminder.TaskModel.AssignedUsers", "TaskReminder.TaskModel.AssignedUsers.User"]
-            , orderBy: x => x.DateCreated, orderByDirection: "DESC");
-            //}
+                        "PersonalReminder",
+                        "TaskReminder",
+                        "TaskReminder.TaskModel",
+                        "TaskReminder.TaskModel.AssignedUsers",
+                        "TaskReminder.TaskModel.AssignedUsers.User"
+                      ],
+                      orderBy: x => x.DateCreated,
+                      orderByDirection: "DESC"
+                  );
 
             var model = NotificationQuery.Take(5000).ToList();
 

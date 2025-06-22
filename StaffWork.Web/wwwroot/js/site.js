@@ -129,11 +129,22 @@ $(document).ready(function () {
             data: { id: notificationId },
             success: function () {
                 // Redirect to the Details page
-                window.location.href = '/TaskModel/Details/' + taskModel_Id;
+                if (!taskModel_Id) {
+                    window.location.href = '/Notification/Index';
+                } else {
+                    window.location.href = '/TaskModel/Details/' + taskModel_Id;
+                }
+
+
             },
             error: function () {
                 console.error("Failed to mark notification as read.");
-                window.location.href = '/TaskModel/Details/' + taskModel_Id;
+                if (!taskModel_Id) {
+                    window.location.href = '/Notification/Index';
+                } else {
+                    window.location.href = '/TaskModel/Details/' + taskModel_Id;
+                }
+
             }
         });
     });

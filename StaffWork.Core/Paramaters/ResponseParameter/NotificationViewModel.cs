@@ -9,6 +9,6 @@ namespace StaffWork.Core.Paramaters
         public string? Content { get; set; }
         public bool IsRead { get; set; }
         public virtual DateTime DateCreated { get; set; }
-        public TaskReminderViewModel TaskReminder { get; set; }
+        public TaskReminderViewModel? TaskReminder { get; set; }
     }
 }
